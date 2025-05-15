@@ -39,66 +39,87 @@
     }
 
     function mergeBySKU(data) {
-      const merged = {};
-      data.forEach(row => {
-        const sku = row["SKU#"];
-        if (!sku) return;
+  const merged = {};
+  console.log("Starting mergeBySKU...");
 
-        const qty = parseFloat(row["Qty"]) || 0;
+  data.forEach((row, index) => {
+    const sku = row["SKU#"];
+    const folder = row["Folder"];
+    const qty = parseFloat(row["Qty"]) || 0;
 
-        if (!merged[sku]) {
-          merged[sku] = {
-            SKU: sku,
-            Description: row["Description"] || "",
-            ColorGroup: row["Color Group"] || "",
-            Folder: row["Folder"] || "",
-            TotalQty: 0
-          };
-        }
-
-        merged[sku].TotalQty += qty;
-      });
-
-      return Object.values(merged);
+    console.log(`Row ${index}: SKU=${sku}, Folder=${folder}, Qty=${qty}`);
+    if (!sku) {
+      console.log(`Row ${index} skipped: Missing SKU`);
+      return;
     }
 
-    function displayMergedTable(data) {
-      const container = document.getElementById("mergedTableContainer");
-      if (data.length === 0) {
-        container.innerHTML = "<p>No merged data found.</p>";
-        return;
-      }
+    const key = `${sku}___${folder}`; // Combine SKU and Folder to make it unique
 
-      let tableHTML = `
-        <h3>Merged Table (By SKU#)</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>SKU#</th>
-              <th>Description</th>
-              <th>Folder</th>
-              <th>Color Group</th>
-              <th>Total Qty</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+    if (!merged[key]) {
+      merged[key] = {
+        SKU: sku,
+        Description: row["Description"] || "",
+        ColorGroup: row["Color Group"] || "",
+        Folder: folder || "",
+        TotalQty: 0
+      };
+    }
 
-      data.forEach(row => {
-        tableHTML += `
+    merged[key].TotalQty += qty;
+  });
+
+  console.log("Merged Result:", merged);
+  return Object.values(merged);
+}
+
+
+
+function displayMergedTable(data) {
+  const container = document.getElementById("mergedTableContainer");
+  if (data.length === 0) {
+    container.innerHTML = "<p>No merged data found.</p>";
+    return;
+  }
+
+  const folders = [...new Set(data.map(row => row.Folder))];
+  let fullHTML = "";
+
+  folders.forEach(folder => {
+    const rows = data.filter(row => row.Folder === folder);
+
+    fullHTML += `
+      <h3>${folder || "No Folder"}</h3>
+      <table>
+        <thead>
           <tr>
-            <td>${row.SKU}</td>
-            <td>${row.Description}</td>
-            <td>${row.Folder}</td>
-            <td>${row.ColorGroup}</td>
-            <td>${row.TotalQty.toFixed(2)}</td>
+            <th>SKU#</th>
+            <th>Description</th>
+            <th>Folder</th>
+            <th>Color Group</th>
+            <th>Total Qty</th>
           </tr>
-        `;
-      });
+        </thead>
+        <tbody>
+    `;
 
-      tableHTML += "</tbody></table>";
-      container.innerHTML = tableHTML;
-    }
+    rows.forEach(row => {
+      fullHTML += `
+        <tr>
+          <td>${row.SKU}</td>
+          <td>${row.Description}</td>
+          <td>${row.Folder}</td>
+          <td>${row.ColorGroup}</td>
+          <td>${row.TotalQty.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+    fullHTML += `</tbody></table><br/>`;
+  });
+
+  container.innerHTML = fullHTML;
+}
+
   </script>
 </body>
 </html>
