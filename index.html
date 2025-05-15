@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Merge Products by Folder (XLSX)</title>
+  <title>Merge Products by Folder & Color Group</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    h2 { margin-bottom: 10px; }
-    .folder-block { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; }
-    pre { white-space: pre-wrap; word-break: break-word; }
+    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
+    th, td { border: 1px solid #999; padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
   </style>
 </head>
 <body>
   <h2>Upload Excel (.xlsx) File</h2>
   <input type="file" id="fileInput" accept=".xlsx" />
-  <div id="output"></div>
+  <div id="mergedTableContainer"></div>
 
   <script>
     document.getElementById('fileInput').addEventListener('change', handleFileUpload);
@@ -28,36 +28,71 @@
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        // Use the first sheet
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-        const groupedData = groupByFolder(jsonData);
-        displayGroupedData(groupedData);
+
+        const mergedData = mergeByFolderAndColorGroup(jsonData);
+        displayMergedTable(mergedData);
       };
       reader.readAsArrayBuffer(file);
     }
 
-    function groupByFolder(data) {
-      const groups = {};
+    function mergeByFolderAndColorGroup(data) {
+      const merged = {};
       data.forEach(row => {
-        const folder = row['Folder'] || 'Unknown';
-        if (!groups[folder]) groups[folder] = [];
-        groups[folder].push(row);
+        const folder = row["Folder"] || "Unknown";
+        const colorGroup = row["Color Group"] || "None";
+        const key = `${folder}|||${colorGroup}`;
+
+        const qty = parseFloat(row["Qty"]);
+        if (!isNaN(qty)) {
+          if (!merged[key]) {
+            merged[key] = {
+              Folder: folder,
+              ColorGroup: colorGroup,
+              TotalQty: 0
+            };
+          }
+          merged[key].TotalQty += qty;
+        }
       });
-      return groups;
+
+      return Object.values(merged);
     }
 
-    function displayGroupedData(groups) {
-      const output = document.getElementById('output');
-      output.innerHTML = '';
-      for (const folder in groups) {
-        const div = document.createElement('div');
-        div.className = 'folder-block';
-        div.innerHTML = `<h3>📁 ${folder}</h3><pre>${JSON.stringify(groups[folder], null, 2)}</pre>`;
-        output.appendChild(div);
+    function displayMergedTable(data) {
+      const container = document.getElementById("mergedTableContainer");
+      if (data.length === 0) {
+        container.innerHTML = "<p>No merged data found.</p>";
+        return;
       }
+
+      let tableHTML = `
+        <h3>Merged Table (By Folder & Color Group)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Folder</th>
+              <th>Color Group</th>
+              <th>Total Qty</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      data.forEach(row => {
+        tableHTML += `
+          <tr>
+            <td>${row.Folder}</td>
+            <td>${row.ColorGroup}</td>
+            <td>${row.TotalQty.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      tableHTML += "</tbody></table>";
+      container.innerHTML = tableHTML;
     }
   </script>
 </body>
