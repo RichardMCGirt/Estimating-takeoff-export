@@ -52,7 +52,6 @@ result[key].TotalQty += qty;
 return Object.values(result);
 }
 
-
 function displayMergedTable(data) {
 const container = document.getElementById("mergedTableContainer");
 if (!data.length) {
