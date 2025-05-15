@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Merge Products by Folder & Color Group</title>
+  <title>Merge Products by SKU#</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
@@ -32,30 +32,31 @@
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
 
-        const mergedData = mergeByFolderAndColorGroup(jsonData);
+        const mergedData = mergeBySKU(jsonData);
         displayMergedTable(mergedData);
       };
       reader.readAsArrayBuffer(file);
     }
 
-    function mergeByFolderAndColorGroup(data) {
+    function mergeBySKU(data) {
       const merged = {};
       data.forEach(row => {
-        const folder = row["Folder"] || "Unknown";
-        const colorGroup = row["Color Group"] || "None";
-        const key = `${folder}|||${colorGroup}`;
+        const sku = row["SKU#"];
+        if (!sku) return;
 
-        const qty = parseFloat(row["Qty"]);
-        if (!isNaN(qty)) {
-          if (!merged[key]) {
-            merged[key] = {
-              Folder: folder,
-              ColorGroup: colorGroup,
-              TotalQty: 0
-            };
-          }
-          merged[key].TotalQty += qty;
+        const qty = parseFloat(row["Qty"]) || 0;
+
+        if (!merged[sku]) {
+          merged[sku] = {
+            SKU: sku,
+            Description: row["Description"] || "",
+            ColorGroup: row["Color Group"] || "",
+            Folder: row["Folder"] || "",
+            TotalQty: 0
+          };
         }
+
+        merged[sku].TotalQty += qty;
       });
 
       return Object.values(merged);
@@ -69,10 +70,12 @@
       }
 
       let tableHTML = `
-        <h3>Merged Table (By Folder & Color Group)</h3>
+        <h3>Merged Table (By SKU#)</h3>
         <table>
           <thead>
             <tr>
+              <th>SKU#</th>
+              <th>Description</th>
               <th>Folder</th>
               <th>Color Group</th>
               <th>Total Qty</th>
@@ -84,6 +87,8 @@
       data.forEach(row => {
         tableHTML += `
           <tr>
+            <td>${row.SKU}</td>
+            <td>${row.Description}</td>
             <td>${row.Folder}</td>
             <td>${row.ColorGroup}</td>
             <td>${row.TotalQty.toFixed(2)}</td>
