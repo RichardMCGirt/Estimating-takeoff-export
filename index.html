@@ -17,8 +17,18 @@
 
    <h2>Step 2: Upload Template file</h2>
   <input type="file" id="targetFile" accept=".xlsx" disabled />
+  <!-- <button onclick="downloadMergedDataAsJSON()">Download Merged JSON</button>
+  <button onclick="promptAndDownloadFolder()">Download Specific Folder</button>
 
-  <button id="downloadButton" disabled>Download Mapped Excel File</button>
+  <button id="downloadButton" disabled>Download Mapped Excel File</button> -->
+  <div id="folderButtonsContainer">
+    <h3>Select a file to download:</h3>
+    <div id="folderButtons"></div>
+  </div>
+
+  <button onclick="sendMergedDataToServer()">Inject Into XLSB Template</button>
+
+  
   <div id="mergedTableContainer"></div> 
 
 
