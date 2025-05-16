@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Merge Products by SKU#</title>
+  <title>Merge and Map Products by SKU#</title>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
@@ -12,112 +12,18 @@
   </style>
 </head>
 <body>
-  <h2>Upload Excel (.xlsx) File</h2>
-  <input type="file" id="fileInput" accept=".xlsx" />
-  <div id="mergedTableContainer"></div>
+  <h2>Step 1: Upload Excel (.xlsx) File</h2>
+  <input type="file" id="sourceFile" accept=".xlsx" />
 
-  <script>
-    document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+   <h2>Step 2: Upload Template file</h2>
+  <input type="file" id="targetFile" accept=".xlsx" disabled />
 
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-
-        const mergedData = mergeBySKU(jsonData);
-        displayMergedTable(mergedData);
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function mergeBySKU(data) {
-  const merged = {};
-  console.log("Starting mergeBySKU...");
-
-  data.forEach((row, index) => {
-    const sku = row["SKU#"];
-    const folder = row["Folder"];
-    const qty = parseFloat(row["Qty"]) || 0;
-
-    console.log(`Row ${index}: SKU=${sku}, Folder=${folder}, Qty=${qty}`);
-    if (!sku) {
-      console.log(`Row ${index} skipped: Missing SKU`);
-      return;
-    }
-
-    const key = `${sku}___${folder}`; // Combine SKU and Folder to make it unique
-
-    if (!merged[key]) {
-      merged[key] = {
-        SKU: sku,
-        Description: row["Description"] || "",
-        ColorGroup: row["Color Group"] || "",
-        Folder: folder || "",
-        TotalQty: 0
-      };
-    }
-
-    merged[key].TotalQty += qty;
-  });
-
-  console.log("Merged Result:", merged);
-  return Object.values(merged);
-}
+  <button id="downloadButton" disabled>Download Mapped Excel File</button>
+  <div id="mergedTableContainer"></div> 
 
 
+  
+  <script src ="script.js"></script> 
 
-function displayMergedTable(data) {
-  const container = document.getElementById("mergedTableContainer");
-  if (data.length === 0) {
-    container.innerHTML = "<p>No merged data found.</p>";
-    return;
-  }
-
-  const folders = [...new Set(data.map(row => row.Folder))];
-  let fullHTML = "";
-
-  folders.forEach(folder => {
-    const rows = data.filter(row => row.Folder === folder);
-
-    fullHTML += `
-      <h3>${folder || "No Folder"}</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>SKU#</th>
-            <th>Description</th>
-            <th>Color Group</th>
-            <th>Total Qty</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-
-    rows.forEach(row => {
-      fullHTML += `
-        <tr>
-          <td>${row.SKU}</td>
-          <td>${row.Description}</td>
-          <td>${row.ColorGroup}</td>
-          <td>${row.TotalQty.toFixed(2)}</td>
-        </tr>
-      `;
-    });
-
-    fullHTML += `</tbody></table><br/>`;
-  });
-
-  container.innerHTML = fullHTML;
-}
-
-  </script>
 </body>
 </html>
