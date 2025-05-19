@@ -19,12 +19,15 @@ function handleSourceUpload(event) {
 
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
-    renderFolderButtons(); // <-- add this here
+    renderFolderButtons();
+    downloadMergedDataAsJSON(); // <-- immediately downloads merged-data.json
+    
 
     document.getElementById('targetFile').disabled = false;
   };
   reader.readAsArrayBuffer(file);
 }
+document.getElementById('downloadJsonButton').addEventListener('click', downloadMergedDataAsJSON);
 
 function showToast(message = "Success!") {
   const toast = document.getElementById("toast");

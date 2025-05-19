@@ -1,30 +1,51 @@
-import win32com.client as win32
 import json
+import win32com.client as win32
+import os
+import sys
 
-# Load your merged data
-with open('merged-data.json', 'r') as f:
+json_path = sys.argv[1]
+xlsb_path = sys.argv[2]
+output_path = sys.argv[3]
+
+with open(json_path, 'r') as f:
     merged_data = json.load(f)
 
 excel = win32.gencache.EnsureDispatch('Excel.Application')
-excel.Visible = False  # Set to True for debugging
-wb = excel.Workbooks.Open(r'path\to\plan-module-takeoff-tool.xlsb')
-ws = wb.Sheets('TakeOff Template')
+excel.Visible = False
 
-# Clear old data from row 8 down
-for row in range(8, 500):
-    ws.Range(f"A{row}:H{row}").ClearContents()
+# Open the template
+wb = excel.Workbooks.Open(os.path.abspath(xlsb_path))
+ws = wb.Sheets("TakeOff Template")  # Ensure correct sheet is selected
 
-# Inject new data starting at row 8
-for i, row in enumerate(merged_data, start=8):
-    ws.Cells(i, 1).Value = row.get("SKU", "")
-    ws.Cells(i, 2).Value = row.get("Description", "")
-    ws.Cells(i, 4).Value = row.get("UOM", "")
-    ws.Cells(i, 5).Value = row.get("TotalQty", 0)
-    ws.Cells(i, 6).Value = row.get("ColorGroup", "")
-    ws.Cells(i, 7).Value = row.get("Vendor", "")
-    ws.Cells(i, 8).Value = row.get("UnitCost", 0)
+# Clear rows 8–500 (without deleting formatting)
+for i in range(8, 500):
+    ws.Rows(i).ClearContents()
 
-# Save as new file (preserves everything)
-wb.SaveAs(r'path\to\Updated_Macro_Template.xlsb', FileFormat=50)
-wb.Close(False)
+# Copy format from row 7 into every injected row
+template_row_index = 7
+start_row = 8
+
+for idx, row in enumerate(merged_data):
+    target_row = start_row + idx
+
+    # Copy formatting from row 7
+    ws.Rows(template_row_index).Copy()
+    ws.Rows(target_row).PasteSpecial(Paste=-4104)  # xlPasteFormats
+
+    # Inject values
+    ws.Cells(target_row, 1).Value = row.get("SKU", "")
+    ws.Cells(target_row, 2).Value = row.get("Description", "")
+    ws.Cells(target_row, 4).Value = row.get("UOM", "")
+    ws.Cells(target_row, 5).Value = row.get("TotalQty", 0)
+    ws.Cells(target_row, 6).Value = row.get("ColorGroup", "")
+    ws.Cells(target_row, 7).Value = row.get("Vendor", "")
+    ws.Cells(target_row, 8).Value = row.get("UnitCost", 0)
+
+# Optional: extend Excel table if used (can be automated with table name)
+
+# Save output
+wb.SaveAs(os.path.abspath(output_path), FileFormat=50)  # .xlsb
+wb.Close(SaveChanges=False)
 excel.Quit()
+
+print("✅ Injection complete with formatting preserved.")

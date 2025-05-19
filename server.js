@@ -2,52 +2,62 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const XLSX = require('xlsx');
+const { spawn } = require('child_process');
 const cors = require('cors');
-const filePath = path.join(__dirname, 'downloads', 'Updated_Macro_Template.xlsb');
 
 const app = express();
-app.use(cors()); // ✅ Enable CORS for all origins
+const upload = multer({ dest: 'uploads/' }); // Save uploaded files to disk
+app.use(cors());
 
-const upload = multer();
+const outputDir = path.join(__dirname, 'downloads');
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-// Adjust this path as needed
-const templatePath = path.join(__dirname, 'plan-module-takeoff-tool.xlsb');
-const outputPath = path.join(__dirname, 'downloads', 'Updated_Macro_Template.xlsb');
+// ✅ Final /upload-and-inject route (uses inject_xlsb.py)
+app.post('/upload-and-inject', upload.fields([
+  { name: 'jsonFile', maxCount: 1 },
+  { name: 'xlsbFile', maxCount: 1 }
+]), (req, res) => {
+  const jsonFile = req.files['jsonFile']?.[0];
+  const xlsbFile = req.files['xlsbFile']?.[0];
 
-app.post('/inject-xlsb', upload.single('data'), (req, res) => {
-  try {
-    const mergedData = JSON.parse(req.file.buffer.toString());
-
-    // Read the macro-enabled .xlsb template
-    const workbook = XLSX.readFile(templatePath, { bookVBA: true });
-    const sheetName = 'TakeOff Template'; // adjust if needed
-
-    // Inject new sheet
-    const newSheet = XLSX.utils.json_to_sheet(mergedData, {
-      header: ["SKU", "Description", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
-    });
-
-    XLSX.utils.book_append_sheet(workbook, newSheet, 'MergedData');
-
-    // Save to local server folder
-    XLSX.writeFile(workbook, outputPath, { bookType: 'xlsb', bookVBA: true });
-
-    res.status(200).send('✅ XLSB file updated and saved to server.');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('❌ Error processing XLSB injection.');
+  if (!jsonFile || !xlsbFile) {
+    return res.status(400).send("❌ Missing one or both files.");
   }
-});
-app.get('/download-xlsb', (req, res) => {
-    res.download(filePath, 'Updated_Macro_Template.xlsb', err => {
-      if (err) {
-        console.error("❌ File download error:", err);
-        res.status(500).send("Failed to download file.");
-      }
-    });
+
+  const jsonPath = path.resolve(jsonFile.path);
+  const xlsbPath = path.resolve(xlsbFile.path);
+  const outputPath = path.resolve(outputDir, 'Updated_Macro_Template.xlsb');
+
+  const py = spawn('python', ['inject_xlsb.py', jsonPath, xlsbPath, outputPath]);
+
+  let stdout = '';
+  py.stdout.on('data', (data) => stdout += data.toString());
+  py.stderr.on('data', (data) => console.error(data.toString()));
+
+  py.on('close', (code) => {
+    if (code === 0) {
+      res.send("✅ Injection complete and saved.");
+    } else {
+      res.status(500).send("❌ Python script failed.");
+    }
+
+    fs.unlinkSync(jsonPath);
+    fs.unlinkSync(xlsbPath);
   });
+});
+
+// ✅ /download-xlsb to fetch result
+app.get('/download-xlsb', (req, res) => {
+  const outputPath = path.resolve(outputDir, 'Updated_Macro_Template.xlsb');
+  if (!fs.existsSync(outputPath)) {
+    return res.status(404).send("❌ No XLSB file has been generated yet.");
+  }
+
+  res.setHeader('Content-Disposition', 'attachment; filename=Updated_Macro_Template.xlsb');
+  res.setHeader('Content-Type', 'application/vnd.ms-excel.sheet.binary.macroEnabled.12');
+  res.sendFile(outputPath);
+});
 
 app.listen(3001, () => {
-  console.log("✅ Server listening on port 3001");
+  console.log("🚀 Server running at http://localhost:3001");
 });
