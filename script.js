@@ -126,7 +126,7 @@ const result = {};
 data.forEach(row => {
 const sku = row["SKU #"] || row["SKU"];
 const folder = row["Folder"];
-const qty = parseFloat(row["Qty"]) || 0;
+const qty = parseFloat(row["QTY"]) || 0;
 if (!sku || !folder) return;
 
 const key = `${sku}___${folder}`;
