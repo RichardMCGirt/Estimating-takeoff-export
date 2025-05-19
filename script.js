@@ -121,32 +121,60 @@ function handleTargetUpload(event) {
   }
   
 
-function mergeBySKU(data) {
-const result = {};
-data.forEach(row => {
-const sku = row["SKU #"] || row["SKU"];
-const folder = row["Folder"];
-const qty = parseFloat(row["QTY"]) || 0;
-if (!sku || !folder) return;
-
-const key = `${sku}___${folder}`;
-if (!result[key]) {
-  result[key] = {
-    SKU: sku,
-    Description: row["Description"] || "",
-    UOM: row["UOM"] || "",
-    Folder: folder,
-    ColorGroup: row["Color Group"] || "",
-    Vendor: row["Vendor"] || "",
-    UnitCost: parseFloat(row["Unit Cost"]) || 0,
-    TotalQty: 0
-  };
-}
-result[key].TotalQty += qty;
-});
-
-return Object.values(result);
-}
+  function mergeBySKU(data) {
+    if (!data.length) return [];
+  
+    // Normalize the first row's keys
+    const sampleRow = data[0];
+    const normalizedHeaders = {};
+    Object.keys(sampleRow).forEach(key => {
+      const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z]/gi, '');
+      normalizedHeaders[keyLower] = key;
+    });
+  
+    // Try to guess correct columns from flexible header names
+    const colMap = {
+      sku: normalizedHeaders["sku"] || normalizedHeaders["sku#"] || normalizedHeaders["skunumber"] || "",
+      description: normalizedHeaders["description"] || "",
+      uom: normalizedHeaders["uom"] || normalizedHeaders["unitofmeasure"] || "",
+      folder: normalizedHeaders["folder"] || normalizedHeaders["elevation"] || "", // fallback if needed
+      colorgroup: normalizedHeaders["colorgroup"] || "",
+      vendor: normalizedHeaders["vendor"] || "",
+      unitcost: normalizedHeaders["unitcost"] || normalizedHeaders["cost"] || "",
+      qty: normalizedHeaders["qty"] || normalizedHeaders["quantity"] || ""
+    };
+  
+    const result = {};
+  
+    data.forEach(row => {
+      const sku = row[colMap.sku];
+      const folder = row[colMap.folder];
+      const qtyRaw = row[colMap.qty];
+      const qty = parseFloat(qtyRaw) || 0;
+  
+      if (!sku || !folder) return;
+  
+      const key = `${sku}___${folder}`;
+      if (!result[key]) {
+        result[key] = {
+          SKU: sku,
+          Description: row[colMap.description] || "",
+          UOM: row[colMap.uom] || "",
+          Folder: folder,
+          ColorGroup: row[colMap.colorgroup] || "",
+          Vendor: row[colMap.vendor] || "",
+          UnitCost: parseFloat(row[colMap.unitcost]) || 0,
+          TotalQty: 0
+        };
+      }
+  
+      result[key].TotalQty += qty;
+    });
+  
+    return Object.values(result);
+  }
+  
+  
 
 function displayMergedTable(data) {
     const container = document.getElementById("mergedTableContainer");
