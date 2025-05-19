@@ -20,7 +20,7 @@ function handleSourceUpload(event) {
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
     renderFolderButtons();
-    downloadMergedDataAsJSON(); // <-- immediately downloads merged-data.json
+    // downloadMergedDataAsJSON(); // <-- immediately downloads merged-data.json
     
 
     document.getElementById('targetFile').disabled = false;
