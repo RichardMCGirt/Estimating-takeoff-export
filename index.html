@@ -19,10 +19,25 @@
 
    <h2>Step 2: Upload Template file</h2>
   <input type="file" id="targetFile" accept=".xlsx" disabled />
+  <div id="folderButtons"></div>
 
-  <button id="downloadButton" disabled>Download Mapped Excel File</button>
+  <button id="downloadButton" >Download Mapped takeoff template</button>
   <div id="mergedTableContainer"></div> 
 
+  <div id="toast" style="
+  position: fixed;
+  bottom: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 9999;
+"></div>
 
   
   <script src ="script.js"></script> 
