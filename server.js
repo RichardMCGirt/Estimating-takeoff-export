@@ -6,54 +6,49 @@ const { spawn } = require('child_process');
 const cors = require('cors');
 
 const app = express();
-const upload = multer({ dest: 'uploads/' }); // Save uploaded files to disk
+const upload = multer({ dest: 'uploads/' });
 app.use(cors());
 
 const outputDir = path.join(__dirname, 'downloads');
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-// ✅ Final /upload-and-inject route (uses inject_xlsb.py)
-app.post('/upload-and-inject', upload.fields([
-  { name: 'jsonFile', maxCount: 1 },
-  { name: 'xlsbFile', maxCount: 1 }
-]), (req, res) => {
-  const jsonFile = req.files['jsonFile']?.[0];
-  const xlsbFile = req.files['xlsbFile']?.[0];
-
-  if (!jsonFile || !xlsbFile) {
-    return res.status(400).send("❌ Missing one or both files.");
-  }
+// ✅ Handle merged-data-*.json from UI
+app.post('/inject-xlsb', upload.single('data'), (req, res) => {
+  const jsonFile = req.file;
+  if (!jsonFile) return res.status(400).send("❌ Missing file.");
 
   const jsonPath = path.resolve(jsonFile.path);
-  const xlsbPath = path.resolve(xlsbFile.path);
-  const outputPath = path.resolve(outputDir, 'Updated_Macro_Template.xlsb');
+  const folderName = path.basename(jsonFile.originalname).replace(/^merged-data-/, '').replace(/\.json$/, '') || 'output';
+  const outputFilename = `${folderName}_Takeoff.xlsb`;
+  const outputPath = path.join(outputDir, outputFilename);
 
-  const py = spawn('python', ['inject_xlsb.py', jsonPath, xlsbPath, outputPath]);
+  const py = spawn('C:\\Users\\Richard McGirt\\AppData\\Local\\Programs\\Python\\Python311\\python.exe', ['inject_xlsb.py', jsonPath]);
 
   let stdout = '';
   py.stdout.on('data', (data) => stdout += data.toString());
   py.stderr.on('data', (data) => console.error(data.toString()));
 
   py.on('close', (code) => {
+    fs.unlinkSync(jsonPath);
     if (code === 0) {
-      res.send("✅ Injection complete and saved.");
+      console.log(stdout.trim());
+      res.send({ message: "✅ Done", filename: outputFilename });
     } else {
       res.status(500).send("❌ Python script failed.");
     }
-
-    fs.unlinkSync(jsonPath);
-    fs.unlinkSync(xlsbPath);
   });
 });
 
-// ✅ /download-xlsb to fetch result
-app.get('/download-xlsb', (req, res) => {
-  const outputPath = path.resolve(outputDir, 'Updated_Macro_Template.xlsb');
+// ✅ Dynamic download route
+app.get('/download-xlsb/:filename', (req, res) => {
+  const file = req.params.filename;
+  const outputPath = path.join(outputDir, file);
+
   if (!fs.existsSync(outputPath)) {
-    return res.status(404).send("❌ No XLSB file has been generated yet.");
+    return res.status(404).send("❌ XLSB not found.");
   }
 
-  res.setHeader('Content-Disposition', 'attachment; filename=Updated_Macro_Template.xlsb');
+  res.setHeader('Content-Disposition', `attachment; filename="${file}"`);
   res.setHeader('Content-Type', 'application/vnd.ms-excel.sheet.binary.macroEnabled.12');
   res.sendFile(outputPath);
 });

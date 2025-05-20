@@ -23,11 +23,10 @@ function handleSourceUpload(event) {
     // downloadMergedDataAsJSON(); // <-- immediately downloads merged-data.json
     
 
-    document.getElementById('targetFile').disabled = false;
   };
   reader.readAsArrayBuffer(file);
 }
-document.getElementById('downloadJsonButton').addEventListener('click', downloadMergedDataAsJSON);
+// document.getElementById('downloadJsonButton').addEventListener('click', downloadMergedDataAsJSON);
 
 function showToast(message = "Success!") {
   const toast = document.getElementById("toast");
@@ -209,10 +208,12 @@ function handleTargetUpload(event) {
           console.log("✅ Server response message:", message);
           showToast(message || `✅ Injected folder: ${folder}`);
           enableDownloadButton();
+          downloadInjectedXLSB(); // 👈 Auto-download after success
         } catch (displayError) {
-          console.error("⚠️ Error showing toast:", displayError);
+          console.error("⚠️ Error while handling success:", displayError);
         }
       })
+      
       .catch(err => {
         console.error("❌ Error during fetch to /inject-xlsb:", err);
         alert('❌ Something went wrong injecting into .xlsb');
@@ -229,28 +230,7 @@ function handleTargetUpload(event) {
     a.click();
   }
   
-  document.getElementById("downloadButton").addEventListener("click", () => {
-    fetch('http://localhost:3001/download-xlsb')
-      .then(res => {
-        if (!res.ok) throw new Error("❌ Failed to fetch XLSB file");
-        return res.blob();
-      })
-      .then(blob => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "Updated_Macro_Template.xlsb";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast("✅ Downloaded Updated_Macro_Template.xlsb");
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ Failed to download XLSB file");
-      });
-  });
-  
-  
+
 function displayMergedTable(data) {
     const container = document.getElementById("mergedTableContainer");
     if (!data.length) {
@@ -325,55 +305,65 @@ function displayMergedTable(data) {
   }
   
   function injectSelectedFolder(folder) {
-    console.log("📁 Folder selected for injection:", folder);
-  
-    // Step 1: Filter merged data by folder
     const filteredData = mergedData.filter(d => d.Folder === folder);
-    console.log(`🔎 Filtered ${filteredData.length} records from mergedData for folder "${folder}".`);
+    if (!filteredData.length) return alert(`No data for ${folder}`);
   
-    if (!filteredData.length) {
-      alert(`❌ No records found for folder: ${folder}`);
-      console.warn(`⚠️ Folder "${folder}" exists in UI but matched 0 records.`);
-      return;
-    }
+    const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
+    const filename = `merged-data-${safeFolder}.json`;
+    const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
   
-    // Step 2: Prepare JSON payload
-    const jsonPayload = JSON.stringify(filteredData, null, 2);
-    console.log("📦 JSON payload to inject:", jsonPayload.length > 500 ? "(truncated)" : jsonPayload);
-    if (filteredData.length > 0) {
-      console.log("🧾 Sample row:", filteredData[0]);
-    }
+    // Trigger download
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   
-    // Step 3: Create blob and FormData
-    const blob = new Blob([jsonPayload], { type: 'application/json' });
-    const formData = new FormData();
-    formData.append('data', blob, 'merged-data.json');
-    console.log("📨 FormData prepared and ready to send to server...");
+    showToast(`✅ Downloaded JSON for "${folder}"`);
+  }
   
-    // Step 4: Send to backend
-    fetch('http://localhost:3001/inject-xlsb', {
-      method: 'POST',
-      body: formData
-    })
+  
+  
+  function downloadGeneratedXLSB(filename) {
+    fetch(`http://localhost:3001/download-xlsb/${filename}`)
       .then(res => {
-        console.log("📡 Server responded with status:", res.status);
-        if (!res.ok) throw new Error(`❌ Server error with status ${res.status}`);
-        return res.text();
+        if (!res.ok) throw new Error("❌ Download failed");
+        return res.blob();
       })
-      .then(message => {
-        try {
-          console.log("✅ Server response message:", message);
-          showToast(message || `✅ Injected folder: ${folder}`);
-          enableDownloadButton();
-        } catch (displayError) {
-          console.error("⚠️ Error while handling success:", displayError);
-        }
-      })
-      .catch(err => {
-        console.error("❌ Fetch error during injection:", err);
-        alert("❌ Error injecting folder into XLSB.");
+      .then(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
       });
   }
+  
+  
+  document.getElementById('jsonUpload').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      try {
+        const json = JSON.parse(e.target.result);
+        mergedData = json;
+        displayMergedTable(mergedData);
+        renderFolderButtons();
+        showToast(`✅ Loaded JSON with ${mergedData.length} rows`);
+  
+        // 🔁 Automatically offer the .bat file to run the script
+        offerPythonRunScript(file.name);
+      } catch (err) {
+        alert("❌ Failed to parse JSON file.");
+        console.error(err);
+      }
+    };
+    reader.readAsText(file);
+  });
   
   
   
@@ -446,6 +436,26 @@ function displayMergedTable(data) {
     document.body.removeChild(a);
   }
   
+  function downloadInjectedXLSB() {
+    fetch('http://localhost:3001/download-xlsb')
+      .then(res => {
+        if (!res.ok) throw new Error("❌ Failed to fetch XLSB file");
+        return res.blob();
+      })
+      .then(blob => {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "Updated_Macro_Template.xlsb";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("✅ Downloaded Updated_Macro_Template.xlsb");
+      })
+      .catch(err => {
+        console.error(err);
+        alert("❌ Failed to download XLSB file");
+      });
+  }
   
 
 // Helper to copy from hidden textarea
@@ -483,5 +493,34 @@ function downloadMappedExcel() {
   showToast("Mapped workbook downloaded.");
 
 }
+
+
+function offerPythonRunScript(jsonFilename) {
+  const baseName = jsonFilename.replace(/\.json$/i, '');
+  const exeName = 'inject-xlsb.exe';
+
+  const batContent = `@echo off
+echo Running ${exeName} using "${jsonFilename}"
+if not exist ${exeName} (
+  echo ERROR: ${exeName} NOT FOUND in this folder: %CD%
+  echo Please copy ${exeName} here and try again.
+  pause
+  exit /b 1
+)
+${exeName} "${jsonFilename}"
+pause
+`;
+
+  const blob = new Blob([batContent], { type: 'application/octet-stream' });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `run_inject_${baseName}.bat`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+
+  showToast(`✅ .bat file for "${jsonFilename}" downloaded`);
+}
+
 
 
