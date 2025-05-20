@@ -143,7 +143,6 @@ for row in range(34, 44):
 # Save workbook
 try:
     wb.save(output_path)
-    wb.close()
     print(f"✅ Saved successfully: {output_path}")
 except Exception as e:
     print(f"❌ Failed to save file: {e}")
