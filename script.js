@@ -253,20 +253,22 @@ function displayMergedTable(data) {
       const tableId = `copyTable_${index}`;
       let tsvContent = `SKU\tDescription\tUOM\t\t\tQTY\tColor Group\n`;
   
-      html += `<h3>${folder}</h3>
-        <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
-        <textarea id="${tableId}" style="width:0; height:0; position:absolute; left:-9999px;">`;
+
   
       sortedRows.forEach(row => {
         tsvContent += `${row.SKU}\t${row.Description}\t\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
       });
   
-      html += `${tsvContent.trim()}</textarea><table><thead><tr>
-          <th>SKU</th>
-          <th>Description</th>
-          <th>QTY</th>
-          <th>Color Group</th>
-        </tr></thead><tbody>`;
+      html += `<h3>${folder}</h3>
+      <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
+      <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
+      <table><thead><tr>
+        <th>SKU</th>
+        <th>Description</th>
+        <th>QTY</th>
+        <th>Color Group</th>
+      </tr></thead><tbody>`;
+    
   
       sortedRows.forEach(row => {
         html += `<tr>
@@ -323,24 +325,7 @@ function displayMergedTable(data) {
     showToast(`✅ Downloaded JSON for "${folder}"`);
   }
   
-  
-  
-  function downloadGeneratedXLSB(filename) {
-    fetch(`http://localhost:3001/download-xlsb/${filename}`)
-      .then(res => {
-        if (!res.ok) throw new Error("❌ Download failed");
-        return res.blob();
-      })
-      .then(blob => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-  }
-  
+
   
   document.getElementById('jsonUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -356,7 +341,7 @@ function displayMergedTable(data) {
         showToast(`✅ Loaded JSON with ${mergedData.length} rows`);
   
         // 🔁 Automatically offer the .bat file to run the script
-        offerPythonRunScript(file.name);
+        offerPythonRunScript(file.name); // ✅ This line is correct
       } catch (err) {
         alert("❌ Failed to parse JSON file.");
         console.error(err);
@@ -366,12 +351,9 @@ function displayMergedTable(data) {
   });
   
   
-  
   function enableDownloadButton() {
     document.getElementById("downloadButton").disabled = false;
   }
-  
-
 
   function promptAndDownloadFolder() {
     if (!mergedData.length) {

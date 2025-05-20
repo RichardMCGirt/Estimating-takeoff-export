@@ -89,14 +89,6 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_socket.pyd',
    'EXTENSION'),
-  ('_lzma.pyd',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_lzma.pyd',
-   'EXTENSION'),
-  ('_bz2.pyd',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_bz2.pyd',
-   'EXTENSION'),
   ('_decimal.pyd',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_decimal.pyd',
@@ -136,6 +128,14 @@
   ('_asyncio.pyd',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_asyncio.pyd',
+   'EXTENSION'),
+  ('_lzma.pyd',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_lzma.pyd',
+   'EXTENSION'),
+  ('_bz2.pyd',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_bz2.pyd',
    'EXTENSION'),
   ('_wmi.pyd',
    'C:\\Users\\Richard '
@@ -210,29 +210,29 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\Richard '
