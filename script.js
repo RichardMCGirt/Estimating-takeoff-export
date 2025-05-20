@@ -297,7 +297,7 @@ function displayMergedTable(data) {
   
     uniqueFolders.forEach(folder => {
       const button = document.createElement('button');
-      button.textContent = `Inject "${folder}"`;
+      button.textContent = `Download "${folder}"`;
       button.style.margin = '6px';
       button.addEventListener('click', () => injectSelectedFolder(folder));
       container.appendChild(button);
