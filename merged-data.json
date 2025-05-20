@@ -1,0 +1,112 @@
+[
+  {
+    "SKU": "JHLSP814CP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Lap Siding",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 436.09999999999997
+  },
+  {
+    "SKU": "zLABORLAP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 31.400000000000002
+  },
+  {
+    "SKU": "JHT541212SP",
+    "Description": "Beam Wrap Outside Face",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1.4
+  },
+  {
+    "SKU": "JHSSOF1212SP",
+    "Description": "Beam Wrap Bottom",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Soffit",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 27.900000000000002
+  },
+  {
+    "SKU": "889PVCNS",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "zLABORSTCOL",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "JHT54412SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 26.8
+  },
+  {
+    "SKU": "JHT54512SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 13
+  },
+  {
+    "SKU": "JHT54812SP",
+    "Description": "Door/Window Surround",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 4
+  },
+  {
+    "SKU": "JHT54612SP",
+    "Description": "Window Mullion",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1
+  },
+  {
+    "SKU": "JHT1812SP",
+    "Description": "Garage Jamb",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2.9
+  }
+]

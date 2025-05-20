@@ -1,0 +1,362 @@
+[
+  {
+    "SKU": "JHLSP814CP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Lap Siding",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 436.09999999999997
+  },
+  {
+    "SKU": "zLABORLAP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 31.400000000000002
+  },
+  {
+    "SKU": "JHP410SP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Porch Ceilings",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "zLABORCEIL",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 0.4
+  },
+  {
+    "SKU": "JHT1412SP",
+    "Description": "Ceiling Seam Trim",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 25.900000000000002
+  },
+  {
+    "SKU": "JHT541212SP",
+    "Description": "Beam Wrap Outside Face",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1.4
+  },
+  {
+    "SKU": "JHSSOF1212SP",
+    "Description": "Beam Wrap Bottom",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Soffit",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 27.900000000000002
+  },
+  {
+    "SKU": "889PVCNS",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "zLABORSTCOL",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "JHT54412SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 26.8
+  },
+  {
+    "SKU": "JHT54512SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 13
+  },
+  {
+    "SKU": "JHT54812SP",
+    "Description": "Door/Window Surround",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 4
+  },
+  {
+    "SKU": "JHT54612SP",
+    "Description": "Window Mullion",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1
+  },
+  {
+    "SKU": "JHT1812SP",
+    "Description": "Garage Jamb",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2.9
+  },
+  {
+    "SKU": "POLYSMCOIL",
+    "Description": "Flashing",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "N/A",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 0.3
+  },
+  {
+    "SKU": "JHT1612SP",
+    "Description": "Fascia",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 25.1
+  },
+  {
+    "SKU": "BKT12X20X3S",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "N/A",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "LV18X36",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "N/A",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1
+  },
+  {
+    "SKU": "SPRAYPRIMER",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "N/A",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 6
+  },
+  {
+    "SKU": "JOINTFLASH6X8",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation A",
+    "ColorGroup": "Lap Main Body",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2
+  },
+  {
+    "SKU": "JHLSP814CP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Lap Siding",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 420.2
+  },
+  {
+    "SKU": "zLABORLAP",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 30.3
+  },
+  {
+    "SKU": "JHP410SP",
+    "Description": "B&B",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "B&B",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 6
+  },
+  {
+    "SKU": "zLABORBB",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 0.6
+  },
+  {
+    "SKU": "JHTBS1212SP",
+    "Description": "Batten Strips",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "B&B",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 4.1
+  },
+  {
+    "SKU": "zLABORCEIL",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1.1
+  },
+  {
+    "SKU": "JHT1412SP",
+    "Description": "Ceiling Seam Trim",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 29.4
+  },
+  {
+    "SKU": "JHT541212SP",
+    "Description": "Beam Wrap Outside Face",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2.5
+  },
+  {
+    "SKU": "JHSSOF1212SP",
+    "Description": "Beam Wrap Bottom",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Soffit",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 31.900000000000002
+  },
+  {
+    "SKU": "12129PVC",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 3
+  },
+  {
+    "SKU": "zLABORSTCOL",
+    "Description": "",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 3
+  },
+  {
+    "SKU": "JHT54412SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 23.3
+  },
+  {
+    "SKU": "JHT54512SP",
+    "Description": "Corners",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 11
+  },
+  {
+    "SKU": "JHT54812SP",
+    "Description": "Door/Window Surround",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 6
+  },
+  {
+    "SKU": "JHT54612SP",
+    "Description": "Window Mullion",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 1
+  },
+  {
+    "SKU": "JHT1812SP",
+    "Description": "Garage Jamb",
+    "UOM": "",
+    "Folder": "Elevation B",
+    "ColorGroup": "Trim",
+    "Vendor": "",
+    "UnitCost": 0,
+    "TotalQty": 2.9
+  }
+]
