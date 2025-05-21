@@ -2,8 +2,7 @@ let mergedData = [];
 let mappedWorkbook = null;
 
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
-// document.getElementById('targetFile').addEventListener('change', handleTargetUpload);
-// document.getElementById('downloadButton').addEventListener('click', downloadMappedExcel);
+
 
 function handleSourceUpload(event) {
   const file = event.target.files[0];
@@ -20,13 +19,11 @@ function handleSourceUpload(event) {
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
     renderFolderButtons();
-    // downloadMergedDataAsJSON(); // <-- immediately downloads merged-data.json
     
 
   };
   reader.readAsArrayBuffer(file);
 }
-// document.getElementById('downloadJsonButton').addEventListener('click', downloadMergedDataAsJSON);
 
 function showToast(message = "Success!") {
   const toast = document.getElementById("toast");
@@ -220,8 +217,6 @@ function handleTargetUpload(event) {
       });
   }
   
-  
-  
   function downloadMergedDataAsJSON() {
     const blob = new Blob([JSON.stringify(mergedData, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -252,9 +247,7 @@ function displayMergedTable(data) {
   
       const tableId = `copyTable_${index}`;
       let tsvContent = `SKU\tDescription\tUOM\t\t\tQTY\tColor Group\n`;
-  
 
-  
       sortedRows.forEach(row => {
         tsvContent += `${row.SKU}\t${row.Description}\t\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
       });
@@ -324,8 +317,6 @@ function displayMergedTable(data) {
   
     showToast(`✅ Downloaded JSON for "${folder}"`);
   }
-  
-
   
   document.getElementById('jsonUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -402,7 +393,6 @@ function displayMergedTable(data) {
 
   }
   
-  
   function downloadMergedDataAsJSON() {
     if (!mergedData.length) {
       alert("No merged data to export.");
@@ -447,10 +437,7 @@ const lines = textarea.value.trim().split("\n");
 
 // Skip the first row (usually the header)
 const trimmedLines = lines.slice(1);
-
-
 const modifiedText = trimmedLines.join("\n");
-
 // Create a temporary textarea to copy
 const tempTextarea = document.createElement("textarea");
 tempTextarea.value = modifiedText;

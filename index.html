@@ -4,14 +4,8 @@
   <meta charset="UTF-8">
   <title>Vanir Estimating tool</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    table { border-collapse: collapse; margin-top: 20px; width: 100%; }
-    th, td { border: 1px solid #999; padding: 8px; text-align: left; }
-    th { background: #f0f0f0; }
-  </style>
 </head>
 <body>
   <h2>Step 1: Upload Excel (.xlsx) File</h2>
@@ -36,20 +30,7 @@
 
   <div id="mergedTableContainer"></div> 
 
-  <div id="toast" style="
-  position: fixed;
-  bottom: 50%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 6px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 9999;
-"></div>
+  <div id="toast"></div>
 
   
   <script src ="script.js"></script> 

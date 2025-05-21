@@ -1,0 +1,38 @@
+/* style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  
+  table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+  }
+  
+  th, td {
+    border: 1px solid #999;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  th {
+    background: #f0f0f0;
+  }
+  
+  #toast {
+    position: fixed;
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 9999;
+  }
+  
