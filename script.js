@@ -405,28 +405,7 @@ function handleTargetUpload(event) {
     a.click();
     document.body.removeChild(a);
   }
-  
-  function downloadInjectedXLSB() {
-    fetch('http://localhost:3001/download-xlsb')
-      .then(res => {
-        if (!res.ok) throw new Error("❌ Failed to fetch XLSB file");
-        return res.blob();
-      })
-      .then(blob => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "Updated_Macro_Template.xlsb";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        showToast("✅ Downloaded Updated_Macro_Template.xlsb");
-      })
-      .catch(err => {
-        console.error(err);
-        alert("❌ Failed to download XLSB file");
-      });
-  }
-  
+    
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
 const textarea = document.getElementById(textareaId);
@@ -470,6 +449,28 @@ document.getElementById("downloadAllBtn").addEventListener("click", function () 
       url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/plan.xlsb"
     }
   ];
+
+  // Check if files have been downloaded before
+  const alreadyDownloaded = localStorage.getItem("requiredFilesDownloaded");
+
+  if (alreadyDownloaded === "true") {
+    const confirmRedownload = confirm("These files were already downloaded. Do you want to download them again?");
+    if (!confirmRedownload) return;
+  }
+
+  files.forEach(file => {
+    const a = document.createElement("a");
+    a.href = file.url;
+    a.download = file.name;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
+
+  // Mark files as downloaded
+  localStorage.setItem("requiredFilesDownloaded", "true");
+
 
   function triggerDownload(index) {
     if (index >= files.length) return;
