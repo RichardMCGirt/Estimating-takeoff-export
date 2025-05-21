@@ -227,10 +227,16 @@ function handleTargetUpload(event) {
   
   function displayMergedTable(data) {
     const container = document.getElementById("mergedTableContainer");
+    const wrapper = document.getElementById("mergedTableWrapper");
+  
     if (!data.length) {
       container.innerHTML = "<p>No merged data found.</p>";
+      wrapper.style.display = "none"; // Hide again if data is cleared
       return;
     }
+  
+    // Show the wrapper only if data is valid
+    wrapper.style.display = "block";
   
     const folders = [...new Set(data.map(d => d.Folder))];
     let html = "";
@@ -238,14 +244,14 @@ function handleTargetUpload(event) {
     folders.forEach((folder, index) => {
       const allRows = data.filter(d => d.Folder === folder);
   
-      // Sort all rows by SKU first
+      // Sort by SKU first
       const sortedBySKU = [...allRows].sort((a, b) => {
         const skuA = (a.SKU || "").toLowerCase();
         const skuB = (b.SKU || "").toLowerCase();
         return skuA.localeCompare(skuB);
       });
   
-      // Then move all "labor" SKUs to the bottom
+      // Move labor rows to the bottom
       const nonLaborRows = sortedBySKU.filter(d => !/labor/i.test(d.SKU));
       const laborRows = sortedBySKU.filter(d => /labor/i.test(d.SKU));
       const finalSortedRows = [...nonLaborRows, ...laborRows];
@@ -260,19 +266,19 @@ function handleTargetUpload(event) {
       html += `<h3>${folder}</h3>
       <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
       <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
-      <table><thead><tr>
-        <th>SKU</th>
-        <th>Description</th>
-        <th>QTY</th>
-        <th>Color Group</th>
+      <table style="width:100%; text-align:center; border-collapse: collapse;"><thead><tr>
+        <th style="text-align:center;">SKU</th>
+        <th style="text-align:center;">Description</th>
+        <th style="text-align:center;">QTY</th>
+        <th style="text-align:center;">Color Group</th>
       </tr></thead><tbody>`;
   
       finalSortedRows.forEach(row => {
         html += `<tr>
-          <td>${row.SKU}</td>
-          <td>${row.Description}</td>
-          <td>${row.TotalQty.toFixed(2)}</td>
-          <td>${row.ColorGroup}</td>
+          <td style="text-align:center;">${row.SKU}</td>
+          <td style="text-align:center;">${row.Description}</td>
+          <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
+          <td style="text-align:center;">${row.ColorGroup}</td>
         </tr>`;
       });
   
@@ -281,6 +287,8 @@ function handleTargetUpload(event) {
   
     container.innerHTML = html;
   }
+  
+  
   
 
   function renderFolderButtons() {
