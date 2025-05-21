@@ -521,19 +521,32 @@ ${exeName} "${jsonFilename}"
 pause
 `;
 
-  const blob = new Blob([batContent], { type: 'application/octet-stream' });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `run_inject_${baseName}.bat`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  // 🔽 Download BAT file
+  const batBlob = new Blob([batContent], { type: 'application/octet-stream' });
+  const batLink = document.createElement("a");
+  batLink.href = URL.createObjectURL(batBlob);
+  batLink.download = `run_inject_${baseName}.bat`;
+  document.body.appendChild(batLink);
+  batLink.click();
+  document.body.removeChild(batLink);
 
-  showToast(`✅ .bat file for "${jsonFilename}" downloaded`);
-  setTimeout(() => {
-    alert(`ℹ️ Your BAT file is ready.\n\nTo continue:\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat" to inject the data\n\nMake sure 'inject-xlsb.exe' and plan.xlsb are in the downloads folder.`);
-  }, 500);
+  // 🔽 Download JSON file
+  if (window.currentJSONBlob) {
+    const jsonLink = document.createElement("a");
+    jsonLink.href = URL.createObjectURL(window.currentJSONBlob);
+    jsonLink.download = jsonFilename;
+    document.body.appendChild(jsonLink);
+    jsonLink.click();
+    document.body.removeChild(jsonLink);
   }
+
+  showToast(`✅ .bat and .json files for "${jsonFilename}" downloaded`);
+
+  setTimeout(() => {
+    alert(`ℹ️ Your files are ready.\n\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat"\n\nMake sure 'inject-xlsb.exe' and 'plan.xlsb' are in the same folder.`);
+  }, 500);
+}
+
 
 
 
