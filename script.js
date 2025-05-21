@@ -307,16 +307,29 @@ function displayMergedTable(data) {
     const filename = `merged-data-${safeFolder}.json`;
     const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
   
-    // Trigger download
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    // 💾 Save the blob in memory for later
+    window.currentJSONBlob = blob;
+    window.currentJSONFilename = filename;
   
-    showToast(`✅ Downloaded JSON for "${folder}"`);
+    // 👇 Offer bat file download directly
+    offerPythonRunScript(filename);
+  
+    showToast(`✅ Prepared BAT for "${folder}"`);
   }
+  
+  //function downloadCurrentJSON() {
+    //if (!window.currentJSONBlob || !window.currentJSONFilename) {
+      //alert("No JSON data prepared yet.");
+      //return;
+    //}
+  
+    //const a = document.createElement("a");
+    //a.href = URL.createObjectURL(window.currentJSONBlob);
+    //a.download = window.currentJSONFilename;
+    //document.body.appendChild(a);
+    //a.click();
+    //document.body.removeChild(a);
+ // }
   
   document.getElementById('jsonUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -462,6 +475,34 @@ function downloadMappedExcel() {
   showToast("Mapped workbook downloaded.");
 
 }
+document.getElementById("downloadAllBtn").addEventListener("click", function () {
+  const files = [
+    {
+      name: "inject-xlsb.exe",
+      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/inject-xlsb.exe"
+    },
+    {
+      name: "plan.xlsb",
+      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/plan.xlsb"
+    }
+  ];
+
+  function triggerDownload(index) {
+    if (index >= files.length) return;
+
+    const file = files[index];
+    const a = document.createElement("a");
+    a.href = file.url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    setTimeout(() => triggerDownload(index + 1), 1000); // ⏱ 1 second delay
+  }
+
+  triggerDownload(0);
+});
 
 
 function offerPythonRunScript(jsonFilename) {
@@ -489,7 +530,10 @@ pause
   document.body.removeChild(a);
 
   showToast(`✅ .bat file for "${jsonFilename}" downloaded`);
-}
+  setTimeout(() => {
+    alert(`ℹ️ Your BAT file is ready.\n\nTo continue:\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat" to inject the data\n\nMake sure 'inject-xlsb.exe' and plan.xlsb are in the downloads folder.`);
+  }, 500);
+  }
 
 
 

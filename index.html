@@ -2,38 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vanir Estimating tool</title>
+  <title>Vanir Estimating Tool</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <h2>Step 1: Upload Excel (.xlsx) File</h2>
+  <ol>
+    <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
+    <li><strong>Review Table</strong> – confirm quantities and elevations</li>
+    <li><strong>Download Folder JSON</strong> – choose which elevation to export</li>
+    <li><strong>Run .bat File</strong> – to inject into the .xlsb macro template</li>
+  </ol>
+  <h2>Step 1: Download required files if not currenlty in downloads folder</h2>
+
+  <button id="downloadAllBtn">⬇️ Download required files</button>
+
+  <hr>
+  <h2>Step 2: Upload Source File</h2>
   <input type="file" id="sourceFile" accept=".xlsx" />
 
   <hr>
-  <h2>Step 2: Download elevation JSON file</h2>
 
-  <h2>Required files to be in download folder</h2>
-  <a href="inject-xlsb (2).zip" download>Download inject-xlsb.exe</a><br>
-
-  <a href="plan.zip" download>Download plan_module_takeoff_tool.xlsx</a>
-
-  
-  
+  <h2>Step 3: Select Elevation</h2>
   <div id="folderButtons"></div>
 
   <hr>
-  <h2>Step 3:Upload downloaded JSON file</h2>
+
+  <h2>Step 4: Upload downloaded JSON File</h2>
   <input type="file" id="jsonUpload" accept=".json" />
+  <!-- <button onclick="downloadCurrentJSON()">📄 Download JSON</button> -->
 
+  <hr>
 
+  <h2>Merged Data Table</h2>
   <div id="mergedTableContainer"></div> 
 
   <div id="toast"></div>
 
-  
-  <script src ="script.js"></script> 
+
+  <script src="script.js"></script> 
   <script>
     function downloadFile(filename) {
       const a = document.createElement('a');
@@ -43,6 +51,6 @@
       a.click();
       document.body.removeChild(a);
     }
-    </script>
+  </script>
 </body>
 </html>
