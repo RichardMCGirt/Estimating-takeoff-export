@@ -59,47 +59,7 @@
       document.body.removeChild(a);
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      const downloadBtn = document.getElementById("downloadAllBtn");
-      console.log("✅ DOMContentLoaded fired.");
-
-      if ('showDirectoryPicker' in window) {
-        console.log("🗂️ showDirectoryPicker is supported.");
-
-        try {
-          const dirHandle = await window.showDirectoryPicker();
-          console.log("📁 Directory selected.");
-
-          const requiredFiles = ['plan.xlsb', 'inject-xlsb.exe'];
-          let allFilesFound = true;
-
-          for (const fileName of requiredFiles) {
-            try {
-              console.log(`🔍 Checking for file: ${fileName}`);
-              await dirHandle.getFileHandle(fileName);
-              console.log(`✅ Found: ${fileName}`);
-            } catch (fileError) {
-              console.warn(`❌ File not found: ${fileName}`, fileError);
-              allFilesFound = false;
-              break;
-            }
-          }
-
-          if (allFilesFound) {
-            console.log("🎉 All required files found. Hiding download button.");
-            downloadBtn.style.display = "none";
-          } else {
-            console.log("⚠️ Not all required files were found. Showing download button.");
-          }
-
-        } catch (err) {
-          console.error("🚫 Directory access cancelled or denied:", err);
-        }
-
-      } else {
-        console.warn("❌ showDirectoryPicker not supported in this browser.");
-      }
-    });
+    
   </script>
 </body>
 

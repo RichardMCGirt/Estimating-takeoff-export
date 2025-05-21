@@ -82,11 +82,14 @@ for i, row in enumerate(non_labor_data):
     r = start_row + i
     sheet.range(f"A{r}").value = row.get("SKU", "")
     sheet.range(f"B{r}").value = row.get("Description", "")
+    sheet.range(f"C{r}").value = row.get("Description2", "")
     sheet.range(f"D{r}").value = row.get("UOM", "")
     sheet.range(f"E{r}").value = row.get("TotalQty", 0)
     sheet.range(f"F{r}").value = row.get("ColorGroup", "")
     sheet.range(f"G{r}").value = row.get("Vendor", "")
-print("✅ Data written to sheet")
+
+    print(f"✏️ Row {r}: {row.get('SKU', '')} | Desc1: {row.get('Description', '')} | Desc2: {row.get('Description2', '')}")
+
 
 
 

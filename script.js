@@ -19,8 +19,6 @@ function handleSourceUpload(event) {
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
     renderFolderButtons();
-    
-
   };
   reader.readAsArrayBuffer(file);
 }
@@ -46,7 +44,6 @@ function showToast(message = "Success!") {
   }, 2000);
 }
 
-
 function downloadFolderSheet(folderName) {
     const folderData = mergedData.filter(d => d.Folder === folderName);
     if (!folderData.length) {
@@ -63,7 +60,7 @@ function downloadFolderSheet(folderName) {
   
     const workbook = XLSX.utils.book_new();
     const sheet = XLSX.utils.json_to_sheet(sortedRows, {
-      header: ["SKU", "Description", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
+      header: ["SKU", "Description", "Description 2", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
     });
     const sheetName = folderName.substring(0, 31); // Sheet name max length
     XLSX.utils.book_append_sheet(workbook, sheet, sheetName);
@@ -80,7 +77,6 @@ function downloadFolderSheet(folderName) {
     a.click();
     document.body.removeChild(a);
     showToast(`Downloaded: ${sheetName}_Mapped.xlsx`);
-
   }
   
 function handleTargetUpload(event) {
@@ -109,7 +105,7 @@ function handleTargetUpload(event) {
         const sortedRows = [...nonLaborRows, ...laborRows];
   
         const sheet = XLSX.utils.json_to_sheet(sortedRows, {
-          header: ["SKU", "Description", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
+          header: ["SKU", "Description", "Description 2", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
         });
   
         // Sheet names must be 31 characters max
@@ -129,33 +125,56 @@ function handleTargetUpload(event) {
   function mergeBySKU(data) {
     if (!data.length) return [];
   
-    // Normalize the first row's keys
     const sampleRow = data[0];
     const normalizedHeaders = {};
     Object.keys(sampleRow).forEach(key => {
-      const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z]/gi, '');
+      const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
       normalizedHeaders[keyLower] = key;
     });
   
-    // Try to guess correct columns from flexible header names
+    console.log("🔍 Normalized Headers:", normalizedHeaders);
+    function getHeaderMatch(possibleNames, normalizedHeaders) {
+      const normalizedKeys = Object.keys(normalizedHeaders);
+      for (const name of possibleNames) {
+        const match = normalizedKeys.find(k => k.includes(name));
+        if (match) return normalizedHeaders[match];
+      }
+      return "";
+    }
+    
     const colMap = {
-      sku: normalizedHeaders["sku"] || normalizedHeaders["sku#"] || normalizedHeaders["skunumber"] || "",
-      description: normalizedHeaders["description"] || "",
-      uom: normalizedHeaders["uom"] || normalizedHeaders["unitofmeasure"] || "",
-      folder: normalizedHeaders["folder"] || normalizedHeaders["elevation"] || "", // fallback if needed
-      colorgroup: normalizedHeaders["colorgroup"] || "",
-      vendor: normalizedHeaders["vendor"] || "",
-      unitcost: normalizedHeaders["unitcost"] || normalizedHeaders["cost"] || "",
-      qty: normalizedHeaders["qty"] || normalizedHeaders["quantity"] || ""
+      sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
+      description: getHeaderMatch(["description"], normalizedHeaders),
+      description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
+      uom: getHeaderMatch(["uom", "unitofmeasure", "units"], normalizedHeaders),
+      folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
+      colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
+      vendor: getHeaderMatch(["vendor"], normalizedHeaders),
+      unitcost: getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
+      qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
     };
+    
+    console.log("📌 Mapped Columns:", colMap);
+    
+    console.log("✅ colMap.description2 points to:", colMap.description2);
+    console.log("✅ Final colMap.description2 =", colMap.description2);
+
+    console.log("📌 Mapped Columns:", colMap);
   
     const result = {};
   
-    data.forEach(row => {
+    data.forEach((row, i) => {
       const sku = row[colMap.sku];
       const folder = row[colMap.folder];
       const qtyRaw = row[colMap.qty];
       const qty = parseFloat(qtyRaw) || 0;
+  
+      if (i < 3) {
+        console.log(`🧪 Row ${i + 1}:`);
+        console.log(`   SKU: ${sku}`);
+        console.log(`   Description: ${row[colMap.description]}`);
+        console.log(`   Description2: ${row[colMap.description2]}`);
+      }
   
       if (!sku || !folder) return;
   
@@ -164,6 +183,7 @@ function handleTargetUpload(event) {
         result[key] = {
           SKU: sku,
           Description: row[colMap.description] || "",
+          Description2: row[colMap.description2] || "",
           UOM: row[colMap.uom] || "",
           Folder: folder,
           ColorGroup: row[colMap.colorgroup] || "",
@@ -179,44 +199,7 @@ function handleTargetUpload(event) {
     return Object.values(result);
   }
   
-  function sendMergedDataToServer() {
-    if (!mergedData.length) {
-      alert("No merged data to send.");
-      return;
-    }
-  
-    console.log("📦 Sending merged data to server...");
-    console.log("📊 Merged data sample:", mergedData.slice(0, 3)); // Preview first 3 rows
-  
-    const blob = new Blob([JSON.stringify(mergedData)], { type: 'application/json' });
-    const formData = new FormData();
-    formData.append('data', blob, 'merged-data.json');
-  
-    fetch('http://localhost:3001/inject-xlsb', {
-      method: 'POST',
-      body: formData
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`❌ Failed with status ${res.status}`);
-        return res.text();
-      })
-      .then(message => {
-        try {
-          console.log("✅ Server response message:", message);
-          showToast(message || `✅ Injected folder: ${folder}`);
-          enableDownloadButton();
-          downloadInjectedXLSB(); // 👈 Auto-download after success
-        } catch (displayError) {
-          console.error("⚠️ Error while handling success:", displayError);
-        }
-      })
-      
-      .catch(err => {
-        console.error("❌ Error during fetch to /inject-xlsb:", err);
-        alert('❌ Something went wrong injecting into .xlsb');
-      });
-  }
-  
+   
   function downloadMergedDataAsJSON() {
     const blob = new Blob([JSON.stringify(mergedData, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
@@ -257,10 +240,10 @@ function handleTargetUpload(event) {
       const finalSortedRows = [...nonLaborRows, ...laborRows];
   
       const tableId = `copyTable_${index}`;
-      let tsvContent = `SKU\tDescription\tUOM\t\t\tQTY\tColor Group\n`;
+      let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
   
       finalSortedRows.forEach(row => {
-        tsvContent += `${row.SKU}\t${row.Description}\t\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
+        tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
       });
   
       html += `<h3>${folder}</h3>
@@ -269,6 +252,8 @@ function handleTargetUpload(event) {
       <table style="width:100%; text-align:center; border-collapse: collapse;"><thead><tr>
         <th style="text-align:center;">SKU</th>
         <th style="text-align:center;">Description</th>
+<th style="text-align:center;">Description 2</th>
+
         <th style="text-align:center;">QTY</th>
         <th style="text-align:center;">Color Group</th>
       </tr></thead><tbody>`;
@@ -277,6 +262,8 @@ function handleTargetUpload(event) {
         html += `<tr>
           <td style="text-align:center;">${row.SKU}</td>
           <td style="text-align:center;">${row.Description}</td>
+<td style="text-align:center;">${row.Description2 || ""}</td>
+
           <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
           <td style="text-align:center;">${row.ColorGroup}</td>
         </tr>`;
@@ -385,7 +372,7 @@ function handleTargetUpload(event) {
     // Create workbook with single sheet
     const workbook = XLSX.utils.book_new();
     const sheet = XLSX.utils.json_to_sheet(sortedRows, {
-      header: ["SKU", "Description", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
+      header: ["SKU", "Description", "Description2", "UOM", "Folder", "ColorGroup", "Vendor", "UnitCost", "TotalQty"]
     });
   
     const sheetName = folderName.substring(0, 31); // Excel limit
@@ -402,7 +389,6 @@ function handleTargetUpload(event) {
     a.click();
     document.body.removeChild(a);
     showToast(`Downloaded: ${sheetName}_Mapped.xlsx`);
-
   }
   
   function downloadMergedDataAsJSON() {
@@ -441,7 +427,6 @@ function handleTargetUpload(event) {
       });
   }
   
-
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
 const textarea = document.getElementById(textareaId);
