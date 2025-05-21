@@ -543,7 +543,7 @@ pause
   showToast(`✅ .bat and .json files for "${jsonFilename}" downloaded`);
 
   setTimeout(() => {
-    alert(`ℹ️ Your files are ready.\n\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat"\n\nMake sure 'inject-xlsb.exe' and 'plan.xlsb' are in the same folder.`);
+    alert(`ℹ️ Your files are ready.\n\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat"\n\n A blue screen will appear click more info then run any way\n\n Make sure 'inject-xlsb.exe' and 'plan.xlsb' are in the Download folder.`);
   }, 500);
 }
 
