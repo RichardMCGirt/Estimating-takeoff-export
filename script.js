@@ -280,15 +280,18 @@ function handleTargetUpload(event) {
 
   function renderFolderButtons() {
     const container = document.getElementById('folderButtons');
-    if (!container) return;
+    const section = document.getElementById('elevationSection');
+    if (!container || !section) return;
   
     container.innerHTML = '';
   
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
     if (!uniqueFolders.length) {
-      container.innerHTML = '<p>No folders available yet.</p>';
+      section.style.display = "none"; // 🔒 hide if no folders
       return;
     }
+  
+    section.style.display = "block"; // ✅ show section once folders exist
   
     uniqueFolders.forEach(folder => {
       const button = document.createElement('button');
@@ -298,6 +301,7 @@ function handleTargetUpload(event) {
       container.appendChild(button);
     });
   }
+  
   
   function injectSelectedFolder(folder) {
     const filteredData = mergedData.filter(d => d.Folder === folder);

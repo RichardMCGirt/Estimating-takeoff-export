@@ -9,6 +9,12 @@
 </head>
 <body>
   <div style="margin-left: 40px; margin-top: 30px; margin-right:  40px;"> <!-- 👈 Wrapper with left + top margin -->
+    <h2>Upload prevously downloaded JSON File</h2>
+    <input type="file" id="jsonUpload" accept=".json" />
+
+    <hr>
+
+   
     <ol>
       <li><strong>Download required files</strong></li>
       <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
@@ -27,20 +33,16 @@
 
     <hr>
 
-    <h2>Step 3: Select Elevation</h2>
-    <div id="folderButtons"></div>
+    <div id="elevationSection" style="display: none;">
+      <h2>Step 3: Select Elevation</h2>
+      <div id="folderButtons"></div>
+      <hr>
+    </div>
+    
 
-    <hr>
-
-    <h2>Step 4: Upload downloaded JSON File</h2>
-    <input type="file" id="jsonUpload" accept=".json" />
-    <!-- <button onclick="downloadCurrentJSON()">📄 Download JSON</button> -->
-
-    <hr>
 
    <!-- Step 4: Merged Data Table (initially hidden) -->
 <div id="mergedTableWrapper" style="display: none;">
-  <h2>Merged Data Table</h2>
   <div id="mergedTableContainer"></div>
 </div>
 
