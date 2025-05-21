@@ -10,10 +10,9 @@
 <body>
   <ol>
     <li><strong>Download required files</strong></li>
-
     <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
     <li><strong>Review Table</strong> – confirm quantities and elevations</li>
-    <li><strong>Download Folder JSON</strong> – choose which elevation to export</li>
+    <li><strong>Select Elevation</strong> – choose which elevation to export</li>
     <li><strong>Run .bat File</strong> – to inject into the .xlsb macro template</li>
   </ol>
   <h2>Step 1: Download required files if not currenlty in downloads folder</h2>
@@ -53,6 +52,51 @@
       a.click();
       document.body.removeChild(a);
     }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+  const downloadBtn = document.getElementById("downloadAllBtn");
+  console.log("✅ DOMContentLoaded fired.");
+
+  if ('showDirectoryPicker' in window) {
+    console.log("🗂️ showDirectoryPicker is supported.");
+
+    try {
+      const dirHandle = await window.showDirectoryPicker();
+      console.log("📁 Directory selected.");
+
+      const requiredFiles = ['plan.xlsb', 'inject-xlsb.exe'];
+      let allFilesFound = true;
+
+      for (const fileName of requiredFiles) {
+        try {
+          console.log(`🔍 Checking for file: ${fileName}`);
+          await dirHandle.getFileHandle(fileName);
+          console.log(`✅ Found: ${fileName}`);
+        } catch (fileError) {
+          console.warn(`❌ File not found: ${fileName}`, fileError);
+          allFilesFound = false;
+          break;
+        }
+      }
+
+      if (allFilesFound) {
+        console.log("🎉 All required files found. Hiding download button.");
+        downloadBtn.style.display = "none"; // or use downloadBtn.disabled = true;
+      } else {
+        console.log("⚠️ Not all required files were found. Showing download button.");
+      }
+
+    } catch (err) {
+      console.error("🚫 Directory access cancelled or denied:", err);
+    }
+
+  } else {
+    console.warn("❌ showDirectoryPicker not supported in this browser.");
+  }
+});
+
   </script>
+  
+
 </body>
 </html>

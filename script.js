@@ -225,8 +225,7 @@ function handleTargetUpload(event) {
     a.click();
   }
   
-
-function displayMergedTable(data) {
+  function displayMergedTable(data) {
     const container = document.getElementById("mergedTableContainer");
     if (!data.length) {
       container.innerHTML = "<p>No merged data found.</p>";
@@ -238,17 +237,23 @@ function displayMergedTable(data) {
   
     folders.forEach((folder, index) => {
       const allRows = data.filter(d => d.Folder === folder);
-      const nonLaborRows = allRows.filter(d => !/labor/i.test(d.SKU))
-        .sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
-      const laborRows = allRows.filter(d => /labor/i.test(d.SKU))
-        .sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
   
-      const sortedRows = [...nonLaborRows, ...laborRows]; // Labor at bottom
+      // Sort all rows by SKU first
+      const sortedBySKU = [...allRows].sort((a, b) => {
+        const skuA = (a.SKU || "").toLowerCase();
+        const skuB = (b.SKU || "").toLowerCase();
+        return skuA.localeCompare(skuB);
+      });
+  
+      // Then move all "labor" SKUs to the bottom
+      const nonLaborRows = sortedBySKU.filter(d => !/labor/i.test(d.SKU));
+      const laborRows = sortedBySKU.filter(d => /labor/i.test(d.SKU));
+      const finalSortedRows = [...nonLaborRows, ...laborRows];
   
       const tableId = `copyTable_${index}`;
       let tsvContent = `SKU\tDescription\tUOM\t\t\tQTY\tColor Group\n`;
-
-      sortedRows.forEach(row => {
+  
+      finalSortedRows.forEach(row => {
         tsvContent += `${row.SKU}\t${row.Description}\t\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
       });
   
@@ -261,9 +266,8 @@ function displayMergedTable(data) {
         <th>QTY</th>
         <th>Color Group</th>
       </tr></thead><tbody>`;
-    
   
-      sortedRows.forEach(row => {
+      finalSortedRows.forEach(row => {
         html += `<tr>
           <td>${row.SKU}</td>
           <td>${row.Description}</td>
@@ -277,6 +281,7 @@ function displayMergedTable(data) {
   
     container.innerHTML = html;
   }
+  
 
   function renderFolderButtons() {
     const container = document.getElementById('folderButtons');
@@ -316,21 +321,7 @@ function displayMergedTable(data) {
   
     showToast(`✅ Prepared BAT for "${folder}"`);
   }
-  
-  //function downloadCurrentJSON() {
-    //if (!window.currentJSONBlob || !window.currentJSONFilename) {
-      //alert("No JSON data prepared yet.");
-      //return;
-    //}
-  
-    //const a = document.createElement("a");
-    //a.href = URL.createObjectURL(window.currentJSONBlob);
-    //a.download = window.currentJSONFilename;
-    //document.body.appendChild(a);
-    //a.click();
-    //document.body.removeChild(a);
- // }
-  
+    
   document.getElementById('jsonUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
     if (!file) return;
