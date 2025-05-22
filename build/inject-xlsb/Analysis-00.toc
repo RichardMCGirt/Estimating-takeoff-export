@@ -56,30 +56,6 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\packaging\\tags.py',
    'PYMODULE'),
-  ('subprocess',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py',
-   'PYMODULE'),
-  ('selectors',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\selectors.py',
-   'PYMODULE'),
-  ('contextlib',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\contextlib.py',
-   'PYMODULE'),
-  ('threading',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\threading.py',
-   'PYMODULE'),
-  ('_threading_local',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_threading_local.py',
-   'PYMODULE'),
-  ('signal',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\signal.py',
-   'PYMODULE'),
   ('struct',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\struct.py',
@@ -107,6 +83,18 @@
   ('_compat_pickle',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_compat_pickle.py',
+   'PYMODULE'),
+  ('threading',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\threading.py',
+   'PYMODULE'),
+  ('_threading_local',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_threading_local.py',
+   'PYMODULE'),
+  ('contextlib',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\contextlib.py',
    'PYMODULE'),
   ('string',
    'C:\\Users\\Richard '
@@ -187,6 +175,10 @@
   ('socket',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\socket.py',
+   'PYMODULE'),
+  ('selectors',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\selectors.py',
    'PYMODULE'),
   ('random',
    'C:\\Users\\Richard '
@@ -533,6 +525,10 @@
   ('unittest.signals',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\unittest\\signals.py',
+   'PYMODULE'),
+  ('signal',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\signal.py',
    'PYMODULE'),
   ('unittest.main',
    'C:\\Users\\Richard '
@@ -1817,6 +1813,10 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\pathlib\\_abc.py',
    'PYMODULE'),
+  ('stringprep',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\stringprep.py',
+   'PYMODULE'),
   ('tracemalloc',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tracemalloc.py',
@@ -1825,9 +1825,9 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_py_abc.py',
    'PYMODULE'),
-  ('stringprep',
+  ('subprocess',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\stringprep.py',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py',
    'PYMODULE'),
   ('shutil',
    'C:\\Users\\Richard '
@@ -2261,13 +2261,25 @@
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
    'ipsum.txt',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
    'C:\\Users\\Richard '
@@ -2276,18 +2288,6 @@
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\Richard '

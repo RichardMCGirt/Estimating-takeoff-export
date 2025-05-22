@@ -71,7 +71,7 @@ function downloadFolderSheet(folderName) {
     const blob = new Blob([wbout], { type: "application/octet-stream" });
   
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
+a.href = `${file.url}?t=${Date.now()}`; // prevents browser caching
     a.download = `${sheetName.replace(/[^a-zA-Z0-9-_]/g, '_')}_Mapped.xlsx`;
     document.body.appendChild(a);
     a.click();
@@ -445,14 +445,15 @@ function downloadMappedExcel() {
 document.getElementById("downloadAllBtn").addEventListener("click", function () {
   const files = [
     {
-      name: "inject-xlsb.exe",
-      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/inject-xlsb.exe"
+      name: "inject-xlsb-v1.1.exe",
+      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/inject-xlsb-v1.1.exe"
     },
     {
       name: "plan.xlsb",
       url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/plan.xlsb"
     }
   ];
+
 
   // Check if files have been downloaded before
   const alreadyDownloaded = localStorage.getItem("requiredFilesDownloaded");
@@ -499,15 +500,14 @@ function offerPythonRunScript(jsonFilename) {
   const exeName = 'inject-xlsb.exe';
 
   const batContent = `@echo off
-echo Running ${exeName} using "${jsonFilename}"
-if not exist ${exeName} (
-  echo ERROR: ${exeName} NOT FOUND in this folder: %CD%
-  echo Please copy ${exeName} here and try again.
-  pause
-  exit /b 1
+if not exist inject-xlsb.exe (
+  echo Renaming latest version to expected filename...
+  rename inject-xlsb-v1.1.exe inject-xlsb.exe
 )
-${exeName} "${jsonFilename}"
+
+inject-xlsb.exe "%~1"
 pause
+
 `;
 
   // 🔽 Download BAT file

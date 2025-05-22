@@ -144,8 +144,16 @@ for row in range(34, 44):
 
 
 # Save workbook
+# Save workbook
 try:
     wb.save(output_path)
-    print(f"✅ Saved successfully: {output_path}")
+    wb.close()         # ✅ Close the workbook
+    wb.app.quit()      # ✅ Quit the Excel application opened by xlwings
+    print(f"✅ Saved and closed workbook: {output_path}")
 except Exception as e:
-    print(f"❌ Failed to save file: {e}")
+    print(f"❌ Failed to save/close file: {e}")
+
+# Re-open Excel independently so it stays open even if PowerShell is closed
+import subprocess
+subprocess.Popen(["start", "excel", output_path], shell=True)
+print("🚀 Reopened in Excel for user editing (detached from script)")
