@@ -316,7 +316,7 @@ function handleTargetUpload(event) {
     window.currentJSONFilename = filename;
   
     // 👇 Offer bat file download directly
-    offerPythonRunScript(filename);
+sendToInjectionServer(filteredData, folder);
   
     showToast(`✅ Prepared BAT for "${folder}"`);
   }
@@ -497,35 +497,18 @@ document.getElementById("downloadAllBtn").addEventListener("click", function () 
 
 function offerPythonRunScript(jsonFilename) {
   const baseName = jsonFilename.replace(/\.json$/i, '');
-  const exeName = 'inject-xlsb-v1.1';
+  const exeName = 'inject-xlsb.exe';
 
-const batContent = `@echo off
-SET "URL=https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0"
-
-:: Download EXE if not present
-IF NOT EXIST inject-xlsb.exe (
-  powershell -Command "Invoke-WebRequest '%URL%/inject-xlsb-v1.1.exe' -OutFile 'inject-xlsb.exe'"
+  const batContent = `@echo off
+if not exist inject-xlsb.exe (
+  echo Renaming latest version to expected filename...
+  rename inject-xlsb-v1.1.exe inject-xlsb.exe
 )
 
-:: Download XLSB if not present
-IF NOT EXIST plan.xlsb (
-  powershell -Command "Invoke-WebRequest '%URL%/plan.xlsb' -OutFile 'plan.xlsb'"
-)
-
-:: Download JSON if not present
-IF NOT EXIST "%~1" (
-  echo JSON file %~1 not found!
-  pause
-  exit /b
-)
-
-:: Run script
 inject-xlsb.exe "%~1"
 pause
 
 `;
-
-
 
   // 🔽 Download BAT file
   const batBlob = new Blob([batContent], { type: 'application/octet-stream' });
@@ -553,6 +536,26 @@ pause
   }, 500);
 }
 
-
-
-
+function sendToInjectionServer(data, folderName) {
+fetch("http://localhost:5000/inject", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+    .then(res => res.json())
+    .then(result => {
+      if (result.path) {
+        showToast(`✅ Excel injected for "${folderName}"`);
+        alert(`✅ File saved:\n${result.path}`);
+      } else {
+        showToast("⚠️ Injection failed");
+        console.error("Server error:", result);
+        alert("❌ Server responded with an error.");
+      }
+    })
+    .catch(err => {
+      showToast("❌ Failed to reach local server");
+      console.error("Fetch failed:", err);
+      alert("❌ Could not connect to local Python server.\n\nMake sure it's running:\npy inject_server.py");
+    });
+}
