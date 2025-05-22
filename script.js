@@ -497,18 +497,25 @@ document.getElementById("downloadAllBtn").addEventListener("click", function () 
 
 function offerPythonRunScript(jsonFilename) {
   const baseName = jsonFilename.replace(/\.json$/i, '');
-  const exeName = 'inject-xlsb.exe';
+  const exeName = 'inject-xlsb-v1.1';
 
-  const batContent = `@echo off
+const batContent = `@echo off
 if not exist inject-xlsb.exe (
   echo Renaming latest version to expected filename...
   rename inject-xlsb-v1.1.exe inject-xlsb.exe
 )
 
-inject-xlsb.exe "%~1"
-pause
+if not exist "${jsonFilename}" (
+  echo ❌ ${jsonFilename} not found!
+  pause
+  exit /b
+)
 
+inject-xlsb.exe "${jsonFilename}"
+pause
 `;
+
+
 
   // 🔽 Download BAT file
   const batBlob = new Blob([batContent], { type: 'application/octet-stream' });

@@ -6,6 +6,10 @@ import datetime
 
 print("📦 Starting script...")
 
+import pathlib
+executable_path = pathlib.Path(sys.executable)
+print(f"🛠️ Running from: {executable_path.name}")
+
 # Accept filename from command-line
 json_path = sys.argv[1] if len(sys.argv) > 1 else "merged-data.json"
 
