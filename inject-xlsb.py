@@ -3,17 +3,18 @@ import json
 import os
 import sys
 import datetime
+import pathlib
+import shutil
+import time
+import subprocess
 
 print("📦 Starting script...")
 
-import pathlib
 executable_path = pathlib.Path(sys.executable)
 print(f"🛠️ Running from: {executable_path.name}")
 
-# Accept filename from command-line
 json_path = sys.argv[1] if len(sys.argv) > 1 else "merged-data.json"
 
-# Load merged data
 try:
     with open(json_path) as f:
         merged_data = json.load(f)
@@ -22,44 +23,32 @@ except Exception as e:
     print(f"❌ Failed to load {json_path}: {e}")
     exit()
 
-# Extract base name for dynamic output
 base_name = os.path.splitext(os.path.basename(json_path))[0]
 folder_label = base_name.replace("merged-data-", "") or "output"
-
-# Generate output filename with timestamp
 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
 output_filename = f"{folder_label}_Vanir_Takeoff_{timestamp}.xlsb"
 
-# Ensure output folder exists
 downloads_path = os.path.join(os.getcwd(), "downloads")
 os.makedirs(downloads_path, exist_ok=True)
 output_path = os.path.abspath(os.path.join(downloads_path, output_filename))
 print(f"📁 Output path: {output_path}")
 
-# Open workbook
-import shutil
-
 template_path = os.path.abspath("plan.xlsb")
+if not os.path.exists(template_path):
+    print(f"❌ Template file not found: {template_path}")
+    exit()
+
 shutil.copy(template_path, output_path)
 print(f"📄 Copied template to: {output_path}")
 
-# Now open the copied workbook
 try:
     wb = xw.Book(output_path)
+    wb.app.visible = True
     print("✅ Opened copied workbook")
 except Exception as e:
     print(f"❌ Failed to open copied workbook: {e}")
     exit()
 
-
-# Access worksheet
-try:
-    sheet = wb.sheets["TakeOff Template"]
-    print("✅ Accessed sheet: TakeOff Template")
-except Exception as e:
-    print(f"❌ Failed to access sheet: {e}")
-    wb.close()
-    exit()
 
 
 # Labor map defined only once
@@ -147,17 +136,15 @@ for row in range(34, 44):
         print(f"❌ Row {row}: No match found for '{labor_desc}'")
 
 
-# Save workbook
-# Save workbook
 try:
     wb.save(output_path)
-    wb.close()         # ✅ Close the workbook
-    wb.app.quit()      # ✅ Quit the Excel application opened by xlwings
+    time.sleep(0.5)
+    wb.close()
+    time.sleep(0.5)
+    wb.app.quit()
     print(f"✅ Saved and closed workbook: {output_path}")
 except Exception as e:
     print(f"❌ Failed to save/close file: {e}")
 
-# Re-open Excel independently so it stays open even if PowerShell is closed
-import subprocess
 subprocess.Popen(["start", "excel", output_path], shell=True)
 print("🚀 Reopened in Excel for user editing (detached from script)")

@@ -1753,10 +1753,6 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\zipfile\\_path\\glob.py',
    'PYMODULE'),
-  ('_strptime',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_strptime.py',
-   'PYMODULE'),
   ('textwrap',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\textwrap.py',
@@ -1801,6 +1797,10 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\__future__.py',
    'PYMODULE'),
+  ('_py_abc',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_py_abc.py',
+   'PYMODULE'),
   ('stringprep',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\stringprep.py',
@@ -1809,13 +1809,13 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tracemalloc.py',
    'PYMODULE'),
-  ('_py_abc',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_py_abc.py',
-   'PYMODULE'),
   ('subprocess',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py',
+   'PYMODULE'),
+  ('_strptime',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_strptime.py',
    'PYMODULE'),
   ('shutil',
    'C:\\Users\\Richard '
@@ -2261,6 +2261,10 @@
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
    'ipsum.txt',
    'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
+   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
@@ -2269,25 +2273,21 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
    'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\Richard '
