@@ -500,19 +500,29 @@ function offerPythonRunScript(jsonFilename) {
   const exeName = 'inject-xlsb-v1.1';
 
 const batContent = `@echo off
-if not exist inject-xlsb.exe (
-  echo Renaming latest version to expected filename...
-  rename inject-xlsb-v1.1.exe inject-xlsb.exe
+SET "URL=https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0"
+
+:: Download EXE if not present
+IF NOT EXIST inject-xlsb.exe (
+  powershell -Command "Invoke-WebRequest '%URL%/inject-xlsb-v1.1.exe' -OutFile 'inject-xlsb.exe'"
 )
 
-if not exist "${jsonFilename}" (
-  echo ❌ ${jsonFilename} not found!
+:: Download XLSB if not present
+IF NOT EXIST plan.xlsb (
+  powershell -Command "Invoke-WebRequest '%URL%/plan.xlsb' -OutFile 'plan.xlsb'"
+)
+
+:: Download JSON if not present
+IF NOT EXIST "%~1" (
+  echo JSON file %~1 not found!
   pause
   exit /b
 )
 
-inject-xlsb.exe "${jsonFilename}"
+:: Run script
+inject-xlsb.exe "%~1"
 pause
+
 `;
 
 
