@@ -9,6 +9,8 @@ app = Flask(__name__)
 CORS(app)
 
 # ✅ NOW define your route AFTER app exists
+import traceback
+
 @app.route('/inject', methods=['POST'])
 def inject():
     try:
@@ -17,6 +19,10 @@ def inject():
             return jsonify({'error': 'No JSON received'}), 400
 
         print(f"✅ Received {len(data)} records.")
+        ...
+
+   
+
 
         # ✅ Generate human-readable timestamp and use Downloads folder
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p')
@@ -91,11 +97,11 @@ def inject():
         wb.close()
         xl_app.quit()
 
-        return jsonify({'message': 'Excel file created', 'path': output_path})
+     return jsonify({'message': 'Excel file created', 'path': output_path})
 
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        print("❌ Exception occurred:")
+        traceback.print_exc()  # ← ✅ This will show the real error in Azure logs
         return jsonify({'error': str(e)}), 500
 
 
