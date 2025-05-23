@@ -537,7 +537,7 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-fetch("http://192.168.60.126:5000/inject", {
+fetch("https://estimatingtool.vanirinstalledsales.info/inject", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data)
