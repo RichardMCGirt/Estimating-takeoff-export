@@ -541,26 +541,24 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-  fetch("https://estimatortool-d2grhec2agc8hxcb.canadacentral-01.azurewebsites.net/inject", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+ fetch("http://127.0.0.1:5000/inject", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(filteredData)  // or mergedData or whatever your Excel input is
+})
+  .then(res => res.json())
+  .then(result => {
+    if (result.path) {
+      alert(`✅ Excel saved as: ${result.path}`);
+    } else {
+      alert("⚠️ Injection failed");
+      console.error(result);
+    }
   })
-    .then(res => res.json())
-    .then(result => {
-      if (result.path) {
-        showToast(`✅ Excel injected for "${folderName}"`);
-        alert(`✅ File saved:\n${result.path}`);
-      } else {
-        showToast("⚠️ Injection failed");
-        console.error("Server error:", result);
-        alert("❌ Server responded with an error.");
-      }
-    })
-    .catch(err => {
-      showToast("❌ Failed to reach server");
-      console.error("Fetch failed:", err);
-      alert("❌ Could not connect to the estimating server.\n\nCheck your internet connection or try again shortly.");
-    });
+  .catch(err => {
+    alert("❌ Could not reach local injection server.");
+    console.error(err);
+  });
+
 }
 
