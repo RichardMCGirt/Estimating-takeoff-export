@@ -18,11 +18,14 @@ def inject():
 
         print(f"✅ Received {len(data)} records.")
 
-        template_path = os.path.join(os.getcwd(), "plan.xlsb")
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_path = os.path.join(os.getcwd(), f"Vanir_Takeoff_{timestamp}.xlsb")
+        # ✅ Generate human-readable timestamp and use Downloads folder
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p')
+        downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+        os.makedirs(downloads_folder, exist_ok=True)  # Ensure Downloads exists
+        output_path = os.path.join(downloads_folder, f"Vanir_Takeoff_{timestamp}.xlsb")
 
-        # Copy the Excel template
+        # 📄 Copy the Excel template
+        template_path = os.path.join(os.getcwd(), "plan.xlsb")
         with open(template_path, 'rb') as f:
             content = f.read()
         with open(output_path, 'wb') as f:
@@ -30,8 +33,6 @@ def inject():
 
         xl_app = xw.App(visible=False)
         wb = xw.Book(output_path)
-
-        # ✅ Access named sheet
         sheet = wb.sheets["TakeOff Template"]
 
         # 🔧 Labor SKUs
@@ -100,4 +101,5 @@ def inject():
 
 # ✅ Don't forget to run it
 if __name__ == '__main__':
-    app.run(port=5000)
+    app.run(host="0.0.0.0", port=5000)
+

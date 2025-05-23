@@ -537,11 +537,12 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-fetch("http://localhost:5000/inject", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  })
+fetch("http://192.168.60.126:5000/inject", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(data)
+})
+
     .then(res => res.json())
     .then(result => {
       if (result.path) {
