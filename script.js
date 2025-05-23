@@ -499,16 +499,20 @@ function offerPythonRunScript(jsonFilename) {
   const baseName = jsonFilename.replace(/\.json$/i, '');
   const exeName = 'inject-xlsb.exe';
 
-  const batContent = `@echo off
-if not exist inject-xlsb.exe (
-  echo Renaming latest version to expected filename...
-  rename inject-xlsb-v1.1.exe inject-xlsb.exe
+const batContent = `@echo off
+echo This script is no longer needed to inject the data.
+echo Your data will be sent to the server automatically.
+echo If you need to view the JSON data, opening it in Notepad...
+
+if exist "%~1" (
+  notepad "%~1"
+) else (
+  echo Could not find the JSON file: %~1
 )
 
-inject-xlsb.exe "%~1"
 pause
-
 `;
+
 
   // 🔽 Download BAT file
   const batBlob = new Blob([batContent], { type: 'application/octet-stream' });
@@ -537,12 +541,11 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-fetch("https://estimatingtool.vanirinstalledsales.info/inject", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)
-})
-
+  fetch("https://estimatortool-d2grhec2agc8hxcb.canadacentral-01.azurewebsites.net/inject", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
     .then(res => res.json())
     .then(result => {
       if (result.path) {
@@ -555,8 +558,9 @@ fetch("https://estimatingtool.vanirinstalledsales.info/inject", {
       }
     })
     .catch(err => {
-      showToast("❌ Failed to reach local server");
+      showToast("❌ Failed to reach server");
       console.error("Fetch failed:", err);
-      alert("❌ Could not connect to local Python server.\n\nMake sure it's running:\npy inject_server.py");
+      alert("❌ Could not connect to the estimating server.\n\nCheck your internet connection or try again shortly.");
     });
 }
+
