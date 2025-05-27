@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # ✅ Add this import
 import xlwings as xw
 import os
 import datetime
@@ -6,9 +7,14 @@ import shutil
 import subprocess
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 @app.route('/inject', methods=['POST'])
 def inject():
+    print(f"🔥 Inject called with method: {request.method}")
+    ...
+
     try:
         data = request.get_json()
         if not data:

@@ -303,23 +303,23 @@ function handleTargetUpload(event) {
   }
   
   
-  function injectSelectedFolder(folder) {
-    const filteredData = mergedData.filter(d => d.Folder === folder);
-    if (!filteredData.length) return alert(`No data for ${folder}`);
-  
-    const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
-    const filename = `merged-data-${safeFolder}.json`;
-    const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
-  
-    // 💾 Save the blob in memory for later
-    window.currentJSONBlob = blob;
-    window.currentJSONFilename = filename;
-  
-    // 👇 Offer bat file download directly
-sendToInjectionServer(filteredData, folder);
-  
-    showToast(`✅ Prepared BAT for "${folder}"`);
-  }
+function injectSelectedFolder(folder) {
+  const filteredData = mergedData.filter(d => d.Folder === folder);
+  if (!filteredData.length) return alert(`No data for ${folder}`);
+
+  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
+  const filename = `merged-data-${safeFolder}.json`;
+  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
+
+  // 💾 Save the blob in memory for later
+  window.currentJSONBlob = blob;
+  window.currentJSONFilename = filename;
+
+  // 💡 Show toast + trigger BAT + JSON downloads
+  offerPythonRunScript(filename);
+  showToast(`✅ Downloaded files for "${folder}"`);
+}
+
     
   document.getElementById('jsonUpload').addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -497,22 +497,33 @@ document.getElementById("downloadAllBtn").addEventListener("click", function () 
 
 function offerPythonRunScript(jsonFilename) {
   const baseName = jsonFilename.replace(/\.json$/i, '');
-  const exeName = 'inject-xlsb.exe';
 
-const batContent = `@echo off
-echo This script is no longer needed to inject the data.
-echo Your data will be sent to the server automatically.
-echo If you need to view the JSON data, opening it in Notepad...
+  const batContent = `@echo off
+cd %USERPROFILE%\\Downloads
 
-if exist "%~1" (
-  notepad "%~1"
-) else (
-  echo Could not find the JSON file: %~1
+:: Check for required files
+if not exist "inject-xlsb-v1.1.exe" (
+  echo ❌ inject-xlsb-v1.1.exe not found in Downloads. Please download it first.
+  pause
+  exit /b
+)
+if not exist "plan.xlsb" (
+  echo ❌ plan.xlsb not found in Downloads. Please download it first.
+  pause
+  exit /b
+)
+if not exist "merged-data-${baseName}.json" (
+  echo ❌ merged-data-${baseName}.json not found.
+  pause
+  exit /b
 )
 
+echo ✅ All required files found. Running injector...
+start "" "inject-xlsb-v1.1.exe" "merged-data-${baseName}.json"
+echo.
+echo Done. Press any key to exit...
 pause
 `;
-
 
   // 🔽 Download BAT file
   const batBlob = new Blob([batContent], { type: 'application/octet-stream' });
@@ -527,38 +538,19 @@ pause
   if (window.currentJSONBlob) {
     const jsonLink = document.createElement("a");
     jsonLink.href = URL.createObjectURL(window.currentJSONBlob);
-    jsonLink.download = jsonFilename;
+    jsonLink.download = `merged-data-${baseName}.json`;
     document.body.appendChild(jsonLink);
     jsonLink.click();
     document.body.removeChild(jsonLink);
   }
 
-  showToast(`✅ .bat and .json files for "${jsonFilename}" downloaded`);
+  showToast(`✅ .bat and .json files for "${baseName}" downloaded`);
 
   setTimeout(() => {
-    alert(`ℹ️ Your files are ready.\n\n1. Open your Downloads folder\n2. Double-click "run_inject_${baseName}.bat"\n\n A blue screen will appear click more info then run any way\n\n Make sure 'inject-xlsb.exe' and 'plan.xlsb' are in the Download folder.`);
+    alert(`📁 Files ready!\n\nPlace the following in your Downloads folder:\n- inject-xlsb-v1.1.exe\n- plan.xlsb\n- merged-data-${baseName}.json\n\nThen double-click run_inject_${baseName}.bat to run the injection.`);
   }, 500);
 }
 
-function sendToInjectionServer(data, folderName) {
- fetch("http://127.0.0.1:5000/inject", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(filteredData)  // or mergedData or whatever your Excel input is
-})
-  .then(res => res.json())
-  .then(result => {
-    if (result.path) {
-      alert(`✅ Excel saved as: ${result.path}`);
-    } else {
-      alert("⚠️ Injection failed");
-      console.error(result);
-    }
-  })
-  .catch(err => {
-    alert("❌ Could not reach local injection server.");
-    console.error(err);
-  });
 
-}
+
 
