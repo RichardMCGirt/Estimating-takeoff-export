@@ -628,8 +628,6 @@ async function fetchFilesFromAirtable() {
   showToast("✅ Files loaded and downloaded (no duplicates)");
 }
 
-
-
 window.addEventListener("DOMContentLoaded", fetchFilesFromAirtable);
 
 function forceDownloadBlob(blob, filename) {
@@ -678,3 +676,18 @@ showToast("✅ Files saved to Downloads");
   }
 
   document.getElementById("downloadAllBtn").addEventListener("click", downloadFiles);
+
+  document.getElementById("resetDownloadsBtn").addEventListener("click", () => {
+  const confirmReset = confirm("Are you sure you want to reset the download status?\n\nThis will cause all files to be downloaded again on next page load.");
+  if (!confirmReset) return;
+
+  // Clear download flags
+  localStorage.removeItem('downloaded_plan.xlsb');
+  localStorage.removeItem('downloaded_inject-xlsb-v1.1.exe');
+
+  // Clear generated flags if used
+  localStorage.removeItem('generatedFiles_plan');
+  localStorage.removeItem('generatedFiles_inject-xlsb-v1.1');
+
+  alert("✅ Download status reset. Please refresh the page to trigger downloads again.");
+});

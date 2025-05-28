@@ -9,14 +9,20 @@
 </head>
 <body>
   <div style="margin-left: 40px; margin-top: 30px; margin-right:  40px;"> <!-- 👈 Wrapper with left + top margin -->
+        <div id="downloadPre" style="display: none;">
+        <div id="downloadPre" style="display: none;">
+</div>
     <h2>Upload prevously downloaded JSON File</h2>
     <input type="file" id="jsonUpload" accept=".json" />
+</div>
 
     <hr>
 
    
     <ol>
       <li><strong>Download required files (Automated)</strong></li>
+            <li><strong>Click reset Downloads button if required files have been deleted</strong></li>
+
       <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
       <li><strong>Review Table</strong> – confirm quantities and elevations</li>
       <li><strong>Select Elevation</strong> – choose which elevation to export</li>
@@ -26,6 +32,9 @@
     <div id="downloadSection" style="display: none;">
   <h2>Step 1: Download required files if not currently in downloads folder</h2>
   <button id="downloadAllBtn">⬇️ Download Required Files</button>
+</div>
+<div style="margin-top: 20px;">
+  <button id="resetDownloadsBtn">🔁 Reset Downloads</button>
 </div>
 
 
