@@ -23,15 +23,24 @@
       <li><strong>Run .bat File</strong> – to inject into the .xlsb macro template</li>
     </ol>
 
-    <h2>Step 1: Download required files if not currenlty in downloads folder</h2>
-<button id="downloadAllBtn">⬇️ Download Required Files</button>
+    <div id="downloadSection" style="display: none;">
+  <h2>Step 1: Download required files if not currently in downloads folder</h2>
+  <button id="downloadAllBtn">⬇️ Download Required Files</button>
+</div>
+
 
     <hr>
 
-    <h2>Step 2: Upload Source File</h2>
+    <h2>Step 1: Upload Source File</h2>
     <input type="file" id="sourceFile" accept=".xlsx" />
 
     <hr>
+
+    <div id="mergedTableWrapper" style="display: none;">
+          <h2>Step 2: Review Table</h2>
+
+  <div id="mergedTableContainer"></div>
+</div>
 
     <div id="elevationSection" style="display: none;">
       <h2>Step 3: Select Elevation</h2>
