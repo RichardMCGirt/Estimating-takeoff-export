@@ -317,6 +317,7 @@ function injectSelectedFolder(folder) {
 
   // 💡 Show toast + trigger BAT + JSON downloads
   offerPythonRunScript(filename);
+// createOpenLatestBat();
   showToast(`✅ Downloaded files for "${folder}"`);
 }
 
@@ -442,63 +443,11 @@ function downloadMappedExcel() {
   showToast("Mapped workbook downloaded.");
 
 }
-document.getElementById("downloadAllBtn").addEventListener("click", function () {
-  const files = [
-    {
-      name: "inject-xlsb-v1.1.exe",
-      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/inject-xlsb-v1.1.exe"
-    },
-    {
-      name: "plan.xlsb",
-      url: "https://github.com/RichardMCGirt/estimatingrawexport/releases/download/v1.0/plan.xlsb"
-    }
-  ];
-
-
-  // Check if files have been downloaded before
-  const alreadyDownloaded = localStorage.getItem("requiredFilesDownloaded");
-
-  if (alreadyDownloaded === "true") {
-    const confirmRedownload = confirm("These files were already downloaded. Do you want to download them again?");
-    if (!confirmRedownload) return;
-  }
-
-  files.forEach(file => {
-    const a = document.createElement("a");
-    a.href = file.url;
-    a.download = file.name;
-    a.style.display = "none";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  // Mark files as downloaded
-  localStorage.setItem("requiredFilesDownloaded", "true");
-
-
-  function triggerDownload(index) {
-    if (index >= files.length) return;
-
-    const file = files[index];
-    const a = document.createElement("a");
-    a.href = file.url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    setTimeout(() => triggerDownload(index + 1), 1000); // ⏱ 1 second delay
-  }
-
-  triggerDownload(0);
-});
-
 
 function offerPythonRunScript(jsonFilename) {
   const baseName = jsonFilename.replace(/\.json$/i, '');
 
-  const batContent = `@echo off
+const batContent = `@echo off
 cd %USERPROFILE%\\Downloads
 
 :: Check for required files
@@ -519,11 +468,26 @@ if not exist "merged-data-${baseName}.json" (
 )
 
 echo ✅ All required files found. Running injector...
-start "" "inject-xlsb-v1.1.exe" "merged-data-${baseName}.json"
-echo.
-echo Done. Press any key to exit...
+start /wait "" "inject-xlsb-v1.1.exe" "merged-data-${baseName}.json"
+
+echo 🔍 Looking for most recent .xlsb file in downloads folder...
+for /f "delims=" %%F in ('powershell -NoProfile -Command "Get-ChildItem -Path ''%USERPROFILE%\Downloads\downloads'' -Filter ''*.xlsb'' | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { $_.FullName }"') do (
+  echo 📂 Opening: %%~nxF
+  start "" "%%F"
+  goto done
+)
+
+
+echo ❌ Could not find any Vanir_Takeoff_*.xlsb file.
 pause
+goto end
+
+:done
+echo ✅ File opened. Press any key to exit...
+pause
+:end
 `;
+
 
   // 🔽 Download BAT file
   const batBlob = new Blob([batContent], { type: 'application/octet-stream' });
@@ -547,10 +511,170 @@ pause
   showToast(`✅ .bat and .json files for "${baseName}" downloaded`);
 
   setTimeout(() => {
-    alert(`📁 Files ready!\n\nPlace the following in your Downloads folder:\n- inject-xlsb-v1.1.exe\n- plan.xlsb\n- merged-data-${baseName}.json\n\nThen double-click run_inject_${baseName}.bat to run the injection.`);
+    alert(`📁 Files ready!\n\nInsure the following are in your Downloads folder:\n- inject-xlsb-v1.1.exe\n- plan.xlsb\n- merged-data-${baseName}.json\n\nThen double-click run_inject_${baseName}.bat to run the injection.`);
   }, 500);
+}
+// cd %USERPROFILE%\\Downloads
+
+// :: Define download URLs
+// set "EXE_URL=https://v5.airtableusercontent.com/v3/u/41/41/1748368800000/x0jrawyAjBgmuxS4Hw6mWw/nJzh3WrB9q9xFhIQ5_976bm5-ElfG3EQI051TWLbxu5tTT1hZO4NGBtn2COF5b1Q0nvD87tzbqT5P7JQpFLMQMDm4_czsvT6xY77PTZqN3ujSZGWnhqcJo7AFKs9FRn7lKO_d2MkIDst38iPmRYw2AJz70WHobqq4x8824ykV1k/yvKRQz-tqHAzlaGjWnJZiEHcpxWWqTpbkLsUgZhqb5Q"
+
+// set "PLAN_URL=https://v5.airtableusercontent.com/v3/u/41/41/1748368800000/8Xby7sIwtA-YplCUI5ejhQ/kiHSWaGpHM7sARULbQNjuuSvosRZ7_12QRcJ-kQldUa-X_vC8vIvtJnd8hClSP4l6DVtY9y8qPgDOYYYAUQDcHd7wKWob0fIx50LhjQIdCgixDzDGYGrjfDrjcJffEnamMw3qqY7hNeTxUFVgrHmsA/ClUSsz04wR6jLPwVexfjlfoueVL_E1BmhVRCJil0CwY
+// "
+
+// :: Download inject-xlsb-v1.1.exe if missing
+// if not exist "inject-xlsb-v1.1.exe" (
+   //echo ⬇️ inject-xlsb-v1.1.exe not found. Downloading...
+  // powershell -Command "Invoke-WebRequest -Uri '%EXE_URL%' -OutFile 'inject-xlsb-v1.1.exe'"
+//)
+
+// :: Download plan.xlsb if missing
+//if not exist "plan.xlsb" (
+ // echo ⬇️ plan.xlsb not found. Downloading...
+  //powershell -Command "Invoke-WebRequest -Uri '%PLAN_URL%' -OutFile 'plan.xlsb'"
+//)
+function createOpenLatestBat() {
+  const batContent = `@echo off
+cd %USERPROFILE%\\Downloads
+
+echo 🔍 Looking for most recent Vanir_Takeoff .xlsb file...
+
+for /f "usebackq delims=" %%F in (\`powershell -NoProfile -Command "Get-ChildItem -Path . -Filter '*Vanir_Takeoff*.xlsb' | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { $_.FullName }"\`) do (
+  echo 📂 Opening: %%~nxF
+  start "" "%%F"
+)
+
+pause`;
+
+  const blob = new Blob([batContent], { type: 'application/octet-stream' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = "open_latest_output.bat";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+
+async function fetchFilesFromAirtable() {
+  const airtableApiKey = 'patTGK9HVgF4n1zqK.cbc0a103ecf709818f4cd9a37e18ff5f68c7c17f893085497663b12f2c600054';
+  const baseId = 'appC66GdZvBlr76Bv';
+  const tableName = 'tblEvTgj6oyT0YNi3';
+  const targetRecordId = 'recFowFd2V7QHUZao';
+
+  const url = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+  console.log("📡 Fetching files from Airtable...");
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${airtableApiKey}`,
+    }
+  });
+
+  const data = await response.json();
+  console.log("✅ Airtable response:", data);
+
+  const record = data.records.find(r => r.id === targetRecordId);
+  if (!record) {
+    console.error(`❌ Record with ID ${targetRecordId} not found.`);
+    return;
+  }
+
+  const attachments = record.fields["Estimating files"];
+  if (!attachments || !attachments.length) {
+    console.warn("⚠️ No attachments found in field: Estimating files");
+    alert("No files found in Airtable.");
+    return;
+  }
+
+  console.log(`📦 Found ${attachments.length} files:`);
+  attachments.forEach((file, i) => {
+    console.log(`#${i + 1}:`, {
+      filename: file.filename,
+      type: file.type,
+      sizeKB: Math.round(file.size / 1024),
+      url: file.url
+    });
+  });
+
+ for (const file of attachments) {
+  console.log(`🔄 Fetching: ${file.filename}`);
+  const fileResponse = await fetch(file.url);
+  const blob = await fileResponse.blob();
+  window[`fileBlob_${file.filename}`] = blob;
+
+  const filename = file.filename; // e.g., "plan.xlsb" or "inject-xlsb-v1.1.exe"
+  const baseName = filename.replace(/\.[^/.]+$/, ''); // strip file extension
+
+  const storageKey = `downloaded_${filename}`;
+  if (!localStorage.getItem(storageKey)) {
+    forceDownloadBlob(blob, filename);
+    localStorage.setItem(storageKey, "true");
+    console.log(`⬇️ Downloaded ${filename}`);
+  } else {
+    console.log(`⏩ Skipped ${filename} (already downloaded)`);
+  }
+
+  // ✅ Safe to use baseName now
+  if (!localStorage.getItem(`generatedFiles_${baseName}`)) {
+    console.log(`🛠️ Generating assets for: ${baseName}`);
+    // generate assets for baseName if needed...
+    localStorage.setItem(`generatedFiles_${baseName}`, "true");
+  } else {
+    console.log(`⏩ Skipping .bat/.json generation for ${baseName}`);
+  }
+}
+
+  showToast("✅ Files loaded and downloaded (no duplicates)");
 }
 
 
 
+window.addEventListener("DOMContentLoaded", fetchFilesFromAirtable);
 
+function forceDownloadBlob(blob, filename) {
+  if (!(blob instanceof Blob)) {
+    console.error(`❌ Cannot download "${filename}". Blob is invalid:`, blob);
+    return;
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+showToast("✅ Files saved to Downloads");
+  const fileLinks = [
+    {
+      name: "inject-xlsb-v1.1.exe",
+      url: "https://v5.airtableusercontent.com/v3/u/41/41/1748368800000/x0jrawyAjBgmuxS4Hw6mWw/nJzh3WrB9q9xFhIQ5_976bm5-ElfG3EQI051TWLbxu5tTT1hZO4NGBtn2COF5b1Q0nvD87tzbqT5P7JQpFLMQMDm4_czsvT6xY77PTZqN3ujSZGWnhqcJo7AFKs9FRn7lKO_d2MkIDst38iPmRYw2AJz70WHobqq4x8824ykV1k/yvKRQz-tqHAzlaGjWnJZiEHcpxWWqTpbkLsUgZhqb5Q"
+    },
+    {
+      name: "plan.xlsb",
+      url: "https://v5.airtableusercontent.com/v3/u/41/41/1748368800000/8Xby7sIwtA-YplCUI5ejhQ/kiHSWaGpHM7sARULbQNjuuSvosRZ7_12QRcJ-kQldUa-X_vC8vIvtJnd8hClSP4l6DVtY9y8qPgDOYYYAUQDcHd7wKWob0fIx50LhjQIdCgixDzDGYGrjfDrjcJffEnamMw3qqY7hNeTxUFVgrHmsA/ClUSsz04wR6jLPwVexfjlfoueVL_E1BmhVRCJil0CwY"
+    }
+  ];
+
+  async function downloadFiles() {
+    for (const file of fileLinks) {
+      try {
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = file.name;
+        link.click();
+        console.log(`✅ Downloaded: ${file.name}`);
+      } catch (err) {
+        console.error(`❌ Failed to download ${file.name}`, err);
+        alert(`Failed to download ${file.name}`);
+      }
+    }
+  }
+
+  document.getElementById("downloadAllBtn").addEventListener("click", downloadFiles);

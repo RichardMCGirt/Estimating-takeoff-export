@@ -21,6 +21,10 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_inspect.py',
    'PYSOURCE'),
+  ('pyi_rth_setuptools',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_setuptools.py',
+   'PYSOURCE'),
   ('pyi_rth_pkgutil',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgutil.py',
@@ -29,6 +33,10 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_multiprocessing.py',
    'PYSOURCE'),
+  ('pyi_rth_pkgres',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgres.py',
+   'PYSOURCE'),
   ('pyi_rth_pywintypes',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pywintypes.py',
@@ -36,14 +44,6 @@
   ('pyi_rth_pythoncom',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\rthooks\\pyi_rth_pythoncom.py',
-   'PYSOURCE'),
-  ('pyi_rth_setuptools',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_setuptools.py',
-   'PYSOURCE'),
-  ('pyi_rth_pkgres',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks\\pyi_rth_pkgres.py',
    'PYSOURCE'),
   ('inject-xlsb',
    'C:\\Users\\Richard McGirt\\Desktop\\estimatingrawexport\\inject-xlsb.py',
@@ -1805,13 +1805,13 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\stringprep.py',
    'PYMODULE'),
-  ('tracemalloc',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tracemalloc.py',
-   'PYMODULE'),
   ('_py_abc',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\_py_abc.py',
+   'PYMODULE'),
+  ('tracemalloc',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\tracemalloc.py',
    'PYMODULE'),
   ('subprocess',
    'C:\\Users\\Richard '
@@ -1888,6 +1888,106 @@
   ('xlwings.pro.reports.main',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\xlwings\\pro\\reports\\main.py',
+   'PYMODULE'),
+  ('jinja2.nodes',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\nodes.py',
+   'PYMODULE'),
+  ('jinja2.compiler',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\compiler.py',
+   'PYMODULE'),
+  ('jinja2.runtime',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\runtime.py',
+   'PYMODULE'),
+  ('jinja2.async_utils',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\async_utils.py',
+   'PYMODULE'),
+  ('jinja2.visitor',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\visitor.py',
+   'PYMODULE'),
+  ('jinja2.optimizer',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\optimizer.py',
+   'PYMODULE'),
+  ('jinja2.idtracking',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\idtracking.py',
+   'PYMODULE'),
+  ('jinja2.exceptions',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\exceptions.py',
+   'PYMODULE'),
+  ('jinja2.environment',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\environment.py',
+   'PYMODULE'),
+  ('jinja2.debug',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\debug.py',
+   'PYMODULE'),
+  ('jinja2.loaders',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\loaders.py',
+   'PYMODULE'),
+  ('jinja2.ext',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\ext.py',
+   'PYMODULE'),
+  ('jinja2.bccache',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\bccache.py',
+   'PYMODULE'),
+  ('jinja2.parser',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\parser.py',
+   'PYMODULE'),
+  ('jinja2.lexer',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\lexer.py',
+   'PYMODULE'),
+  ('jinja2._identifier',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\_identifier.py',
+   'PYMODULE'),
+  ('jinja2.defaults',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\defaults.py',
+   'PYMODULE'),
+  ('jinja2.tests',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\tests.py',
+   'PYMODULE'),
+  ('jinja2.filters',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\filters.py',
+   'PYMODULE'),
+  ('jinja2.sandbox',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\sandbox.py',
+   'PYMODULE'),
+  ('jinja2.utils',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\utils.py',
+   'PYMODULE'),
+  ('jinja2.constants',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\constants.py',
+   'PYMODULE'),
+  ('markupsafe',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\markupsafe\\__init__.py',
+   'PYMODULE'),
+  ('markupsafe._native',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\markupsafe\\_native.py',
+   'PYMODULE'),
+  ('jinja2',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\jinja2\\__init__.py',
    'PYMODULE'),
   ('xlwings.pro.reports.filters',
    'C:\\Users\\Richard '
@@ -2194,6 +2294,10 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\DLLs\\_wmi.pyd',
    'EXTENSION'),
+  ('markupsafe\\_speedups.cp313-win_amd64.pyd',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\markupsafe\\_speedups.cp313-win_amd64.pyd',
+   'EXTENSION'),
   ('win32\\win32api.pyd',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\win32\\win32api.pyd',
@@ -2261,14 +2365,6 @@
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
    'ipsum.txt',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
-   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\top_level.txt',
@@ -2277,10 +2373,6 @@
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\RECORD',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
-   'C:\\Users\\Richard '
-   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
-   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\METADATA',
@@ -2288,6 +2380,42 @@
   ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
    'C:\\Users\\Richard '
    'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\WHEEL',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\LICENSE',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.0.0.dist-info\\REQUESTED',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\METADATA',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\METADATA',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\RECORD',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\RECORD',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\top_level.txt',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\top_level.txt',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\INSTALLER',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\INSTALLER',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\WHEEL',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\WHEEL',
+   'DATA'),
+  ('MarkupSafe-3.0.2.dist-info\\LICENSE.txt',
+   'C:\\Users\\Richard '
+   'McGirt\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\MarkupSafe-3.0.2.dist-info\\LICENSE.txt',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\Richard '

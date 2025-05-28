@@ -148,7 +148,6 @@ for row in range(34, 44):
 
 
 # Save workbook
-# Save workbook
 try:
     wb.save(output_path)
     wb.close()         # ✅ Close the workbook
@@ -159,5 +158,15 @@ except Exception as e:
 
 # Re-open Excel independently so it stays open even if PowerShell is closed
 import subprocess
-subprocess.Popen(["start", "excel", output_path], shell=True)
-print("🚀 Reopened in Excel for user editing (detached from script)")
+
+try:
+    subprocess.Popen([
+        "powershell",
+        "-NoProfile",
+        "-Command",
+        'Start-Process (Get-ChildItem "$env:USERPROFILE\\Downloads\\downloads\\*.xlsb" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName'
+    ], shell=True)
+    print("🚀 Opened the most recently saved .xlsb file from \\Downloads\\downloads\\")
+except Exception as e:
+    print(f"❌ Failed to open Excel file: {e}")
+
