@@ -544,8 +544,9 @@ function sendToInjectionServer(data, folderName) {
  fetch("http://127.0.0.1:5000/inject", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(filteredData)  // or mergedData or whatever your Excel input is
+  body: JSON.stringify(data)  // ✅ Use the passed-in data
 })
+
   .then(res => res.json())
   .then(result => {
     if (result.path) {

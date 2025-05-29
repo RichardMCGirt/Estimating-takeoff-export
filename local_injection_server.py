@@ -4,7 +4,7 @@ import os
 import datetime
 import shutil
 import subprocess
-
+from flask_cors import CORS  # 👈 Add this
 app = Flask(__name__)
 
 @app.route('/inject', methods=['POST'])
