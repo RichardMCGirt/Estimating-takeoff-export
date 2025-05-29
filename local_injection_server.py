@@ -4,31 +4,35 @@ import os
 import datetime
 import shutil
 import subprocess
-from flask_cors import CORS  # 👈 Add this
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+
 
 @app.route('/inject', methods=['POST'])
 def inject():
     try:
         data = request.get_json()
+        print("🔍 Received data:", data)
+
         if not data:
             return jsonify({'error': 'No data received'}), 400
 
-        # Create timestamped output path
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
         downloads_path = os.path.join(os.getcwd(), "downloads")
         os.makedirs(downloads_path, exist_ok=True)
         output_path = os.path.join(downloads_path, output_filename)
 
-        # Copy template
         template = "plan.xlsb"
         shutil.copy(template, output_path)
 
-        wb = xw.Book(output_path)
+        # 🔧 Safer way to open Excel using a dedicated App instance
+        app_xl = xw.App(visible=False, add_book=False)
+        wb = app_xl.books.open(output_path)
         sheet = wb.sheets["TakeOff Template"]
 
-        # Define labor SKU map
         labor_map = {
             "lap labor": "zLABORLAP",
             "b&b labor": "zLABORBB",
@@ -45,7 +49,6 @@ def inject():
         labor_skus = set(labor_map.values())
         non_labor_data = [row for row in data if row.get("SKU", "").strip().lower() not in labor_skus]
 
-        # Inject A:G
         for i, row in enumerate(non_labor_data, start=8):
             sheet.range(f"A{i}").value = row.get("SKU", "")
             sheet.range(f"B{i}").value = row.get("Description", "")
@@ -55,7 +58,6 @@ def inject():
             sheet.range(f"F{i}").value = row.get("ColorGroup", "")
             sheet.range(f"G{i}").value = row.get("Vendor", "")
 
-        # Inject L34–L43 based on labor SKUs
         for row in range(34, 44):
             raw_val = sheet.range(f"K{row}").value
             if not raw_val:
@@ -76,16 +78,19 @@ def inject():
 
             sheet.range(f"L{row}").value = qty
 
-        # Save and open
         wb.save(output_path)
         wb.close()
-        wb.app.quit()
+        app_xl.quit()
 
+        # Now open Excel *after* xlwings is completely done
         subprocess.Popen(["start", "excel", output_path], shell=True)
+
         return jsonify({'status': 'success', 'path': output_path})
 
     except Exception as e:
+        print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=5000)

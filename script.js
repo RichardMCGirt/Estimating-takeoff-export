@@ -1,5 +1,8 @@
 let mergedData = [];
 let mappedWorkbook = null;
+const defaultServer = "https://f6fd-174-108-187-19.ngrok-free.app/inject";
+const savedServer = localStorage.getItem("injectionServerURL");
+const serverURL = savedServer || defaultServer;
 
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
@@ -541,11 +544,15 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
- fetch("http://127.0.0.1:5000/inject", {
+const serverURL = "https://86d0-174-108-187-19.ngrok-free.app/inject";
+
+
+fetch(serverURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)  // ✅ Use the passed-in data
+  body: JSON.stringify(data)
 })
+
 
   .then(res => res.json())
   .then(result => {
