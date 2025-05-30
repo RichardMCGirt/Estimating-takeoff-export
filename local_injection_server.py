@@ -24,9 +24,9 @@ def inject():
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
 
         # Save to a temporary directory instead of Downloads
-        temp_dir = os.path.join(os.getcwd(), "temp_outputs")
-        os.makedirs(temp_dir, exist_ok=True)
-        output_path = os.path.join(temp_dir, output_filename)
+        downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+        output_path = os.path.join(downloads_path, output_filename)
+
 
         shutil.copy("plan.xlsb", output_path)
 
