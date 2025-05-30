@@ -1,40 +1,26 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 import xlwings as xw
 import os
 import datetime
 import shutil
-from flask_cors import CORS
 
-app = Flask(__name__, static_url_path='/static', static_folder='static')
-
-# Allow only your production domain for safety
-CORS(app, resources={r"/*": {"origins": [
-    "https://estimatingtool.vanirinstalledsales.info",
-    "https://6a06-174-108-187-19.ngrok-free.app",
-    "http://localhost:5500"
-]}})
-
+app = Flask(__name__)
+CORS(app, supports_credentials=True, origins="*", methods=["GET", "POST", "OPTIONS"])
 
 @app.after_request
 def add_cors_headers(response):
-    origin = request.headers.get("Origin")
-    allowed_origins = [
-        "https://estimatingtool.vanirinstalledsales.info",
-        "https://6a06-174-108-187-19.ngrok-free.app"
-    ]
-    if origin in allowed_origins:
-        response.headers.add("Access-Control-Allow-Origin", origin)
+    response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin", "*"))
     response.headers.add("Access-Control-Allow-Headers", "Content-Type")
     response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
     return response
 
-
-@app.route('/inject', methods=['OPTIONS'])
-def inject_options():
-    return jsonify({'status': 'OK'})
-
-@app.route('/inject', methods=['POST'])
+@app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
+    if request.method == 'OPTIONS':
+        # Preflight CORS check response
+        return '', 204
+
     try:
         data = request.get_json()
         print("🔍 Received data:", data)
@@ -73,8 +59,6 @@ def inject():
             sheet.range(f"A{i}").value = row.get("SKU", "")
             sheet.range(f"E{i}").value = row.get("TotalQty", 0)
             sheet.range(f"F{i}").value = row.get("ColorGroup", "")
-            # B, C, D, G are left untouched so Excel keeps formulas
-
 
         for row in range(34, 44):
             raw_val = sheet.range(f"K{row}").value
@@ -105,7 +89,6 @@ def inject():
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(port=5000)
