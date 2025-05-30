@@ -544,28 +544,52 @@ pause
   }, 500);
 }
 
-function sendToInjectionServer(data, folderName) {
-const serverURL = "https://6a06-174-108-187-19.ngrok-free.app/inject";
+function injectSelectedFolder(folder) {
+  const filteredData = mergedData.filter(d => d.Folder === folder);
+  if (!filteredData.length) return alert(`No data for ${folder}`);
 
-fetch(serverURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(data)
-})
-  .then(response => response.blob())
-  .then(blob => {
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${folderName}_Injected.xlsb`;  // set filename here
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    showToast("✅ File downloaded.");
-  })
-  .catch(error => {
-    console.error("Download failed", error);
-    alert("❌ Injection failed.");
-  });
+  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_');
+  const filename = `merged-data-${safeFolder}.json`;
+  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
 
+  // 💾 Save full JSON in case user downloads later
+  window.currentJSONBlob = blob;
+  window.currentJSONFilename = filename;
+
+  // ✅ Send slimmed version to the server
+  const slimmed = filteredData.map(row => ({
+    SKU: row.SKU,
+    TotalQty: row.TotalQty,
+    ColorGroup: row.ColorGroup
+  }));
+
+  sendToInjectionServer(slimmed, folder);
+
+  showToast(`✅ Injected "${folder}" to server`);
 }
+
+function sendToInjectionServer(data, folderName) {
+  const serverURL = "https://6a06-174-108-187-19.ngrok-free.app/inject"; // Update if your ngrok URL changes
+
+  fetch(serverURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+    .then(response => response.blob())
+    .then(blob => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folderName}_Injected.xlsb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("✅ File downloaded.");
+    })
+    .catch(error => {
+      console.error("Download failed", error);
+      alert("❌ Injection failed.");
+    });
+}
+
 

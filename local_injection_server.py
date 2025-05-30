@@ -10,8 +10,10 @@ app = Flask(__name__, static_url_path='/static', static_folder='static')
 # Allow only your production domain for safety
 CORS(app, resources={r"/*": {"origins": [
     "https://estimatingtool.vanirinstalledsales.info",
-    "https://6a06-174-108-187-19.ngrok-free.app"
+    "https://6a06-174-108-187-19.ngrok-free.app",
+    "http://localhost:5500"
 ]}})
+
 
 @app.after_request
 def add_cors_headers(response):
@@ -69,12 +71,10 @@ def inject():
 
         for i, row in enumerate(non_labor_data, start=8):
             sheet.range(f"A{i}").value = row.get("SKU", "")
-            sheet.range(f"B{i}").value = row.get("Description", "")
-            sheet.range(f"C{i}").value = row.get("Description2", "")
-            sheet.range(f"D{i}").value = row.get("UOM", "")
             sheet.range(f"E{i}").value = row.get("TotalQty", 0)
             sheet.range(f"F{i}").value = row.get("ColorGroup", "")
-            sheet.range(f"G{i}").value = row.get("Vendor", "")
+            # B, C, D, G are left untouched so Excel keeps formulas
+
 
         for row in range(34, 44):
             raw_val = sheet.range(f"K{row}").value
@@ -105,6 +105,7 @@ def inject():
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=5000)
