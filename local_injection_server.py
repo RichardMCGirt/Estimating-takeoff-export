@@ -4,10 +4,9 @@ import xlwings as xw
 import os
 import datetime
 import shutil
+from collections import defaultdict
 
 app = Flask(__name__)
-
-# Allow all origins during testing (safer: restrict later)
 CORS(app, supports_credentials=True)
 
 @app.after_request
@@ -19,11 +18,10 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
     return response
 
-
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
-        return '', 204  # Preflight success
+        return '', 204
 
     try:
         data = request.get_json()
@@ -41,6 +39,8 @@ def inject():
 
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
+
+        # === 1. Fill "TakeOff Template" ===
         sheet = wb.sheets["TakeOff Template"]
 
         labor_map = {
@@ -84,6 +84,32 @@ def inject():
 
             sheet.range(f"L{row}").value = qty
 
+        # === 2. Fill "Material Break Out" ===
+        material_sheet = wb.sheets["Material Break Out"]
+        material_sheet.clear_contents()  # Optional: Clear previous data
+
+        # Filter out SKUs that contain "labor"
+        material_data = [row for row in data if "labor" not in row.get("SKU", "").lower()]
+
+        # Group by Folder
+        grouped_by_folder = defaultdict(list)
+        for row in material_data:
+            folder = row.get("Folder", "Uncategorized")
+            grouped_by_folder[folder].append(row)
+
+        current_row = 9
+        for folder, items in grouped_by_folder.items():
+            material_sheet.range(f"A{current_row}").value = folder  # Section header
+            current_row += 1
+            for item in items:
+                material_sheet.range(f"A{current_row}").value = item.get("SKU", "")
+                material_sheet.range(f"B{current_row}").value = item.get("Description", "")
+                material_sheet.range(f"C{current_row}").value = item.get("Description2", "")
+                material_sheet.range(f"D{current_row}").value = item.get("Units", "")
+                material_sheet.range(f"E{current_row}").value = item.get("TotalQty", 0)
+                material_sheet.range(f"F{current_row}").value = item.get("ColorGroup", "")
+                current_row += 1
+
         wb.save(output_path)
         wb.close()
         app_xl.quit()
@@ -93,7 +119,6 @@ def inject():
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(port=5000)
