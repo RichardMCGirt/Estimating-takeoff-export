@@ -8,14 +8,24 @@ from flask_cors import CORS
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 
 # Allow only your production domain for safety
-CORS(app, resources={r"/inject": {"origins": "https://estimatingtool.vanirinstalledsales.info"}})
+CORS(app, resources={r"/*": {"origins": [
+    "https://estimatingtool.vanirinstalledsales.info",
+    "https://6a06-174-108-187-19.ngrok-free.app"
+]}})
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers.add("Access-Control-Allow-Origin", "https://estimatingtool.vanirinstalledsales.info")
+    origin = request.headers.get("Origin")
+    allowed_origins = [
+        "https://estimatingtool.vanirinstalledsales.info",
+        "https://6a06-174-108-187-19.ngrok-free.app"
+    ]
+    if origin in allowed_origins:
+        response.headers.add("Access-Control-Allow-Origin", origin)
     response.headers.add("Access-Control-Allow-Headers", "Content-Type")
     response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
     return response
+
 
 @app.route('/inject', methods=['OPTIONS'])
 def inject_options():
