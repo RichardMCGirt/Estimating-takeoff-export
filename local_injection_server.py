@@ -6,10 +6,20 @@ import shutil
 from flask_cors import CORS
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
-CORS(app, supports_credentials=True, origins=[
-    "http://127.0.0.1:5500",
-    "https://estimatingtool.vanirinstalledsales.info"
-])
+
+# Allow only your production domain for safety
+CORS(app, resources={r"/inject": {"origins": "https://estimatingtool.vanirinstalledsales.info"}})
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add("Access-Control-Allow-Origin", "https://estimatingtool.vanirinstalledsales.info")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+    return response
+
+@app.route('/inject', methods=['OPTIONS'])
+def inject_options():
+    return jsonify({'status': 'OK'})
 
 @app.route('/inject', methods=['POST'])
 def inject():
@@ -22,15 +32,11 @@ def inject():
 
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
-
-        # Save to a temporary directory instead of Downloads
         downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
         output_path = os.path.join(downloads_path, output_filename)
 
-
         shutil.copy("plan.xlsb", output_path)
 
-        # Open Excel silently
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
         sheet = wb.sheets["TakeOff Template"]
@@ -84,7 +90,6 @@ def inject():
         wb.close()
         app_xl.quit()
 
-        # ✅ Return file to browser
         return send_file(output_path, as_attachment=True, download_name=output_filename)
 
     except Exception as e:
