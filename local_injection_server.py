@@ -6,20 +6,24 @@ import datetime
 import shutil
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True, origins="*", methods=["GET", "POST", "OPTIONS"])
+
+# Allow all origins during testing (safer: restrict later)
+CORS(app, supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
-    response.headers.add("Access-Control-Allow-Origin", request.headers.get("Origin", "*"))
-    response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-    response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+    origin = request.headers.get("Origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
     return response
+
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
-        # Preflight CORS check response
-        return '', 204
+        return '', 204  # Preflight success
 
     try:
         data = request.get_json()
@@ -89,6 +93,7 @@ def inject():
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=5000)

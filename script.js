@@ -569,7 +569,7 @@ function injectSelectedFolder(folder) {
 }
 
 function sendToInjectionServer(data, folderName) {
-  const serverURL = "https://6a06-174-108-187-19.ngrok-free.app/inject"; // Update if your ngrok URL changes
+const serverURL = "https://e0af-174-108-187-19.ngrok-free.app/inject";
 
   fetch(serverURL, {
     method: "POST",
