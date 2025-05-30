@@ -56,7 +56,7 @@ def inject():
             "t&g ceiling labor": "zLABORTGCEIL"
         }
 
-        labor_skus = set(labor_map.values())
+        labor_skus = set(sku.lower() for sku in labor_map.values())
         non_labor_data = [row for row in data if row.get("SKU", "").strip().lower() not in labor_skus]
 
         for i, row in enumerate(non_labor_data, start=8):
