@@ -1,6 +1,7 @@
 let mergedData = [];
 let mappedWorkbook = null;
-const defaultServer = "https://f6fd-174-108-187-19.ngrok-free.app/inject";
+
+const defaultServer = "https://fdb2-174-108-187-19.ngrok-free.app/inject";
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 
@@ -544,28 +545,26 @@ pause
 }
 
 function sendToInjectionServer(data, folderName) {
-const serverURL = "https://86d0-174-108-187-19.ngrok-free.app/inject";
-
+const serverURL = "https://fdb2-174-108-187-19.ngrok-free.app/inject";
 
 fetch(serverURL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(data)
 })
-
-
-  .then(res => res.json())
-  .then(result => {
-    if (result.path) {
-      alert(`✅ Excel saved as: ${result.path}`);
-    } else {
-      alert("⚠️ Injection failed");
-      console.error(result);
-    }
+  .then(response => response.blob())
+  .then(blob => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${folderName}_Injected.xlsb`;  // set filename here
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast("✅ File downloaded.");
   })
-  .catch(err => {
-    alert("❌ Could not reach local injection server.");
-    console.error(err);
+  .catch(error => {
+    console.error("Download failed", error);
+    alert("❌ Injection failed.");
   });
 
 }

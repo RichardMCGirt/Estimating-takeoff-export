@@ -1,14 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import xlwings as xw
 import os
 import datetime
 import shutil
-import subprocess
 from flask_cors import CORS
 
-app = Flask(__name__)
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
-
+app = Flask(__name__, static_url_path='/static', static_folder='static')
+CORS(app, supports_credentials=True, origins=[
+    "http://127.0.0.1:5500",
+    "https://estimatingtool.vanirinstalledsales.info"
+])
 
 @app.route('/inject', methods=['POST'])
 def inject():
@@ -21,14 +22,15 @@ def inject():
 
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
-        downloads_path = os.path.join(os.getcwd(), "downloads")
-        os.makedirs(downloads_path, exist_ok=True)
-        output_path = os.path.join(downloads_path, output_filename)
 
-        template = "plan.xlsb"
-        shutil.copy(template, output_path)
+        # Save to a temporary directory instead of Downloads
+        temp_dir = os.path.join(os.getcwd(), "temp_outputs")
+        os.makedirs(temp_dir, exist_ok=True)
+        output_path = os.path.join(temp_dir, output_filename)
 
-        # 🔧 Safer way to open Excel using a dedicated App instance
+        shutil.copy("plan.xlsb", output_path)
+
+        # Open Excel silently
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
         sheet = wb.sheets["TakeOff Template"]
@@ -82,15 +84,12 @@ def inject():
         wb.close()
         app_xl.quit()
 
-        # Now open Excel *after* xlwings is completely done
-        subprocess.Popen(["start", "excel", output_path], shell=True)
-
-        return jsonify({'status': 'success', 'path': output_path})
+        # ✅ Return file to browser
+        return send_file(output_path, as_attachment=True, download_name=output_filename)
 
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(port=5000)
