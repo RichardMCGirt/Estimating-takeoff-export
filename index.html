@@ -8,25 +8,14 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <div style="margin-left: 40px; margin-top: 30px; margin-right:  40px;"> <!-- 👈 Wrapper with left + top margin -->
-   <!-- <h2>Upload prevously downloaded JSON File</h2>
-    <input type="file" id="jsonUpload" accept=".json" />
+  <div style="margin-left: 40px; margin-top: 30px; margin-right:  40px;">
 
-    <hr> -->
-
-   
     <ol>
-      <li><strong>Download required files</strong></li>
       <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
       <li><strong>Review Table</strong> – confirm quantities and elevations</li>
       <li><strong>Select Elevation</strong> – choose which elevation to export</li>
-      <li><strong>Run .bat File</strong> – to inject into the .xlsb macro template</li>
     </ol>
 
-<!--    <h2>Step 1: Download required files if not currenlty in downloads folder</h2>
-    <button id="downloadAllBtn">⬇️ Download required files</button>
-
-    <hr> -->
 
     <h2>Step 1: Upload Source File</h2>
     <input type="file" id="sourceFile" accept=".xlsx" />
@@ -39,13 +28,10 @@
       <hr>
     </div>
     
-
-
    <!-- Step 4: Merged Data Table (initially hidden) -->
 <div id="mergedTableWrapper" style="display: none;">
   <div id="mergedTableContainer"></div>
 </div>
-
 
     <div id="toast"></div>
   </div> <!-- 🔚 End wrapper -->
@@ -61,7 +47,6 @@
       document.body.removeChild(a);
     }
 
-    
   </script>
 </body>
 
