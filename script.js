@@ -286,7 +286,7 @@ const serverURL = "https://1853-174-108-187-19.ngrok-free.app/inject";
     .then(blob => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}_Injected.xlsb`;
+      a.download = `${folderName}.xlsb`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

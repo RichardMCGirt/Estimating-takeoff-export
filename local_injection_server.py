@@ -7,7 +7,7 @@ import shutil
 from collections import defaultdict
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 @app.after_request
 def add_cors_headers(response):
