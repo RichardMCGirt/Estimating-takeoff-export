@@ -80,7 +80,6 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
       qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
       
     };
-
     
     console.log("✅ colMap.description2 points to:", colMap.description2);
     console.log("✅ Final colMap.description2 =", colMap.description2);
