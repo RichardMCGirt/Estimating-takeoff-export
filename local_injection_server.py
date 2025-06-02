@@ -7,16 +7,8 @@ import shutil
 from collections import defaultdict
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
 
-@app.after_request
-def add_cors_headers(response):
-    origin = request.headers.get("Origin")
-    if origin:
-        response.headers["Access-Control-Allow-Origin"] = origin
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    return response
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
@@ -29,6 +21,7 @@ def inject():
 
         if not data:
             return jsonify({'error': 'No data received'}), 400
+        original_data = list(data)
 
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
@@ -57,10 +50,15 @@ def inject():
         }
 
         labor_skus = set(sku.lower() for sku in labor_map.values())
-        non_labor_data = [row for row in data if row.get("SKU", "").strip().lower() not in labor_skus]
+        non_labor_data = [
+            row for row in data
+            if "labor" not in row.get("SKU", "").strip().lower()
+        ]
+
 
         for i, row in enumerate(non_labor_data, start=8):
             sheet.range(f"A{i}").value = row.get("SKU", "")
+            sheet.range(f"C{i}").value = row.get("Description2", "")  
             sheet.range(f"E{i}").value = row.get("TotalQty", 0)
             sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
@@ -86,10 +84,10 @@ def inject():
 
         # === 2. Fill "Material Break Out" ===
         material_sheet = wb.sheets["Material Break Out"]
-        material_sheet.clear_contents()  # Optional: Clear previous data
+        material_sheet.range("A9:Z1000").clear_contents()
 
         # Filter out SKUs that contain "labor"
-        material_data = [row for row in data if "labor" not in row.get("SKU", "").lower()]
+        material_data = [row for row in original_data if "labor" not in row.get("SKU", "").lower()]
 
         # Group by Folder
         grouped_by_folder = defaultdict(list)
@@ -99,16 +97,21 @@ def inject():
 
         current_row = 9
         for folder, items in grouped_by_folder.items():
-            material_sheet.range(f"A{current_row}").value = folder  # Section header
-            current_row += 1
             for item in items:
+                # 🔍 Add this debug log here
+                print(f"Injecting Row {current_row}:")
+                print("  SKU:", item.get("SKU"))
+                print("  Description:", item.get("Description"))
+                print("  Description2:", item.get("Description2"))
+                print("  Units:", item.get("Units"))
                 material_sheet.range(f"A{current_row}").value = item.get("SKU", "")
                 material_sheet.range(f"B{current_row}").value = item.get("Description", "")
                 material_sheet.range(f"C{current_row}").value = item.get("Description2", "")
-                material_sheet.range(f"D{current_row}").value = item.get("Units", "")
+                material_sheet.range(f"D{current_row}").value = item.get("UOM", "")
                 material_sheet.range(f"E{current_row}").value = item.get("TotalQty", 0)
                 material_sheet.range(f"F{current_row}").value = item.get("ColorGroup", "")
                 current_row += 1
+
 
         wb.save(output_path)
         wb.close()

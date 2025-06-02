@@ -68,29 +68,39 @@ function showToast(message = "Success!") {
     }
     
     const colMap = {
+      
       sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
       description: getHeaderMatch(["description"], normalizedHeaders),
       description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
-      uom: getHeaderMatch(["uom", "unitofmeasure", "units"], normalizedHeaders),
+uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
       folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
       colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
       vendor: getHeaderMatch(["vendor"], normalizedHeaders),
       unitcost: getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
       qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
+      
     };
-    
-    console.log("📌 Mapped Columns:", colMap);
+
     
     console.log("✅ colMap.description2 points to:", colMap.description2);
     console.log("✅ Final colMap.description2 =", colMap.description2);
 
     console.log("📌 Mapped Columns:", colMap);
-  
+  console.log("✅ Final colMap.uom =", colMap.uom);
+
     const result = {};
   
-    data.forEach((row, i) => {
-      const sku = row[colMap.sku];
-      const folder = row[colMap.folder];
+   data.forEach((row, i) => {
+  const sku = row[colMap.sku]?.trim();
+  const folder = row[colMap.folder]?.trim();
+
+  if (!sku || !folder) {
+    console.warn(`❌ Skipping row with missing SKU or folder:`, row);
+    return;
+  }
+
+  console.log(`🧪 SKU ${sku} is in folder "${folder}"`);
+
       const qtyRaw = row[colMap.qty];
       const qty = parseFloat(qtyRaw) || 0;
   
@@ -215,23 +225,38 @@ function showToast(message = "Success!") {
     });
   }
   
-  function injectSelectedFolder(folder) {
-    const filteredData = mergedData.filter(d => d.Folder === folder);
-    if (!filteredData.length) return alert(`No data for ${folder}`);
-  
-    const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
-    const filename = `merged-data-${safeFolder}.json`;
-    const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
-  
-    // 💾 Save the blob in memory for later
-    window.currentJSONBlob = blob;
-    window.currentJSONFilename = filename;
-  
-    // 👇 Offer bat file download directly
-sendToInjectionServer(filteredData, folder);
-  
-    showToast(`✅ Prepared BAT for "${folder}"`);
-  }
+function injectSelectedFolder(folder) {
+const filteredData = mergedData.filter(d => d.Folder === folder);
+
+// Safety check
+const misfiled = filteredData.filter(d => d.SKU === "4412T" && d.Folder !== folder);
+if (misfiled.length) {
+  console.warn("⚠️ 4412T incorrectly included for folder:", folder, misfiled);
+}
+
+
+  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
+  const filename = `merged-data-${safeFolder}.json`;
+  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
+
+  // ✅ Log what is being sent
+  console.log(`📦 Sending ${filteredData.length} records for "${folder}"`);
+  filteredData.forEach(row => {
+    if (row.SKU === "4412T") {
+      console.warn("⚠️ 4412T found in folder being injected:", folder);
+    }
+  });
+
+  // 💾 Save for optional download
+  window.currentJSONBlob = blob;
+  window.currentJSONFilename = filename;
+
+  // ✅ Send to server
+  sendToInjectionServer(filteredData, folder);
+
+  showToast(`✅ Prepared BAT for "${folder}"`);
+}
+
     
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
@@ -262,17 +287,12 @@ function injectSelectedFolder(folder) {
   window.currentJSONBlob = blob;
   window.currentJSONFilename = filename;
 
-  // ✅ Send slimmed version to the server
-  const slimmed = filteredData.map(row => ({
-    SKU: row.SKU,
-    TotalQty: row.TotalQty,
-    ColorGroup: row.ColorGroup
-  }));
-
-  sendToInjectionServer(slimmed, folder);
+  // ✅ Send FULL version to the server (not slimmed)
+  sendToInjectionServer(filteredData, folder);
 
   showToast(`✅ Injected "${folder}" to server`);
 }
+
 
 function sendToInjectionServer(data, folderName) {
 const serverURL = "https://1853-174-108-187-19.ngrok-free.app/inject";
