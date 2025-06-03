@@ -75,7 +75,7 @@ def inject():
 
                 labor_desc = str(raw_val).strip().lower()
                 sku = labor_map.get(labor_desc)
-                qty = ""
+                qty = 0
             if sku:
                 folder = row.get("Folder", "").strip().lower()  # current row being injected from row 34–44
                 qty_item = next(
