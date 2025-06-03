@@ -161,35 +161,46 @@ return Object.values(result).map(item => {
   }
 
   wrapper.style.display = "block";
-  const folders = [...new Set(data.map(d => d.Folder))];
-  let html = "";
+const folders = [...new Set(data.map(d => d.Folder))];
+let html = "";
 
-  folders.forEach((folder, index) => {
-    const allRows = data.filter(d => d.Folder === folder);
+ folders.forEach((folder, index) => {
+  const allRows = data.filter(d => d.Folder === folder);
 
-    // ⛔️ Filter OUT labor rows
-    const filteredRows = allRows.filter(d => !/labor/i.test(d.SKU));
+  // Separate non-labor and labor rows
+  const nonLaborRows = allRows.filter(d => !/labor/i.test(d.SKU));
+  const laborRows = allRows.filter(d => /labor/i.test(d.SKU));
 
-    if (!filteredRows.length) return; // Skip rendering this folder if only labor rows exist
+  if (!nonLaborRows.length && !laborRows.length) return; // skip empty folders
 
-    // Sort by SKU
-    const sortedRows = filteredRows.sort((a, b) => {
-      const skuA = (a.SKU || "").toLowerCase();
-      const skuB = (b.SKU || "").toLowerCase();
-      return skuA.localeCompare(skuB);
-    });
+  const sortedNonLabor = nonLaborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
+  const sortedLabor = laborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
 
-    const tableId = `copyTable_${index}`;
-    let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
+  const tableId = `copyTable_${index}`;
+  let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 
-    sortedRows.forEach(row => {
-      tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
-    });
+  html += `<h3>${folder}</h3>
+  <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
+  <textarea id="${tableId}" style="display:none;">`;
 
-    html += `<h3>${folder}</h3>
-    <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
-    <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
-    <table style="width:100%; text-align:center; border-collapse: collapse;"><thead><tr>
+  // Append non-labor to TSV + HTML
+  sortedNonLabor.forEach(row => {
+    tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
+  });
+
+  // Spacer lines
+  if (sortedLabor.length) {
+    tsvContent += `\n\n`; // add 2 blank lines to TSV
+  }
+
+  // Append labor to TSV
+  sortedLabor.forEach(row => {
+    tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
+  });
+
+  html += `${tsvContent.trim()}</textarea>
+  <table style="width:100%; text-align:center; border-collapse: collapse;">
+    <thead><tr>
       <th style="text-align:center;">SKU</th>
       <th style="text-align:center;">Description</th>
       <th style="text-align:center;">Description 2</th>
@@ -197,18 +208,36 @@ return Object.values(result).map(item => {
       <th style="text-align:center;">Color Group</th>
     </tr></thead><tbody>`;
 
-    sortedRows.forEach(row => {
-      html += `<tr>
-        <td style="text-align:center;">${row.SKU}</td>
-        <td style="text-align:center;">${row.Description}</td>
-        <td style="text-align:center;">${row.Description2 || ""}</td>
-        <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
-        <td style="text-align:center;">${row.ColorGroup}</td>
-      </tr>`;
-    });
-
-    html += `</tbody></table><br/>`;
+  // Render non-labor
+  sortedNonLabor.forEach(row => {
+    html += `<tr>
+      <td style="text-align:center;">${row.SKU}</td>
+      <td style="text-align:center;">${row.Description}</td>
+      <td style="text-align:center;">${row.Description2 || ""}</td>
+      <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
+      <td style="text-align:center;">${row.ColorGroup}</td>
+    </tr>`;
   });
+
+  // Spacer rows
+  if (sortedLabor.length) {
+    html += `<tr><td colspan="5" style="height:10px;"></td></tr>`;
+    html += `<tr><td colspan="5" style="height:10px;"></td></tr>`;
+  }
+
+  // Render labor
+  sortedLabor.forEach(row => {
+    html += `<tr>
+      <td style="text-align:center;">${row.SKU}</td>
+      <td style="text-align:center;">${row.Description}</td>
+      <td style="text-align:center;">${row.Description2 || ""}</td>
+      <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
+      <td style="text-align:center;">${row.ColorGroup}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table><br/>`;
+});
 
   container.innerHTML = html;
 }
@@ -239,7 +268,7 @@ function renderFolderButtons() {
   button.textContent = `Injecting "${folder}"...`;
 
   try {
-    const elevationData = mergedData.filter(d => d.Folder === folder && !/labor/i.test(d.SKU));
+const elevationData = mergedData.filter(d => d.Folder === folder); // <-- removed !/labor/i
     const breakoutMerged = mergeForMaterialBreakout(elevationData);
 
     if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
@@ -414,10 +443,13 @@ if (!sku || !colorGroup) return;
   });
 
   // Round up TotalQty
-  return Object.values(result).map(item => {
+return Object.values(result).map(item => {
+  if (item.UOM !== "SQ") {
     item.TotalQty = Math.ceil(item.TotalQty);
-    return item;
-  });
+  }
+  return item;
+});
+
 }
 
  
