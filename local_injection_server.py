@@ -6,16 +6,15 @@ import datetime
 import shutil
 import math
 
-
 app = Flask(__name__)
 CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
+
 @app.after_request
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
-
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
@@ -30,10 +29,9 @@ def inject():
             return jsonify({'error': 'Invalid payload'}), 400
 
         data = payload['data']
-        raw_data = payload.get('raw', [])  # <-- safe fallback if not present
-
+        breakout_data = payload.get('breakout', [])
+        raw_data = payload.get('raw', [])
         data_type = payload['type']
-        original_data = list(data)
 
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
@@ -45,38 +43,31 @@ def inject():
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
 
-        # === TakeOff Template Setup ===
-        sheet = wb.sheets["TakeOff Template"]
-
-        labor_map = {
-            "lap labor": "zLABORLAP",
-            "b&b labor": "zLABORBB",
-            "shake labor": "zLABORSHAKE",
-            "ceiling labor": "zLABORCEIL",
-            "column labor": "zLABORSTCOL",
-            "shutter labor": "zLABORSHUT",
-            "louver labor": "zLABORLOUV",
-            "bracket labor": "zLABORBRKT",
-            "beam wrap labor": "zLABORBEAM",
-            "t&g ceiling labor": "zLABORTGCEIL"
-        }
-
-        if data_type == "elevation":
+        # === Elevation Sheet Injection ===
+        if data_type in ["elevation", "combined"]:
             print("📄 Injecting Elevation Sheet")
+            sheet = wb.sheets["TakeOff Template"]
 
-            # Inject non-labor rows
-            non_labor_data = [
-                row for row in data if "labor" not in row.get("SKU", "").strip().lower()
-            ]
+            labor_map = {
+                "lap labor": "zLABORLAP",
+                "b&b labor": "zLABORBB",
+                "shake labor": "zLABORSHAKE",
+                "ceiling labor": "zLABORCEIL",
+                "column labor": "zLABORSTCOL",
+                "shutter labor": "zLABORSHUT",
+                "louver labor": "zLABORLOUV",
+                "bracket labor": "zLABORBRKT",
+                "beam wrap labor": "zLABORBEAM",
+                "t&g ceiling labor": "zLABORTGCEIL"
+            }
 
+            non_labor_data = [row for row in data if "labor" not in row.get("SKU", "").strip().lower()]
             for i, row in enumerate(non_labor_data, start=8):
                 sheet.range(f"A{i}").value = row.get("SKU", "")
                 sheet.range(f"C{i}").value = row.get("Description2", "")
                 sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
-
                 sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
-            # Inject labor rows into L column
             for row in range(34, 44):
                 raw_val = sheet.range(f"K{row}").value
                 if not raw_val:
@@ -97,18 +88,14 @@ def inject():
 
                 sheet.range(f"L{row}").value = qty
 
-        elif data_type.startswith("material_breakout"):
-
+        # === Material Breakout Sheet Injection ===
+        if data_type == "combined" or data_type.startswith("material_breakout"):
             print("📄 Injecting Material Break Out Sheet")
-            print("📄 Also injecting Material Break Out sheet")
-
-            material_sheet = wb.sheets["Material Break Out"]
-            material_sheet.range("A9:Z1000").clear_contents()
-            print(f"✅ Rows to inject into Material Break Out: {len(data)}")
             material_sheet = wb.sheets["Material Break Out"]
             material_sheet.range("A9:Z1000").clear_contents()
             current_row = 9
-            for item in data:
+
+            for item in breakout_data:
                 print(f"Injecting Row {current_row}: SKU={item.get('SKU')}, Desc2={item.get('Description2')}")
                 material_sheet.range(f"A{current_row}").value = item.get("SKU", "")
                 material_sheet.range(f"B{current_row}").value = item.get("Description", "")
@@ -118,37 +105,23 @@ def inject():
                 material_sheet.range(f"F{current_row}").value = item.get("ColorGroup", "")
                 current_row += 1
 
-            # ✅ Inject raw data to columns H onward starting at row 9
-            if raw_data:
-                print("📄 Injecting raw data into Material Break Out sheet (starting at column H)")
-                headers = list(raw_data[0].keys())
-                material_sheet.range("H8").value = headers  # header row
-
-                for i, row in enumerate(raw_data, start=9):
-                    row_values = [row.get(h, "") for h in headers]
-                    material_sheet.range(f"H{i}").value = row_values
-
-
+          
         try:
             wb.save(output_path)
         finally:
             wb.close()
             app_xl.quit()
 
-
-
         return send_file(
-    output_path,
-    as_attachment=True,
-    download_name=output_filename,
-    mimetype='application/vnd.ms-excel.sheet.binary.macroEnabled.12'
-)
-
+            output_path,
+            as_attachment=True,
+            download_name=output_filename,
+            mimetype='application/vnd.ms-excel.sheet.binary.macroEnabled.12'
+        )
 
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(port=5000)

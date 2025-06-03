@@ -23,11 +23,20 @@ function handleSourceUpload(event) {
     rawSheetData = json; // ✅ save raw unmerged data
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
-    renderFolderButtons();
+renderFolderButtons();
+renderMaterialBreakoutButtons();
   };
   reader.readAsArrayBuffer(file);
 }
 
+function injectMaterialBreakout() {
+  if (!mergedData.length) {
+    alert("No merged data found.");
+    return;
+  }
+
+  sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
+}
 
 function showToast(message = "Success!") {
   const toast = document.getElementById("toast");
@@ -204,55 +213,164 @@ return Object.values(result).map(item => {
   container.innerHTML = html;
 }
 
-  
-  function renderFolderButtons() {
-    const container = document.getElementById('folderButtons');
-    const section = document.getElementById('elevationSection');
-    if (!container || !section) return;
-  
-    container.innerHTML = '';
-  
-    const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-    if (!uniqueFolders.length) {
-      section.style.display = "none"; // 🔒 hide if no folders
-      return;
-    }
-  
-    section.style.display = "block"; // ✅ show section once folders exist
-  
-    uniqueFolders.forEach(folder => {
-      const button = document.createElement('button');
-      button.textContent = `Download "${folder}"`;
-      button.style.margin = '6px';
-      button.addEventListener('click', () => injectSelectedFolder(folder));
-      container.appendChild(button);
-    });
+function renderFolderButtons() {
+  const container = document.getElementById('folderButtons');
+  const section = document.getElementById('elevationSection');
+  if (!container || !section) return;
+
+  container.innerHTML = '';
+
+  const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
+  if (!uniqueFolders.length) {
+    section.style.display = "none";
+    return;
   }
+
+  section.style.display = "block";
+
+  uniqueFolders.forEach(folder => {
+    const button = document.createElement('button');
+    button.textContent = `Inject "${folder}" (Elevation + Breakout)`;
+    button.style.margin = '6px';
+
+    button.addEventListener('click', () => {
+      const elevationData = mergedData.filter(d => d.Folder === folder && !/labor/i.test(d.SKU));
+      const breakoutMerged = mergeForMaterialBreakout(elevationData);
+
+      if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
+      if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
+
+      sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
+    });
+
+    container.appendChild(button);
+  });
+}
+function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
+  const serverURL = "https://8bd0-174-108-187-19.ngrok-free.app/inject";
+
+  const payload = {
+    data: elevationData,
+    breakout: breakoutData,
+    raw: rawSheetData,
+    type: "combined" // or whatever type your backend expects
+  };
+
+  console.log("📤 Sending combined payload:", payload);
+
+  fetch(serverURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+    .then(response => {
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      return response.blob();
+    })
+    .then(blob => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folderName}_combined.xlsb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("✅ Combined workbook downloaded.");
+    })
+    .catch(error => {
+      console.error("Download failed", error);
+      alert("❌ Combined injection failed.");
+    });
+}
+
   
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
   if (!filteredData.length) return alert(`No data for ${folder}`);
 
-  const dataForInjection = filteredData.filter(d => !/labor/i.test(d.SKU)); // 💡 remove labor SKUs
-
-  if (!dataForInjection.length) return alert(`No non-labor data to inject for ${folder}`);
-
   const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_');
   const filename = `merged-data-${safeFolder}.json`;
-  const blob = new Blob([JSON.stringify(dataForInjection, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
 
-  // Save full JSON blob (in case user wants to download later)
+  // Save full JSON in case user wants to download
   window.currentJSONBlob = blob;
   window.currentJSONFilename = filename;
 
-  // 🚀 Inject only non-labor data
-  sendToInjectionServer(dataForInjection, folder);
+  // Auto-decide type: "material_breakout" if folder name includes breakout, else "elevation"
+const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
+  const injectionType = isBreakout ? "material_breakout" : "elevation";
 
-  showToast(`✅ Injected "${folder}" to server (labor rows excluded)`);
+  const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
+  if (!nonLabor.length && !isBreakout) return alert(`No non-labor data to inject for ${folder}`);
+
+  sendToInjectionServer(
+    isBreakout ? filteredData : nonLabor,
+    folder,
+    injectionType
+  );
+
+  showToast(`✅ Injected "${folder}" to server (${injectionType})`);
+}
+function renderMaterialBreakoutButtons() {
+  const section = document.getElementById("materialBreakoutSection");
+  const container = document.getElementById("materialBreakoutButtons");
+  if (!section || !container) return;
+
+  container.innerHTML = '';
+
+  const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
+  if (!uniqueFolders.length) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+
+  uniqueFolders.forEach(folder => {
+    const button = document.createElement('button');
+    button.textContent = `Download "${folder}"`;
+    button.style.margin = '6px';
+    button.addEventListener('click', () => {
+const folderRows = mergedData.filter(d => 
+  d.Folder === folder && !/labor/i.test(d.SKU)
+);
+const breakoutMerged = mergeForMaterialBreakout(folderRows);
+
+      if (!filtered.length) return alert(`No data for ${folder}`);
+sendToInjectionServer(breakoutMerged, folder, "material_breakout");
+      showToast(`✅ Injected "${folder}" to Material Break Out`);
+    });
+    container.appendChild(button);
+  });
 }
 
+function mergeForMaterialBreakout(data) {
+  const result = {};
 
-    
+  data.forEach(row => {
+    const sku = row.SKU?.trim();
+    const colorGroup = row.ColorGroup?.trim();
+
+if (!sku || !colorGroup) return;
+
+    const key = `${sku}___${colorGroup}`;
+    if (!result[key]) {
+      result[key] = {
+        ...row,
+        TotalQty: 0
+      };
+    }
+
+    result[key].TotalQty += parseFloat(row.TotalQty) || 0;
+  });
+
+  // Round up TotalQty
+  return Object.values(result).map(item => {
+    item.TotalQty = Math.ceil(item.TotalQty);
+    return item;
+  });
+}
+
+ 
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
 const textarea = document.getElementById(textareaId);
@@ -270,32 +388,13 @@ document.execCommand("copy");
 document.body.removeChild(tempTextarea);
 }
 
-function injectSelectedFolder(folder) {
-  const filteredData = mergedData.filter(d => d.Folder === folder);
-  if (!filteredData.length) return alert(`No data for ${folder}`);
-
-  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_');
-  const filename = `merged-data-${safeFolder}.json`;
-  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
-
-  // 💾 Save full JSON in case user downloads later
-  window.currentJSONBlob = blob;
-  window.currentJSONFilename = filename;
-
-  // ✅ Send FULL version to the server (not slimmed)
-  sendToInjectionServer(filteredData, folder);
-
-  showToast(`✅ Injected "${folder}" to server`);
-}
-
-
-function sendToInjectionServer(data, folderName) {
+function sendToInjectionServer(data, folderName, type = "elevation") {
   const serverURL = "https://8bd0-174-108-187-19.ngrok-free.app/inject";
 
   const payload = {
-    data: data,                // mergedData (filtered by folder)
-    raw: rawSheetData,         // original raw XLSX rows
-    type: "elevation"
+    data: data,
+    raw: rawSheetData,
+    type: type
   };
 
   console.log("📤 Sending payload:", payload);
