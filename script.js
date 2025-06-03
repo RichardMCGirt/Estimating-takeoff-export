@@ -230,7 +230,7 @@ function renderFolderButtons() {
 
   uniqueFolders.forEach(folder => {
     const button = document.createElement('button');
-    button.textContent = `Inject "${folder}" (Elevation + Breakout)`;
+    button.textContent = `${folder}`;
     button.style.margin = '6px';
 
     button.addEventListener('click', () => {
