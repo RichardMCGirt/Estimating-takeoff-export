@@ -101,53 +101,63 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
 
     const result = {};
   
-   data.forEach((row, i) => {
+  data.forEach((row, i) => {
   const sku = row[colMap.sku]?.trim();
   const folder = row[colMap.folder]?.trim();
 
   if (!sku || !folder) {
-    console.warn(`❌ Skipping row with missing SKU or folder:`, row);
     return;
   }
 
-  console.log(`🧪 SKU ${sku} is in folder "${folder}"`);
+  const key = `${sku}___${folder}`;
 
-      const qtyRaw = row[colMap.qty];
-      const qty = parseFloat(qtyRaw) || 0;
-  
-      if (i < 3) {
-        console.log(`🧪 Row ${i + 1}:`);
-        console.log(`   SKU: ${sku}`);
-        console.log(`   Description: ${row[colMap.description]}`);
-        console.log(`   Description2: ${row[colMap.description2]}`);
-      }
-  
-      if (!sku || !folder) return;
-  
-      const key = `${sku}___${folder}`;
-      if (!result[key]) {
-        result[key] = {
-          SKU: sku,
-          Description: row[colMap.description] || "",
-          Description2: row[colMap.description2] || "",
-          UOM: row[colMap.uom] || "",
-          Folder: folder,
-          ColorGroup: row[colMap.colorgroup] || "",
-          Vendor: row[colMap.vendor] || "",
-          UnitCost: parseFloat(row[colMap.unitcost]) || 0,
-          TotalQty: 0
-        };
-      }
-  
-      result[key].TotalQty += qty;
+  // 🔍 Focused log for zLABORCEIL
+  if (sku.toLowerCase() === "zlaborceil") {
+    console.log(`🧪 [zLABORCEIL] Row ${i + 1}:`, {
+      Folder: folder,
+      Key: key,
+      Description: row[colMap.description],
+      Qty: row[colMap.qty]
     });
+  }
+
+  const qtyRaw = row[colMap.qty];
+  const qty = parseFloat(qtyRaw) || 0;
+
+  if (!result[key]) {
+    result[key] = {
+      SKU: sku,
+      Description: row[colMap.description] || "",
+      Description2: row[colMap.description2] || "",
+      UOM: row[colMap.uom] || "",
+      Folder: folder,
+      ColorGroup: row[colMap.colorgroup] || "",
+      Vendor: row[colMap.vendor] || "",
+      UnitCost: parseFloat(row[colMap.unitcost]) || 0,
+      TotalQty: 0
+    };
+  }
+
+  result[key].TotalQty += qty;
+});
+
   
-return Object.values(result).map(item => {
-  if (!Number.isInteger(item.TotalQty)) {
+const merged = Object.values(result).map(item => {
+  const isLabor = item.SKU?.toLowerCase().includes("labor");
+
+  if (!isLabor && !Number.isInteger(item.TotalQty)) {
     item.TotalQty = Math.ceil(item.TotalQty);
   }
+
+  if (item.SKU?.toLowerCase() === "zlaborceil") {
+    console.log(`📊 Display Value [${item.Folder}]: ${item.TotalQty}`);
+  }
+
   return item;
 });
+
+return merged;
+
   }
   
   function displayMergedTable(data) {
@@ -200,23 +210,25 @@ let html = "";
 
   html += `${tsvContent.trim()}</textarea>
   <table style="width:100%; text-align:center; border-collapse: collapse;">
-    <thead><tr>
-      <th style="text-align:center;">SKU</th>
-      <th style="text-align:center;">Description</th>
-      <th style="text-align:center;">Description 2</th>
-      <th style="text-align:center;">QTY</th>
-      <th style="text-align:center;">Color Group</th>
-    </tr></thead><tbody>`;
+   <thead><tr>
+  <th style="text-align:center;">SKU</th>
+  <th style="text-align:center;">Description</th>
+  <th style="text-align:center;">Description 2</th>
+  <th style="text-align:center;">QTY</th>
+  <th style="text-align:center;">Color Group</th>
+</tr></thead>
+<tbody>`;
 
   // Render non-labor
   sortedNonLabor.forEach(row => {
-    html += `<tr>
-      <td style="text-align:center;">${row.SKU}</td>
-      <td style="text-align:center;">${row.Description}</td>
-      <td style="text-align:center;">${row.Description2 || ""}</td>
-      <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
-      <td style="text-align:center;">${row.ColorGroup}</td>
-    </tr>`;
+  html += `<tr>
+  <td style="text-align:center;">${row.SKU}</td>
+  <td style="text-align:center;">${row.Description}</td>
+  <td style="text-align:center;">${row.Description2 || ""}</td>
+<td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
+  <td style="text-align:center;">${row.ColorGroup}</td>
+</tr>`;
+
   });
 
   // Spacer rows
@@ -227,13 +239,14 @@ let html = "";
 
   // Render labor
   sortedLabor.forEach(row => {
-    html += `<tr>
-      <td style="text-align:center;">${row.SKU}</td>
-      <td style="text-align:center;">${row.Description}</td>
-      <td style="text-align:center;">${row.Description2 || ""}</td>
-      <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
-      <td style="text-align:center;">${row.ColorGroup}</td>
-    </tr>`;
+   html += `<tr>
+  <td style="text-align:center;">${row.SKU}</td>
+  <td style="text-align:center;">${row.Description}</td>
+  <td style="text-align:center;">${row.Description2 || ""}</td>
+<td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
+  <td style="text-align:center;">${row.ColorGroup}</td>
+</tr>`;
+
   });
 
   html += `</tbody></table><br/>`;
@@ -316,9 +329,6 @@ function showLoadingOverlay(show = true, message = "Processing...") {
     console.log("✅ Overlay hidden.");
   }
 }
-
-
-
 
 // Utility function to disable/enable all folder buttons
 function disableAllFolderButtons(disabled, message = "") {
@@ -455,14 +465,30 @@ if (!sku || !colorGroup) return;
   });
 
   // Round up TotalQty
-return Object.values(result).map(item => {
-  if (item.UOM !== "SQ") {
+const merged = Object.values(result).map(item => {
+  const isLabor = item.SKU?.toLowerCase().includes("labor");
+
+  // 🔍 Log original value
+  if (item.SKU?.toLowerCase() === "zlaborceil") {
+    console.log(`🔍 Before rounding [${item.Folder}]: ${item.SKU} -> ${item.TotalQty}`);
+  }
+
+  if (!isLabor && !Number.isInteger(item.TotalQty)) {
     item.TotalQty = Math.ceil(item.TotalQty);
   }
+
+  // 🔍 Log after rounding decision
+  if (item.SKU?.toLowerCase() === "zlaborceil") {
+    console.log(`✅ Final value [${item.Folder}]: ${item.SKU} -> ${item.TotalQty}`);
+  }
+
   return item;
 });
 
-}
+console.table(merged.filter(r => r.SKU?.toLowerCase() === "zlaborceil"));
+return merged;
+
+} // ✅ <- this was missing!
 
  
 // Helper to copy from hidden textarea

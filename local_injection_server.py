@@ -76,15 +76,19 @@ def inject():
                 labor_desc = str(raw_val).strip().lower()
                 sku = labor_map.get(labor_desc)
                 qty = ""
+            if sku:
+                folder = row.get("Folder", "").strip().lower()  # current row being injected from row 34–44
+                qty_item = next(
+                (item for item in data
+            if item.get("SKU", "").strip().lower() == sku.lower()
+                and item.get("Folder", "").strip().lower() == folder),
+                None
+                )
+            if qty_item:
+                qty = qty_item.get("TotalQty", 0)
+            else:
+                qty = 0  # ❌ skip fuzzy matches
 
-                if sku:
-                    qty_item = next((item for item in data if item.get("SKU", "").strip().lower() == sku.lower()), None)
-                    if qty_item:
-                        qty = qty_item.get("TotalQty", 0)
-                else:
-                    matching_item = next((item for item in data if labor_desc in str(item.get("Description", "")).strip().lower()), None)
-                    if matching_item:
-                        qty = matching_item.get("TotalQty", 0)
 
                 sheet.range(f"L{row}").value = qty
 
