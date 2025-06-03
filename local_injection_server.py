@@ -68,29 +68,32 @@ def inject():
                 sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
                 sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
-            for row in range(34, 44):
-                raw_val = sheet.range(f"K{row}").value
+            folder_name = data[0].get("Folder", "").strip().lower() if data else ""
+
+
+            for row_index in range(34, 44):  # ✅ MUST be row_index
+
+                raw_val = sheet.range(f"K{row_index}").value
+
                 if not raw_val:
                     continue
 
                 labor_desc = str(raw_val).strip().lower()
                 sku = labor_map.get(labor_desc)
                 qty = 0
-            if sku:
-                folder = row.get("Folder", "").strip().lower()  # current row being injected from row 34–44
-                qty_item = next(
-                (item for item in data
-            if item.get("SKU", "").strip().lower() == sku.lower()
-                and item.get("Folder", "").strip().lower() == folder),
-                None
-                )
-            if qty_item:
-                qty = qty_item.get("TotalQty", 0)
-            else:
-                qty = 0  # ❌ skip fuzzy matches
+                if sku:
+                    matching_item = next(
+                        (item for item in data
+                        if item.get("SKU", "").strip().lower() == sku.lower()
+                        and item.get("Folder", "").strip().lower() == folder_name),
+                        None
+                    )
+                    if matching_item:
+                        qty = matching_item.get("TotalQty", 0)
+
+                sheet.range(f"L{row_index}").value = qty
 
 
-                sheet.range(f"L{row}").value = qty
 
         # === Material Breakout Sheet Injection ===
         if data_type == "combined" or data_type.startswith("material_breakout"):

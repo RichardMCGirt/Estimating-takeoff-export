@@ -442,7 +442,7 @@ const folderRows = mergedData.filter(d =>
 );
 const breakoutMerged = mergeForMaterialBreakout(folderRows);
 
-      if (!filtered.length) return alert(`No data for ${folder}`);
+if (!breakoutMerged.length) return alert(`No data for ${folder}`);
 sendToInjectionServer(breakoutMerged, folder, "material_breakout");
       showToast(`✅ Injected "${folder}" to Material Break Out`);
     });
