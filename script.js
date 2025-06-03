@@ -515,7 +515,7 @@ document.body.removeChild(tempTextarea);
 }
 
 function sendToInjectionServer(data, folderName, type = "elevation") {
-  const serverURL = "https://6657-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://dbd3-174-108-187-19.ngrok-free.app/inject";
 
  const payload = {
   data,
