@@ -233,15 +233,27 @@ function renderFolderButtons() {
     button.textContent = `${folder}`;
     button.style.margin = '6px';
 
-    button.addEventListener('click', () => {
-      const elevationData = mergedData.filter(d => d.Folder === folder && !/labor/i.test(d.SKU));
-      const breakoutMerged = mergeForMaterialBreakout(elevationData);
+    button.addEventListener('click', async () => {
+  button.disabled = true;
+  button.textContent = `Injecting "${folder}"...`;
 
-      if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
-      if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
+  try {
+    const elevationData = mergedData.filter(d => d.Folder === folder && !/labor/i.test(d.SKU));
+    const breakoutMerged = mergeForMaterialBreakout(elevationData);
 
-      sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
-    });
+    if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
+    if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
+
+    await sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
+  } catch (err) {
+    console.error("❌ Injection error:", err);
+    alert(`Injection failed for ${folder}`);
+  } finally {
+    button.disabled = false;
+    button.textContent = folder;
+  }
+});
+
 
     container.appendChild(button);
   });
@@ -270,7 +282,7 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName)
     .then(blob => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}_combined.xlsb`;
+      a.download = `${folderName}.xlsb`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
