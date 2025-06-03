@@ -259,7 +259,7 @@ function renderFolderButtons() {
   });
 }
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
-  const serverURL = "https://8bd0-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://6657-174-108-187-19.ngrok-free.app/inject";
 
   const payload = {
     data: elevationData,
