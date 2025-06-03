@@ -232,8 +232,9 @@ function renderFolderButtons() {
     const button = document.createElement('button');
     button.textContent = `${folder}`;
     button.style.margin = '6px';
+    button.classList.add("folder-button");
 
-    button.addEventListener('click', async () => {
+ button.addEventListener('click', async () => {
   button.disabled = true;
   button.textContent = `Injecting "${folder}"...`;
 
@@ -251,11 +252,44 @@ function renderFolderButtons() {
   } finally {
     button.disabled = false;
     button.textContent = folder;
+    showToast(`✅ ${folder} Chosen `);
   }
 });
+
+
+
     container.appendChild(button);
   });
 }
+function showLoadingOverlay(show = true) {
+  const overlay = document.getElementById("loadingOverlay");
+
+  if (!overlay) return;
+
+  if (show) {
+    overlay.style.display = "flex";
+
+    setTimeout(() => {
+      overlay.style.display = "none";
+    }, 3000); 
+  } else {
+    overlay.style.display = "none";
+  }
+}
+
+
+// Utility function to disable/enable all folder buttons
+function disableAllFolderButtons(disabled, message = "") {
+  const buttons = document.querySelectorAll('.folder-button');
+  buttons.forEach(btn => {
+    btn.disabled = disabled;
+    btn.textContent = disabled ? message : btn.getAttribute("data-original-label") || btn.textContent;
+    if (!btn.getAttribute("data-original-label")) {
+      btn.setAttribute("data-original-label", btn.textContent);
+    }
+  });
+}
+
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
   const serverURL = "https://6657-174-108-187-19.ngrok-free.app/inject";
 
@@ -277,17 +311,23 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName)
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
-    .then(blob => {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("✅ Combined workbook downloaded.");
-    })
+  .then(blob => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${folderName}.xlsb`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast("✅ Combined workbook downloaded.");
+  
+  // ✅ Hide overlay after download triggered
+  showLoadingOverlay(false);
+})
+
     .catch(error => {
       console.error("Download failed", error);
+      showLoadingOverlay(false);
+
       alert("❌ Combined injection failed.");
     });
 }
@@ -399,7 +439,7 @@ document.body.removeChild(tempTextarea);
 }
 
 function sendToInjectionServer(data, folderName, type = "elevation") {
-  const serverURL = "https://8bd0-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://6657-174-108-187-19.ngrok-free.app/inject";
 
   const payload = {
     data: data,
@@ -418,18 +458,24 @@ function sendToInjectionServer(data, folderName, type = "elevation") {
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
-    .then(blob => {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("✅ File downloaded.");
-    })
+   .then(blob => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${folderName}.xlsb`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast("✅ File downloaded.");
+
+  // ✅ Hide overlay after download triggered
+  showLoadingOverlay(false);
+})
+
     .catch(error => {
       console.error("Download failed", error);
       alert("❌ Injection failed.");
+      showLoadingOverlay(false);
+
     });
 }
 
