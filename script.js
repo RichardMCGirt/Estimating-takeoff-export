@@ -144,17 +144,19 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
   
 const merged = Object.values(result).map(item => {
   const isLabor = item.SKU?.toLowerCase().includes("labor");
+  const uom = item.UOM?.trim().toUpperCase();
 
-  if (!isLabor && !Number.isInteger(item.TotalQty)) {
-    item.TotalQty = Math.ceil(item.TotalQty);
-  }
+  // ✅ Skip rounding if it's labor OR UOM is SQ
+  const skipRounding = isLabor || uom === "SQ";
 
-  if (item.SKU?.toLowerCase() === "zlaborceil") {
-    console.log(`📊 Display Value [${item.Folder}]: ${item.TotalQty}`);
+  if (!skipRounding && !Number.isInteger(item.TotalQty)) {
+    item.TotalQty = Math.ceil(item.TotalQty); // ⛔ Only round if not labor and not SQ
   }
 
   return item;
 });
+
+
 
 return merged;
 
@@ -214,22 +216,25 @@ let html = "";
   <th style="text-align:center;">SKU</th>
   <th style="text-align:center;">Description</th>
   <th style="text-align:center;">Description 2</th>
+  <th style="text-align:center;">UOM</th> <!-- ✅ added -->
   <th style="text-align:center;">QTY</th>
   <th style="text-align:center;">Color Group</th>
 </tr></thead>
+
 <tbody>`;
 
   // Render non-labor
-  sortedNonLabor.forEach(row => {
+ sortedNonLabor.forEach(row => {
   html += `<tr>
   <td style="text-align:center;">${row.SKU}</td>
   <td style="text-align:center;">${row.Description}</td>
   <td style="text-align:center;">${row.Description2 || ""}</td>
-<td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
+  <td style="text-align:center;">${row.UOM}</td> <!-- ✅ added -->
+  <td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
   <td style="text-align:center;">${row.ColorGroup}</td>
 </tr>`;
+});
 
-  });
 
   // Spacer rows
   if (sortedLabor.length) {
@@ -239,15 +244,16 @@ let html = "";
 
   // Render labor
   sortedLabor.forEach(row => {
-   html += `<tr>
+  html += `<tr>
   <td style="text-align:center;">${row.SKU}</td>
   <td style="text-align:center;">${row.Description}</td>
   <td style="text-align:center;">${row.Description2 || ""}</td>
-<td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
+  <td style="text-align:center;">${row.UOM}</td> <!-- ✅ added -->
+  <td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
   <td style="text-align:center;">${row.ColorGroup}</td>
 </tr>`;
+});
 
-  });
 
   html += `</tbody></table><br/>`;
 });
