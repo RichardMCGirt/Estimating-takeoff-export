@@ -4,10 +4,17 @@ import xlwings as xw
 import os
 import datetime
 import shutil
-from collections import defaultdict
+import math
+
 
 app = Flask(__name__)
 CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
@@ -16,11 +23,16 @@ def inject():
         return '', 204
 
     try:
-        data = request.get_json()
-        print("🔍 Received data:", data)
+        payload = request.get_json()
+        print("🔍 Received payload:", payload)
 
-        if not data:
-            return jsonify({'error': 'No data received'}), 400
+        if not payload or 'data' not in payload or 'type' not in payload:
+            return jsonify({'error': 'Invalid payload'}), 400
+
+        data = payload['data']
+        raw_data = payload.get('raw', [])  # <-- safe fallback if not present
+
+        data_type = payload['type']
         original_data = list(data)
 
         timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -33,7 +45,7 @@ def inject():
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
 
-        # === 1. Fill "TakeOff Template" ===
+        # === TakeOff Template Setup ===
         sheet = wb.sheets["TakeOff Template"]
 
         labor_map = {
@@ -49,61 +61,55 @@ def inject():
             "t&g ceiling labor": "zLABORTGCEIL"
         }
 
-        labor_skus = set(sku.lower() for sku in labor_map.values())
-        non_labor_data = [
-            row for row in data
-            if "labor" not in row.get("SKU", "").strip().lower()
-        ]
+        if data_type == "elevation":
+            print("📄 Injecting Elevation Sheet")
 
+            # Inject non-labor rows
+            non_labor_data = [
+                row for row in data if "labor" not in row.get("SKU", "").strip().lower()
+            ]
 
-        for i, row in enumerate(non_labor_data, start=8):
-            sheet.range(f"A{i}").value = row.get("SKU", "")
-            sheet.range(f"C{i}").value = row.get("Description2", "")  
-            sheet.range(f"E{i}").value = row.get("TotalQty", 0)
-            sheet.range(f"F{i}").value = row.get("ColorGroup", "")
+            for i, row in enumerate(non_labor_data, start=8):
+                sheet.range(f"A{i}").value = row.get("SKU", "")
+                sheet.range(f"C{i}").value = row.get("Description2", "")
+                sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
 
-        for row in range(34, 44):
-            raw_val = sheet.range(f"K{row}").value
-            if not raw_val:
-                continue
+                sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
-            labor_desc = str(raw_val).strip().lower()
-            sku = labor_map.get(labor_desc)
+            # Inject labor rows into L column
+            for row in range(34, 44):
+                raw_val = sheet.range(f"K{row}").value
+                if not raw_val:
+                    continue
 
-            qty = ""
-            if sku:
-                qty_item = next((item for item in data if item.get("SKU", "").strip().lower() == sku.lower()), None)
-                if qty_item:
-                    qty = qty_item.get("TotalQty", 0)
-            else:
-                matching_item = next((item for item in data if labor_desc in str(item.get("Description", "")).strip().lower()), None)
-                if matching_item:
-                    qty = matching_item.get("TotalQty", 0)
+                labor_desc = str(raw_val).strip().lower()
+                sku = labor_map.get(labor_desc)
+                qty = ""
 
-            sheet.range(f"L{row}").value = qty
+                if sku:
+                    qty_item = next((item for item in data if item.get("SKU", "").strip().lower() == sku.lower()), None)
+                    if qty_item:
+                        qty = qty_item.get("TotalQty", 0)
+                else:
+                    matching_item = next((item for item in data if labor_desc in str(item.get("Description", "")).strip().lower()), None)
+                    if matching_item:
+                        qty = matching_item.get("TotalQty", 0)
 
-        # === 2. Fill "Material Break Out" ===
-        material_sheet = wb.sheets["Material Break Out"]
-        material_sheet.range("A9:Z1000").clear_contents()
+                sheet.range(f"L{row}").value = qty
 
-        # Filter out SKUs that contain "labor"
-        material_data = [row for row in original_data if "labor" not in row.get("SKU", "").lower()]
+        elif data_type.startswith("material_breakout"):
 
-        # Group by Folder
-        grouped_by_folder = defaultdict(list)
-        for row in material_data:
-            folder = row.get("Folder", "Uncategorized")
-            grouped_by_folder[folder].append(row)
+            print("📄 Injecting Material Break Out Sheet")
+            print("📄 Also injecting Material Break Out sheet")
 
-        current_row = 9
-        for folder, items in grouped_by_folder.items():
-            for item in items:
-                # 🔍 Add this debug log here
-                print(f"Injecting Row {current_row}:")
-                print("  SKU:", item.get("SKU"))
-                print("  Description:", item.get("Description"))
-                print("  Description2:", item.get("Description2"))
-                print("  Units:", item.get("Units"))
+            material_sheet = wb.sheets["Material Break Out"]
+            material_sheet.range("A9:Z1000").clear_contents()
+            print(f"✅ Rows to inject into Material Break Out: {len(data)}")
+            material_sheet = wb.sheets["Material Break Out"]
+            material_sheet.range("A9:Z1000").clear_contents()
+            current_row = 9
+            for item in data:
+                print(f"Injecting Row {current_row}: SKU={item.get('SKU')}, Desc2={item.get('Description2')}")
                 material_sheet.range(f"A{current_row}").value = item.get("SKU", "")
                 material_sheet.range(f"B{current_row}").value = item.get("Description", "")
                 material_sheet.range(f"C{current_row}").value = item.get("Description2", "")
@@ -112,16 +118,37 @@ def inject():
                 material_sheet.range(f"F{current_row}").value = item.get("ColorGroup", "")
                 current_row += 1
 
+            # ✅ Inject raw data to columns H onward starting at row 9
+            if raw_data:
+                print("📄 Injecting raw data into Material Break Out sheet (starting at column H)")
+                headers = list(raw_data[0].keys())
+                material_sheet.range("H8").value = headers  # header row
 
-        wb.save(output_path)
-        wb.close()
-        app_xl.quit()
+                for i, row in enumerate(raw_data, start=9):
+                    row_values = [row.get(h, "") for h in headers]
+                    material_sheet.range(f"H{i}").value = row_values
 
-        return send_file(output_path, as_attachment=True, download_name=output_filename)
+
+        try:
+            wb.save(output_path)
+        finally:
+            wb.close()
+            app_xl.quit()
+
+
+
+        return send_file(
+    output_path,
+    as_attachment=True,
+    download_name=output_filename,
+    mimetype='application/vnd.ms-excel.sheet.binary.macroEnabled.12'
+)
+
 
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(port=5000)

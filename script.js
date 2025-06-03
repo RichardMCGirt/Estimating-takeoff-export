@@ -1,5 +1,6 @@
 let mergedData = [];
 let mappedWorkbook = null;
+let rawSheetData = []; // 👈 global to store unmerged data
 
 const defaultServer = "https://fdb2-174-108-187-19.ngrok-free.app/inject";
 const savedServer = localStorage.getItem("injectionServerURL");
@@ -19,12 +20,14 @@ function handleSourceUpload(event) {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
+    rawSheetData = json; // ✅ save raw unmerged data
     mergedData = mergeBySKU(json);
     displayMergedTable(mergedData);
     renderFolderButtons();
   };
   reader.readAsArrayBuffer(file);
 }
+
 
 function showToast(message = "Success!") {
   const toast = document.getElementById("toast");
@@ -130,75 +133,77 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
       result[key].TotalQty += qty;
     });
   
-    return Object.values(result);
+return Object.values(result).map(item => {
+  if (!Number.isInteger(item.TotalQty)) {
+    item.TotalQty = Math.ceil(item.TotalQty);
+  }
+  return item;
+});
   }
   
   function displayMergedTable(data) {
-    const container = document.getElementById("mergedTableContainer");
-    const wrapper = document.getElementById("mergedTableWrapper");
-  
-    if (!data.length) {
-      container.innerHTML = "<p>No merged data found.</p>";
-      wrapper.style.display = "none"; // Hide again if data is cleared
-      return;
-    }
-  
-    // Show the wrapper only if data is valid
-    wrapper.style.display = "block";
-  
-    const folders = [...new Set(data.map(d => d.Folder))];
-    let html = "";
-  
-    folders.forEach((folder, index) => {
-      const allRows = data.filter(d => d.Folder === folder);
-  
-      // Sort by SKU first
-      const sortedBySKU = [...allRows].sort((a, b) => {
-        const skuA = (a.SKU || "").toLowerCase();
-        const skuB = (b.SKU || "").toLowerCase();
-        return skuA.localeCompare(skuB);
-      });
-  
-      // Move labor rows to the bottom
-      const nonLaborRows = sortedBySKU.filter(d => !/labor/i.test(d.SKU));
-      const laborRows = sortedBySKU.filter(d => /labor/i.test(d.SKU));
-      const finalSortedRows = [...nonLaborRows, ...laborRows];
-  
-      const tableId = `copyTable_${index}`;
-      let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
-  
-      finalSortedRows.forEach(row => {
-        tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
-      });
-  
-      html += `<h3>${folder}</h3>
-      <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
-      <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
-      <table style="width:100%; text-align:center; border-collapse: collapse;"><thead><tr>
-        <th style="text-align:center;">SKU</th>
-        <th style="text-align:center;">Description</th>
-<th style="text-align:center;">Description 2</th>
+  const container = document.getElementById("mergedTableContainer");
+  const wrapper = document.getElementById("mergedTableWrapper");
 
-        <th style="text-align:center;">QTY</th>
-        <th style="text-align:center;">Color Group</th>
-      </tr></thead><tbody>`;
-  
-      finalSortedRows.forEach(row => {
-        html += `<tr>
-          <td style="text-align:center;">${row.SKU}</td>
-          <td style="text-align:center;">${row.Description}</td>
-<td style="text-align:center;">${row.Description2 || ""}</td>
-
-          <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
-          <td style="text-align:center;">${row.ColorGroup}</td>
-        </tr>`;
-      });
-  
-      html += `</tbody></table><br/>`;
-    });
-  
-    container.innerHTML = html;
+  if (!data.length) {
+    container.innerHTML = "<p>No merged data found.</p>";
+    wrapper.style.display = "none";
+    return;
   }
+
+  wrapper.style.display = "block";
+  const folders = [...new Set(data.map(d => d.Folder))];
+  let html = "";
+
+  folders.forEach((folder, index) => {
+    const allRows = data.filter(d => d.Folder === folder);
+
+    // ⛔️ Filter OUT labor rows
+    const filteredRows = allRows.filter(d => !/labor/i.test(d.SKU));
+
+    if (!filteredRows.length) return; // Skip rendering this folder if only labor rows exist
+
+    // Sort by SKU
+    const sortedRows = filteredRows.sort((a, b) => {
+      const skuA = (a.SKU || "").toLowerCase();
+      const skuB = (b.SKU || "").toLowerCase();
+      return skuA.localeCompare(skuB);
+    });
+
+    const tableId = `copyTable_${index}`;
+    let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
+
+    sortedRows.forEach(row => {
+      tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
+    });
+
+    html += `<h3>${folder}</h3>
+    <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
+    <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
+    <table style="width:100%; text-align:center; border-collapse: collapse;"><thead><tr>
+      <th style="text-align:center;">SKU</th>
+      <th style="text-align:center;">Description</th>
+      <th style="text-align:center;">Description 2</th>
+      <th style="text-align:center;">QTY</th>
+      <th style="text-align:center;">Color Group</th>
+    </tr></thead><tbody>`;
+
+    sortedRows.forEach(row => {
+      html += `<tr>
+        <td style="text-align:center;">${row.SKU}</td>
+        <td style="text-align:center;">${row.Description}</td>
+        <td style="text-align:center;">${row.Description2 || ""}</td>
+        <td style="text-align:center;">${row.TotalQty.toFixed(2)}</td>
+        <td style="text-align:center;">${row.ColorGroup}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table><br/>`;
+  });
+
+  container.innerHTML = html;
+}
+
   
   function renderFolderButtons() {
     const container = document.getElementById('folderButtons');
@@ -225,36 +230,27 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
   }
   
 function injectSelectedFolder(folder) {
-const filteredData = mergedData.filter(d => d.Folder === folder);
+  const filteredData = mergedData.filter(d => d.Folder === folder);
+  if (!filteredData.length) return alert(`No data for ${folder}`);
 
-// Safety check
-const misfiled = filteredData.filter(d => d.SKU === "4412T" && d.Folder !== folder);
-if (misfiled.length) {
-  console.warn("⚠️ 4412T incorrectly included for folder:", folder, misfiled);
-}
+  const dataForInjection = filteredData.filter(d => !/labor/i.test(d.SKU)); // 💡 remove labor SKUs
 
+  if (!dataForInjection.length) return alert(`No non-labor data to inject for ${folder}`);
 
-  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_'); // sanitize filename
+  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_');
   const filename = `merged-data-${safeFolder}.json`;
-  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(dataForInjection, null, 2)], { type: 'application/json' });
 
-  // ✅ Log what is being sent
-  console.log(`📦 Sending ${filteredData.length} records for "${folder}"`);
-  filteredData.forEach(row => {
-    if (row.SKU === "4412T") {
-      console.warn("⚠️ 4412T found in folder being injected:", folder);
-    }
-  });
-
-  // 💾 Save for optional download
+  // Save full JSON blob (in case user wants to download later)
   window.currentJSONBlob = blob;
   window.currentJSONFilename = filename;
 
-  // ✅ Send to server
-  sendToInjectionServer(filteredData, folder);
+  // 🚀 Inject only non-labor data
+  sendToInjectionServer(dataForInjection, folder);
 
-  showToast(`✅ Prepared BAT for "${folder}"`);
+  showToast(`✅ Injected "${folder}" to server (labor rows excluded)`);
 }
+
 
     
 // Helper to copy from hidden textarea
@@ -294,14 +290,25 @@ function injectSelectedFolder(folder) {
 
 
 function sendToInjectionServer(data, folderName) {
-const serverURL = "https://1853-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://8bd0-174-108-187-19.ngrok-free.app/inject";
+
+  const payload = {
+    data: data,                // mergedData (filtered by folder)
+    raw: rawSheetData,         // original raw XLSX rows
+    type: "elevation"
+  };
+
+  console.log("📤 Sending payload:", payload);
 
   fetch(serverURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
+    body: JSON.stringify(payload)
   })
-    .then(response => response.blob())
+    .then(response => {
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      return response.blob();
+    })
     .then(blob => {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
@@ -316,5 +323,6 @@ const serverURL = "https://1853-174-108-187-19.ngrok-free.app/inject";
       alert("❌ Injection failed.");
     });
 }
+
 
 
