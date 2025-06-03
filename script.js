@@ -253,8 +253,6 @@ function renderFolderButtons() {
     button.textContent = folder;
   }
 });
-
-
     container.appendChild(button);
   });
 }
