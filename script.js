@@ -263,12 +263,14 @@ function renderFolderButtons() {
     button.style.margin = '6px';
     button.classList.add("folder-button");
 
- button.addEventListener('click', async () => {
+button.addEventListener('click', async () => {
   button.disabled = true;
   button.textContent = `Injecting "${folder}"...`;
 
+  showLoadingOverlay(true, `📦 Generating and downloading "${folder}"...`); // ✅ Add this early
+
   try {
-const elevationData = mergedData.filter(d => d.Folder === folder); // <-- removed !/labor/i
+    const elevationData = mergedData.filter(d => d.Folder === folder);
     const breakoutMerged = mergeForMaterialBreakout(elevationData);
 
     if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
@@ -281,30 +283,41 @@ const elevationData = mergedData.filter(d => d.Folder === folder); // <-- remove
   } finally {
     button.disabled = false;
     button.textContent = folder;
-    showToast(`✅ ${folder} Chosen `);
+    showToast(`✅ ${folder} Chosen`);
+    showLoadingOverlay(false); // ✅ Hide when done
   }
 });
+
 
 
 
     container.appendChild(button);
   });
 }
-function showLoadingOverlay(show = true) {
+function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
+  const messageElement = document.getElementById("loadingMessage");
 
-  if (!overlay) return;
+  if (!overlay) {
+    console.warn("⚠️ loadingOverlay element not found.");
+    return;
+  }
 
   if (show) {
     overlay.style.display = "flex";
-
-    setTimeout(() => {
-      overlay.style.display = "none";
-    }, 3000); 
+    if (messageElement) {
+      messageElement.textContent = message;
+      console.log(`🔔 Overlay shown with message: "${message}"`);
+    } else {
+      console.warn("⚠️ loadingMessage element not found.");
+    }
   } else {
     overlay.style.display = "none";
+    console.log("✅ Overlay hidden.");
   }
 }
+
+
 
 
 // Utility function to disable/enable all folder buttons
@@ -325,8 +338,7 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName)
   const payload = {
     data: elevationData,
     breakout: breakoutData,
-    raw: rawSheetData,
-    type: "combined" // or whatever type your backend expects
+    type: "combined"
   };
 
   console.log("📤 Sending combined payload:", payload);
@@ -340,26 +352,26 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName)
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
-  .then(blob => {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${folderName}.xlsb`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showToast("✅ Combined workbook downloaded.");
-  
-  // ✅ Hide overlay after download triggered
-  showLoadingOverlay(false);
-})
+    .then(blob => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folderName}.xlsb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("✅ Combined workbook downloaded.");
 
+      // ⏳ Keep overlay a little longer for user to notice
+      setTimeout(() => {
+        showLoadingOverlay(false);
+      }, 1500); // 1.5 second delay
+    })
     .catch(error => {
       console.error("Download failed", error);
-      showLoadingOverlay(false);
-
       alert("❌ Combined injection failed.");
+      showLoadingOverlay(false);
     });
-}
+  }
 
   
 function injectSelectedFolder(folder) {
@@ -473,11 +485,15 @@ document.body.removeChild(tempTextarea);
 function sendToInjectionServer(data, folderName, type = "elevation") {
   const serverURL = "https://6657-174-108-187-19.ngrok-free.app/inject";
 
-  const payload = {
-    data: data,
-    raw: rawSheetData,
-    type: type
-  };
+ const payload = {
+  data,
+  type
+};
+
+if (type !== "material_breakout") {
+  payload.raw = rawSheetData;
+}
+
 
   console.log("📤 Sending payload:", payload);
 
@@ -490,25 +506,19 @@ function sendToInjectionServer(data, folderName, type = "elevation") {
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
-   .then(blob => {
+.then(blob => {
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `${folderName}.xlsb`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  showToast("✅ File downloaded.");
+  showToast("✅ Download complete.");
 
-  // ✅ Hide overlay after download triggered
-  showLoadingOverlay(false);
-})
+  // Delay hiding to ensure user sees the message
+  setTimeout(() => showLoadingOverlay(false), 1500);
+});
 
-    .catch(error => {
-      console.error("Download failed", error);
-      alert("❌ Injection failed.");
-      showLoadingOverlay(false);
-
-    });
 }
 
 
