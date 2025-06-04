@@ -133,7 +133,6 @@ table tbody tr:hover {
   background-color: #e0f7fa; /* Light teal on hover */
 }
 
-
 #toast {
   position: fixed;
   bottom: 50% !important;
@@ -148,7 +147,6 @@ table tbody tr:hover {
   transition: all 0.4s ease;
   z-index: 9999;
 }
-
 
 #toast.show {
   visibility: visible;
