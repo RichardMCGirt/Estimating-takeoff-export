@@ -233,11 +233,28 @@ let html = "";
 });
 
 
-  // Spacer rows
-  if (sortedLabor.length) {
-    html += `<tr><td colspan="5" style="height:10px;"></td></tr>`;
-    html += `<tr><td colspan="5" style="height:10px;"></td></tr>`;
-  }
+// Spacer rows with full 6-column bordered layout
+if (sortedLabor.length) {
+  html += `
+    <tr>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+    </tr>
+    <tr>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
+    </tr>
+  `;
+}
+
 
   // Render labor
   sortedLabor.forEach(row => {

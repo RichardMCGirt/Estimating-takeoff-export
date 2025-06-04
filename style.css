@@ -120,6 +120,19 @@ th {
   background-color: var(--color-header-bg);
   font-weight: bold;
 }
+table tbody tr:nth-child(odd) {
+  background-color: #f9f9f9; /* Light gray for odd rows */
+}
+
+table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* White for even rows */
+}
+
+/* Optional: Hover effect */
+table tbody tr:hover {
+  background-color: #e0f7fa; /* Light teal on hover */
+}
+
 
 #toast {
   position: fixed;
