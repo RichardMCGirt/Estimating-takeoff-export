@@ -261,6 +261,20 @@ if (sortedLabor.length) {
   container.innerHTML = html;
 }
 
+function normalizeRawRow(row) {
+  return {
+    SKU: row["SKU#"] || "",
+    Description: row["Description"] || "",
+    Description2: row["Description 2"] || "",
+    UOM: row["Units"] || "",
+    TotalQty: parseFloat(row["Qty"]) || 0,
+    ColorGroup: row["Color Group"] || "",
+    Folder: row["Folder"] || ""
+  };
+}
+
+
+
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
   const section = document.getElementById('elevationSection');
@@ -291,7 +305,13 @@ button.addEventListener('click', async () => {
 
   try {
     const elevationData = mergedData.filter(d => d.Folder === folder);
-    const breakoutMerged = mergeForMaterialBreakout(elevationData);
+
+// ✅ Instead of using mergedData again, normalize raw data
+const rawRows = rawSheetData.filter(d => d.Folder === folder);
+const normalizedRows = rawRows.map(normalizeRawRow);
+const breakoutMerged = mergeForMaterialBreakout(normalizedRows);
+
+
 
     if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
     if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
@@ -314,6 +334,9 @@ button.addEventListener('click', async () => {
     container.appendChild(button);
   });
 }
+
+
+
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
   const messageElement = document.getElementById("loadingMessage");
@@ -355,6 +378,14 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName)
     breakout: breakoutData,
     type: "combined"
   };
+
+  console.log("🔍 Breakout Data Preview:", breakoutData);
+console.table(breakoutData.map(d => ({
+  SKU: d.SKU,
+  Description: d.Description,
+  TotalQty: d.TotalQty
+})));
+
 
   console.log(`📤 Sending ${folderName} payload:`, payload);
 
@@ -467,50 +498,71 @@ sendToInjectionServer(breakoutMerged, folder, "material_breakout");
 }
 
 function mergeForMaterialBreakout(data) {
+  console.log("🔍 Starting mergeForMaterialBreakout with", data.length, "rows");
+
   const result = {};
 
-  data.forEach(row => {
-    const sku = row.SKU?.trim();
-    const colorGroup = row.ColorGroup?.trim();
+  data.forEach((row, index) => {
+    const sku = row.SKU?.trim() || "";
+    const desc2Raw = row.Description2;
+    const desc2 = desc2Raw ?? `__EMPTY_${Math.random()}`; // Treat empty Description2 as unique
+    const colorGroup = row.ColorGroup?.trim() || "";
+    const qty = parseFloat(row.TotalQty) || 0;
 
-if (!sku || !colorGroup) return;
+    console.log(`➡️ Row ${index}:`, {
+      SKU: sku,
+      Description2: desc2Raw,
+      NormalizedDescription2: desc2,
+      ColorGroup: colorGroup,
+      TotalQty: qty,
+    });
 
-    const key = `${sku}___${colorGroup}`;
+    // ❌ Skip if SKU contains "labor" (case-insensitive)
+    if (sku.toLowerCase().includes("labor")) {
+      console.log(`⏭️ Skipping SKU "${sku}" because it includes 'labor'`);
+      return;
+    }
+
+    const key = `${sku}___${desc2}___${colorGroup}`;
+    console.log(`🔑 Generated merge key: ${key}`);
+
     if (!result[key]) {
       result[key] = {
         ...row,
         TotalQty: 0
       };
+      console.log(`🆕 New entry created for key: ${key}`);
     }
 
-    result[key].TotalQty += parseFloat(row.TotalQty) || 0;
+    result[key].TotalQty += qty;
+    console.log(`➕ Updated TotalQty for key ${key}:`, result[key].TotalQty);
   });
 
-  // Round up TotalQty
+  // Convert to array and round if needed
 const merged = Object.values(result).map(item => {
-  const isLabor = item.SKU?.toLowerCase().includes("labor");
-
-  // 🔍 Log original value
-  if (item.SKU?.toLowerCase() === "zlaborceil") {
-    console.log(`🔍 Before rounding [${item.Folder}]: ${item.SKU} -> ${item.TotalQty}`);
+  const qty = item.TotalQty;
+  if (!Number.isInteger(qty)) {
+    item.TotalQty = qty > 0 ? Math.ceil(qty) : Math.floor(qty);
+    console.log(`🧮 Rounded ${qty} ➜ ${item.TotalQty} (SKU: ${item.SKU})`);
+  } else {
+    console.log(`✔️ No rounding needed: ${qty} (SKU: ${item.SKU})`);
   }
-
-  if (!isLabor && !Number.isInteger(item.TotalQty)) {
-    item.TotalQty = Math.ceil(item.TotalQty);
-  }
-
-  // 🔍 Log after rounding decision
-  if (item.SKU?.toLowerCase() === "zlaborceil") {
-    console.log(`✅ Final value [${item.Folder}]: ${item.SKU} -> ${item.TotalQty}`);
-  }
-
   return item;
 });
 
-console.table(merged.filter(r => r.SKU?.toLowerCase() === "zlaborceil"));
-return merged;
 
-} 
+  console.log("✅ Merging complete. Final item count:", merged.length);
+  console.table(merged.map(i => ({
+    SKU: i.SKU,
+    Description2: i.Description2,
+    TotalQty: i.TotalQty,
+    ColorGroup: i.ColorGroup
+  })));
+
+  return merged;
+}
+
+
 
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
