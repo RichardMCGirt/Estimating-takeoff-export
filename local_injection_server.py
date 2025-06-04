@@ -11,6 +11,16 @@ injection_lock = threading.Lock()
 app = Flask(__name__)
 CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
 
+def sort_by_description(data, key="Description"):
+    return sorted(data, key=lambda x: (x.get(key) or "").lower())
+
+def split_labor(data):
+    return (
+        [row for row in data if "labor" not in row.get("SKU", "").lower()],
+        [row for row in data if "labor" in row.get("SKU", "").lower()]
+    )
+
+
 @app.after_request
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -66,7 +76,8 @@ def inject():
                 "t&g ceiling labor": "zLABORTGCEIL"
             }
 
-            non_labor_data = [row for row in data if "labor" not in row.get("SKU", "").strip().lower()]
+            non_labor_data, labor_data = split_labor(data)
+            non_labor_data = sort_by_description(non_labor_data, key="Description")
             for i, row in enumerate(non_labor_data, start=8):
                 sheet.range(f"A{i}").value = row.get("SKU", "")
                 sheet.range(f"C{i}").value = row.get("Description2", "")
@@ -107,7 +118,9 @@ def inject():
             material_sheet.range("A9:Z1000").clear_contents()
             current_row = 9
 
-            for item in breakout_data:
+            sorted_breakout = sort_by_description(breakout_data, key="Description2")
+            for item in sorted_breakout:
+
                 print(f"Injecting Row {current_row}: SKU={item.get('SKU')}, Desc2={item.get('Description2')}")
                 material_sheet.range(f"A{current_row}").value = item.get("SKU", "")
                 material_sheet.range(f"B{current_row}").value = item.get("Description", "")

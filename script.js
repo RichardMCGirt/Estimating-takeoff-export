@@ -136,8 +136,10 @@ const merged = Object.values(result).map(item => {
   const skipRounding = isLabor || uom === "SQ";
 
   if (!skipRounding && !Number.isInteger(item.TotalQty)) {
-    item.TotalQty = Math.ceil(item.TotalQty); // ⛔ Only round if not labor and not SQ
-  }
+  const qty = item.TotalQty;
+  item.TotalQty = qty > 0 ? Math.ceil(qty) : Math.floor(qty); // ✅ Rounds away from zero
+}
+
 
   return item;
 });
