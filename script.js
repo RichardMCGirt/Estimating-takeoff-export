@@ -6,7 +6,6 @@ const defaultServer = "https://e5a8-174-108-187-19.ngrok-free.app/inject";
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 
-
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
 function handleSourceUpload(event) {
@@ -140,12 +139,10 @@ const merged = Object.values(result).map(item => {
   item.TotalQty = qty > 0 ? Math.ceil(qty) : Math.floor(qty); // ✅ Rounds away from zero
 }
 
-
   return item;
 });
 
 return merged;
-
   }
   
   function displayMergedTable(data) {
@@ -274,8 +271,6 @@ function normalizeRawRow(row) {
     Folder: row["Folder"] || ""
   };
 }
-
-
 
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
