@@ -12,7 +12,8 @@ app = Flask(__name__)
 CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
 
 def sort_by_description(data, key="Description"):
-    return sorted(data, key=lambda x: (x.get(key) or "").lower())
+    return sorted(data, key=lambda x: (x.get(key) == "", (x.get(key) or "").lower()))
+
 
 def split_labor(data):
     return (
@@ -77,7 +78,9 @@ def inject():
             }
 
             non_labor_data, labor_data = split_labor(data)
-            non_labor_data = sort_by_description(non_labor_data, key="Description")
+            non_labor_data = sorted(non_labor_data, key=lambda x: (x.get("Description") == "", (x.get("Description") or "").lower()))
+            print("🔠 Sorted Elevation Description values:")
+
             for i, row in enumerate(non_labor_data, start=8):
                 sheet.range(f"A{i}").value = row.get("SKU", "")
                 sheet.range(f"C{i}").value = row.get("Description2", "")
@@ -118,7 +121,9 @@ def inject():
             material_sheet.range("A9:Z1000").clear_contents()
             current_row = 9
 
-            sorted_breakout = sort_by_description(breakout_data, key="Description2")
+            sorted_breakout = sort_by_description(breakout_data, key="Description")
+            print("🔠 Sorted Description values:")
+
             for item in sorted_breakout:
 
                 print(f"Injecting Row {current_row}: SKU={item.get('SKU')}, Desc2={item.get('Description2')}")
