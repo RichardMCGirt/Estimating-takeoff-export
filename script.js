@@ -72,15 +72,23 @@ function showToast(message = "Success!", durationMs = 4000) {
     });
   
     console.log("🔍 Normalized Headers:", normalizedHeaders);
-    function getHeaderMatch(possibleNames, normalizedHeaders) {
-      const normalizedKeys = Object.keys(normalizedHeaders);
-      for (const name of possibleNames) {
-        const match = normalizedKeys.find(k => k.includes(name));
-        if (match) return normalizedHeaders[match];
-      }
-      return "";
-    }
-    
+ function getHeaderMatch(possibleNames, normalizedHeaders) {
+  const normalizedKeys = Object.keys(normalizedHeaders);
+
+  for (const name of possibleNames) {
+    const normalizedName = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+    const exactMatch = normalizedKeys.find(k => k === normalizedName);
+    if (exactMatch) return normalizedHeaders[exactMatch];
+
+    const partialMatch = normalizedKeys.find(k => k.includes(normalizedName));
+    if (partialMatch) return normalizedHeaders[partialMatch];
+  }
+
+  return "";
+}
+
+    console.log("📋 Raw headers:", Object.keys(data[0]));
+
     const colMap = {
       
       sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
@@ -261,16 +269,33 @@ if (sortedLabor.length) {
 }
 
 function normalizeRawRow(row) {
+  const normalizedKeys = {};
+  Object.keys(row).forEach(key => {
+    const keyNorm = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+    normalizedKeys[keyNorm] = key;
+  });
+
+  const getValue = (aliases) => {
+    for (let alias of aliases) {
+      const norm = alias.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+      if (normalizedKeys[norm]) return row[normalizedKeys[norm]];
+    }
+    return "";
+  };
+
   return {
-    SKU: row["SKU#"] || "",
-    Description: row["Description"] || "",
-    Description2: row["Description 2"] || "",
-    UOM: row["Units"] || "",
-    TotalQty: parseFloat(row["Qty"]) || 0,
-    ColorGroup: row["Color Group"] || "",
-    Folder: row["Folder"] || ""
+    SKU: getValue(["sku", "sku#", "skunumber"]),
+    Description: getValue(["description"]),
+    Description2: getValue(["description2", "desc2"]),
+    UOM: getValue(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"]),
+    TotalQty: parseFloat(getValue(["qty", "quantity"])) || 0,
+    ColorGroup: getValue(["colorgroup", "color"]),
+    Folder: getValue(["folder", "elevation"]),
+    Vendor: getValue(["vendor"]),
+    UnitCost: parseFloat(getValue(["unitcost", "cost"])) || 0,
   };
 }
+
 
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
@@ -306,7 +331,9 @@ button.addEventListener('click', async () => {
 // ✅ Instead of using mergedData again, normalize raw data
 const rawRows = rawSheetData.filter(d => d.Folder === folder);
 const normalizedRows = rawRows.map(normalizeRawRow);
-const breakoutMerged = mergeForMaterialBreakout(normalizedRows);
+const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
+const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+
 
 
 
@@ -480,16 +507,18 @@ function renderMaterialBreakoutButtons() {
     const button = document.createElement('button');
     button.textContent = `Download "${folder}"`;
     button.style.margin = '6px';
-    button.addEventListener('click', () => {
-const folderRows = mergedData.filter(d => 
-  d.Folder === folder && !/labor/i.test(d.SKU)
-);
-const breakoutMerged = mergeForMaterialBreakout(folderRows);
+button.addEventListener('click', () => {
+  const rawRows = rawSheetData.filter(d => d.Folder === folder);
+  const normalizedRows = rawRows.map(normalizeRawRow);
+  const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
+  
+  const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
 
-if (!breakoutMerged.length) return alert(`No data for ${folder}`);
-sendToInjectionServer(breakoutMerged, folder, "material_breakout");
-      showToast(`✅ Injected "${folder}" to Material Break Out`);
-    });
+  if (!breakoutMerged.length) return alert(`No data for ${folder}`);
+  sendToInjectionServer(breakoutMerged, folder, "material_breakout");
+  showToast(`✅ Injected "${folder}" to Material Break Out`);
+});
+
     container.appendChild(button);
   });
 }
@@ -537,15 +566,10 @@ function mergeForMaterialBreakout(data) {
 
   // Convert to array and round if needed
 const merged = Object.values(result).map(item => {
-  const qty = item.TotalQty;
-  if (!Number.isInteger(qty)) {
-    item.TotalQty = qty > 0 ? Math.ceil(qty) : Math.floor(qty);
-    console.log(`🧮 Rounded ${qty} ➜ ${item.TotalQty} (SKU: ${item.SKU})`);
-  } else {
-    console.log(`✔️ No rounding needed: ${qty} (SKU: ${item.SKU})`);
-  }
+  console.log(`✅ Preserved qty: ${item.TotalQty} (SKU: ${item.SKU})`);
   return item;
 });
+
 
 
   console.log("✅ Merging complete. Final item count:", merged.length);

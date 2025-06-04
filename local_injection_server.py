@@ -65,8 +65,8 @@ def inject():
 
             labor_map = {
                 "lap labor": "zLABORLAP",
-                "b&b labor": "zLABORBB",
-                "shake labor": "zLABORSHAKE",
+                "B&B Labor": "zLABORBB",
+                "Shake Labor": "zLABORSHAK",
                 "ceiling labor": "zLABORCEIL",
                 "column labor": "zLABORSTCOL",
                 "shutter labor": "zLABORSHUT",
