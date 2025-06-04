@@ -349,7 +349,7 @@ function disableAllFolderButtons(disabled, message = "") {
 }
 
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
-  const serverURL = "https://dbd3-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://76ea-174-108-187-19.ngrok-free.app/inject";
 
   const payload = {
     data: elevationData,
@@ -515,7 +515,7 @@ document.body.removeChild(tempTextarea);
 }
 
 function sendToInjectionServer(data, folderName, type = "elevation") {
-  const serverURL = "https://dbd3-174-108-187-19.ngrok-free.app/inject";
+  const serverURL = "https://76ea-174-108-187-19.ngrok-free.app/inject";
 
  const payload = {
   data,
