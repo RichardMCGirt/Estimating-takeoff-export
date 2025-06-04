@@ -12,12 +12,21 @@
 
     <ol>
       <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data</li>
-      <li><strong>Review Table</strong> – confirm quantities and elevations</li>
+      <li><strong>Review Table</strong> – confirm quantities</li>
       <li><strong>Select Elevation</strong> – choose which elevation to export</li>
     </ol>
 
-    <h2>Step 1: Upload Source File</h2>
-    <input type="file" id="sourceFile" accept=".xlsx" />
+<h2>Step 1: Upload Source File</h2>
+<div id="drop-zone">
+  <p>
+    Drag & drop your Excel file here, or 
+    <span class="click-browse">click </span> to browse
+  </p>
+  <input type="file" id="sourceFile" accept=".xlsx" />
+</div>
+
+
+
 
     <hr>
 <div id="loadingOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -31,31 +40,17 @@
       <div id="folderButtons"></div>
       <hr>
     </div>
-<!-- <div id="materialBreakoutSection">
-  <h3>Material Break Out Sheets</h3>
-  <div id="materialBreakoutButtons"></div>
-</div> -->
 
-   <!-- Step 4: Merged Data Table (initially hidden) -->
+    <!-- Step 4: Merged Data Table (initially hidden) -->
 <div id="mergedTableWrapper" style="display: none;">
   <div id="mergedTableContainer"></div>
 </div>
 
     <div id="toast"></div>
-  </div> <!-- 🔚 End wrapper -->
+  </div> 
 
   <script src="script.js"></script>
-  <script>
-    function downloadFile(filename) {
-      const a = document.createElement('a');
-      a.href = filename;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-  </script>
+ 
 </body>
 
 </html>

@@ -141,7 +141,6 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
   result[key].TotalQty += qty;
 });
 
-  
 const merged = Object.values(result).map(item => {
   const isLabor = item.SKU?.toLowerCase().includes("labor");
   const uom = item.UOM?.trim().toUpperCase();
@@ -155,8 +154,6 @@ const merged = Object.values(result).map(item => {
 
   return item;
 });
-
-
 
 return merged;
 
@@ -306,9 +303,6 @@ button.addEventListener('click', async () => {
     showLoadingOverlay(false); // ✅ Hide when done
   }
 });
-
-
-
 
     container.appendChild(button);
   });
@@ -496,7 +490,6 @@ return merged;
 
 } // ✅ <- this was missing!
 
- 
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
 const textarea = document.getElementById(textareaId);
@@ -526,7 +519,6 @@ if (type !== "material_breakout") {
   payload.raw = rawSheetData;
 }
 
-
   console.log("📤 Sending payload:", payload);
 
   fetch(serverURL, {
@@ -550,8 +542,47 @@ if (type !== "material_breakout") {
   // Delay hiding to ensure user sees the message
   setTimeout(() => showLoadingOverlay(false), 1500);
 });
-
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('sourceFile');
+  const clickableText = document.querySelector('.click-browse');
+
+  if (clickableText && fileInput) {
+    clickableText.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent event bubbling to dropZone
+      fileInput.click();
+    });
+  }
+
+  if (dropZone && fileInput) {
+    dropZone.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        fileInput.files = files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+});
+
 
 
 
