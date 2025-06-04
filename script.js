@@ -2,9 +2,10 @@ let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = []; // 👈 global to store unmerged data
 
-const defaultServer = "https://fdb2-174-108-187-19.ngrok-free.app/inject";
+const defaultServer = "https://e5a8-174-108-187-19.ngrok-free.app/inject";
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
+
 
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
@@ -39,7 +40,7 @@ function injectMaterialBreakout() {
   sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
 }
 
-function showToast(message = "Success!") {
+function showToast(message = "Success!", durationMs = 4000) {
   const toast = document.getElementById("toast");
   if (!toast) {
     console.warn("⚠️ Toast element not found.");
@@ -49,7 +50,7 @@ function showToast(message = "Success!") {
   toast.textContent = message;
   toast.style.visibility = "visible";
   toast.style.opacity = "1";
-  toast.style.bottom = "50px";
+  toast.style.bottom = "50%"; 
 
   setTimeout(() => {
     toast.style.opacity = "0";
@@ -57,8 +58,9 @@ function showToast(message = "Success!") {
     setTimeout(() => {
       toast.style.visibility = "hidden";
     }, 300);
-  }, 2000);
+  }, durationMs);
 }
+
 
   function mergeBySKU(data) {
     if (!data.length) return [];
@@ -85,7 +87,7 @@ function showToast(message = "Success!") {
       sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
       description: getHeaderMatch(["description"], normalizedHeaders),
       description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
-uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
+      uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
       folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
       colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
       vendor: getHeaderMatch(["vendor"], normalizedHeaders),
@@ -94,12 +96,6 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
       
     };
     
-    console.log("✅ colMap.description2 points to:", colMap.description2);
-    console.log("✅ Final colMap.description2 =", colMap.description2);
-
-    console.log("📌 Mapped Columns:", colMap);
-  console.log("✅ Final colMap.uom =", colMap.uom);
-
     const result = {};
   
   data.forEach((row, i) => {
@@ -111,16 +107,6 @@ uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"
   }
 
   const key = `${sku}___${folder}`;
-
-  // 🔍 Focused log for zLABORCEIL
-  if (sku.toLowerCase() === "zlaborceil") {
-    console.log(`🧪 [zLABORCEIL] Row ${i + 1}:`, {
-      Folder: folder,
-      Key: key,
-      Description: row[colMap.description],
-      Qty: row[colMap.qty]
-    });
-  }
 
   const qtyRaw = row[colMap.qty];
   const qty = parseFloat(qtyRaw) || 0;
@@ -181,7 +167,7 @@ let html = "";
   const nonLaborRows = allRows.filter(d => !/labor/i.test(d.SKU));
   const laborRows = allRows.filter(d => /labor/i.test(d.SKU));
 
-  if (!nonLaborRows.length && !laborRows.length) return; // skip empty folders
+  if (!nonLaborRows.length && !laborRows.length) return; 
 
   const sortedNonLabor = nonLaborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
   const sortedLabor = laborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
@@ -200,7 +186,7 @@ let html = "";
 
   // Spacer lines
   if (sortedLabor.length) {
-    tsvContent += `\n\n`; // add 2 blank lines to TSV
+    tsvContent += `\n\n`; 
   }
 
   // Append labor to TSV
@@ -256,7 +242,6 @@ if (sortedLabor.length) {
   `;
 }
 
-
   // Render labor
   sortedLabor.forEach(row => {
   html += `<tr>
@@ -301,7 +286,8 @@ button.addEventListener('click', async () => {
   button.disabled = true;
   button.textContent = `Injecting "${folder}"...`;
 
-  showLoadingOverlay(true, `📦 Generating and downloading "${folder}"...`); // ✅ Add this early
+  showToast(`📦 Starting injection for "${folder}"`);
+  showLoadingOverlay(true, `📦 Generating and downloading "${folder}"...`);
 
   try {
     const elevationData = mergedData.filter(d => d.Folder === folder);
@@ -310,18 +296,21 @@ button.addEventListener('click', async () => {
     if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
     if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
 
+    showToast(`📤 Sending data for "${folder}"...`);
+
     await sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
+
+    showToast(`✅ "${folder}" download complete.`);
   } catch (err) {
     console.error("❌ Injection error:", err);
     alert(`Injection failed for ${folder}`);
+    showToast(`❌ Injection failed for "${folder}"`);
   } finally {
     button.disabled = false;
     button.textContent = folder;
-    showToast(`✅ ${folder} Chosen`);
-    showLoadingOverlay(false); // ✅ Hide when done
+    showLoadingOverlay(false);
   }
 });
-
     container.appendChild(button);
   });
 }
@@ -361,47 +350,61 @@ function disableAllFolderButtons(disabled, message = "") {
 }
 
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
-  const serverURL = "https://eaf1-174-108-187-19.ngrok-free.app/inject";
-
   const payload = {
     data: elevationData,
     breakout: breakoutData,
     type: "combined"
   };
 
-  console.log("📤 Sending combined payload:", payload);
+  console.log(`📤 Sending ${folderName} payload:`, payload);
+
+  // ⏳ Start a delayed toast in case the server is slow
+  let slowDownloadTimer = setTimeout(() => {
+    showToast(`⏳ "${folderName}" is still processing. Please wait...`);
+  }, 7000); // Toast after 7 seconds if it's still not finished
 
   fetch(serverURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+})
+  .then(response => {
+    if (response.status === 429) {
+showToast("⏳ Server is busy. Please wait and try again.", 5000);
+      throw new Error("Too Many Requests (429)");
+    }
+    if (!response.ok) {
+      throw new Error(`Server returned ${response.status}`);
+    }
+    return response.blob();
   })
-    .then(response => {
-      if (!response.ok) throw new Error(`Server returned ${response.status}`);
-      return response.blob();
-    })
-    .then(blob => {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("✅ Combined workbook downloaded.");
+  .then(blob => {
+    clearTimeout(slowDownloadTimer);
 
-      // ⏳ Keep overlay a little longer for user to notice
-      setTimeout(() => {
-        showLoadingOverlay(false);
-      }, 1500); // 1.5 second delay
-    })
-    .catch(error => {
-      console.error("Download failed", error);
-      alert("❌ Combined injection failed.");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${folderName}.xlsb`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    showToast(`✅ "${folderName}" workbook downloaded.`);
+    setTimeout(() => {
       showLoadingOverlay(false);
-    });
-  }
+    }, 1500);
+  })
+  .catch(error => {
+    clearTimeout(slowDownloadTimer);
+    console.error("Download failed", error);
+    if (!error.message.includes("429")) {
+      showToast("❌ Injection failed.");
+    }
+    showLoadingOverlay(false);
+  });
 
-  
+}
+
+
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
   if (!filteredData.length) return alert(`No data for ${folder}`);
@@ -429,6 +432,7 @@ const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "scre
 
   showToast(`✅ Injected "${folder}" to server (${injectionType})`);
 }
+
 function renderMaterialBreakoutButtons() {
   const section = document.getElementById("materialBreakoutSection");
   const container = document.getElementById("materialBreakoutButtons");
@@ -506,7 +510,7 @@ const merged = Object.values(result).map(item => {
 console.table(merged.filter(r => r.SKU?.toLowerCase() === "zlaborceil"));
 return merged;
 
-} // ✅ <- this was missing!
+} 
 
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
@@ -526,7 +530,6 @@ document.body.removeChild(tempTextarea);
 }
 
 function sendToInjectionServer(data, folderName, type = "elevation") {
-  const serverURL = "https://eaf1-174-108-187-19.ngrok-free.app/inject";
 
  const payload = {
   data,

@@ -5,6 +5,8 @@ import os
 import datetime
 import shutil
 import math
+import threading
+injection_lock = threading.Lock()
 
 app = Flask(__name__)
 CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
@@ -20,7 +22,10 @@ def add_cors_headers(response):
 def inject():
     if request.method == 'OPTIONS':
         return '', 204
-
+  # 🔐 Attempt to acquire lock
+    if not injection_lock.acquire(blocking=False):
+        return jsonify({'error': 'Another injection is currently running. Please wait.'}), 429
+        
     try:
         payload = request.get_json()
         print("🔍 Received payload:", payload)
@@ -129,6 +134,8 @@ def inject():
     except Exception as e:
         print("❌ Error in /inject:", str(e))
         return jsonify({'error': str(e)}), 500
+    finally:
+        injection_lock.release()
 
 if __name__ == '__main__':
     app.run(port=5000)
