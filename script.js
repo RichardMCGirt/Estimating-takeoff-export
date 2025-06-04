@@ -11,6 +11,7 @@ document.getElementById('sourceFile').addEventListener('change', handleSourceUpl
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
+document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
 
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -189,7 +190,7 @@ let html = "";
   let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 
   html += `<h3>${folder}</h3>
-  <button onclick="copyToClipboard('${tableId}')">Copy Table to Clipboard</button>
+  <button onclick="copyToClipboard('${tableId}')">Copy ${folder} to Clipboard</button>
   <textarea id="${tableId}" style="display:none;">`;
 
   // Append non-labor to TSV + HTML
