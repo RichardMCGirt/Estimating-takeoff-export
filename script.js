@@ -342,7 +342,7 @@ const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
 
     showToast(`📤 Sending data for "${folder}"...`);
 
-    await sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
+enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder));
 
     showToast(`✅ "${folder}" download complete.`);
   } catch (err) {
@@ -396,68 +396,58 @@ function disableAllFolderButtons(disabled, message = "") {
   });
 }
 
-function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName) {
-  const payload = {
-    data: elevationData,
-    breakout: breakoutData,
-    type: "combined"
-  };
+function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY = 3000 * attempt;
 
-  console.log("🔍 Breakout Data Preview:", breakoutData);
-console.table(breakoutData.map(d => ({
-  SKU: d.SKU,
-  Description: d.Description,
-  TotalQty: d.TotalQty
-})));
+  return new Promise((resolve, reject) => {
+    const payload = {
+      data: elevationData,
+      breakout: breakoutData,
+      type: "combined"
+    };
 
+    fetch(serverURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(response => {
+        if (response.status === 429) {
+          if (attempt < MAX_RETRIES) {
+            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+            return setTimeout(() => {
+              enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1));
+              resolve(); // resolve this retry now, continue queue
+            }, RETRY_DELAY);
+          } else {
+            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+            return reject(new Error("Max retries reached"));
+          }
+        }
 
-  console.log(`📤 Sending ${folderName} payload:`, payload);
+        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+        return response.blob();
+      })
+      .then(blob => {
+        if (!blob) return; // was a retry delay, not blob yet
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${folderName}.xlsb`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-  // ⏳ Start a delayed toast in case the server is slow
-  let slowDownloadTimer = setTimeout(() => {
-    showToast(`⏳ "${folderName}" is still processing. Please wait...`);
-  }, 7000); // Toast after 7 seconds if it's still not finished
-
-  fetch(serverURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-  .then(response => {
-    if (response.status === 429) {
-showToast("⏳ Server is busy. Please wait and try again.", 5000);
-      throw new Error("Too Many Requests (429)");
-    }
-    if (!response.ok) {
-      throw new Error(`Server returned ${response.status}`);
-    }
-    return response.blob();
-  })
-  .then(blob => {
-    clearTimeout(slowDownloadTimer);
-
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `${folderName}.xlsb`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    showToast(`✅ "${folderName}" workbook downloaded.`);
-    setTimeout(() => {
-      showLoadingOverlay(false);
-    }, 1500);
-  })
-  .catch(error => {
-    clearTimeout(slowDownloadTimer);
-    console.error("Download failed", error);
-    if (!error.message.includes("429")) {
-      showToast("❌ Injection failed.");
-    }
-    showLoadingOverlay(false);
+        showToast(`✅ "${folderName}" workbook downloaded.`);
+        resolve();
+      })
+      .catch(error => {
+        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
+        reject(error);
+      });
   });
-
 }
+
 
 
 function injectSelectedFolder(folder) {
@@ -677,6 +667,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+const requestQueue = [];
+let isProcessingQueue = false;
+
+function enqueueRequest(fn) {
+  requestQueue.push(fn);
+  if (!isProcessingQueue) {
+    processQueue();
+  }
+}
+
+function processQueue() {
+  if (!requestQueue.length) {
+    isProcessingQueue = false;
+    return;
+  }
+
+  isProcessingQueue = true;
+  const requestFn = requestQueue.shift();
+  requestFn().then(() => {
+    processQueue();
+  });
+}
 
 
 

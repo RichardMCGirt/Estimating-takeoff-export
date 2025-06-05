@@ -56,6 +56,18 @@ body {
 .click-browse:hover {
   color: var(--color-primary-dark);
 }
+.main-wrapper {
+  margin: 30px 40px 0 40px;
+}
+#file-name {
+  margin-top: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+#elevationSection,
+#mergedTableWrapper {
+  display: none;
+}
 
 
 .container {
