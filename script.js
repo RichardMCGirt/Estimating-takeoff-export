@@ -304,6 +304,31 @@ function renderFolderButtons() {
 
   container.innerHTML = '';
 
+  // ✅ Select All button
+  const selectAllBtn = document.createElement('button');
+  selectAllBtn.textContent = "Select All";
+  selectAllBtn.style.marginBottom = '12px';
+  selectAllBtn.style.marginRight = '12px';
+
+  let allSelected = false;
+  selectAllBtn.addEventListener('click', () => {
+    const checkboxes = document.querySelectorAll('.folder-checkbox');
+    allSelected = !allSelected;
+    checkboxes.forEach(cb => cb.checked = allSelected);
+    selectAllBtn.textContent = allSelected ? "Deselect All" : "Select All";
+  });
+
+  container.appendChild(selectAllBtn);
+
+  // ✅ Folder checkboxes row
+  const checkboxRow = document.createElement('div');
+  checkboxRow.id = 'folderCheckboxRow';
+  checkboxRow.style.display = 'flex';
+  checkboxRow.style.flexWrap = 'wrap';
+  checkboxRow.style.gap = '12px';
+  checkboxRow.style.marginBottom = '12px';
+  container.appendChild(checkboxRow);
+
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
   if (!uniqueFolders.length) {
     section.style.display = "none";
@@ -313,52 +338,69 @@ function renderFolderButtons() {
   section.style.display = "block";
 
   uniqueFolders.forEach(folder => {
-    const button = document.createElement('button');
-    button.textContent = `${folder}`;
-    button.style.margin = '6px';
-    button.classList.add("folder-button");
+    const label = document.createElement('label');
+    label.style.display = 'inline-flex';
+    label.style.alignItems = 'center';
+    label.style.padding = '6px 12px';
+    label.style.border = '1px solid #ccc';
+    label.style.borderRadius = '6px';
+    label.style.background = '#f9f9f9';
+    label.style.cursor = 'pointer';
+label.style.fontSize = '24px'; // ✅ Larger font size
 
-button.addEventListener('click', async () => {
-  button.disabled = true;
-  button.textContent = `Injecting "${folder}"...`;
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = folder;
+    checkbox.classList.add('folder-checkbox');
+    checkbox.style.marginRight = '8px';
+checkbox.style.transform = 'scale(2)';  // ✅ Increase size
+checkbox.style.marginRight = '10px';
+checkbox.style.cursor = 'pointer';
 
-  showToast(`📦 Starting injection for "${folder}"`);
-  showLoadingOverlay(true, `📦 Generating and downloading "${folder}"...`);
+    label.appendChild(checkbox);
+    label.append(folder);
 
-  try {
-    const elevationData = mergedData.filter(d => d.Folder === folder);
-
-// ✅ Instead of using mergedData again, normalize raw data
-const rawRows = rawSheetData.filter(d => d.Folder === folder);
-const normalizedRows = rawRows.map(normalizeRawRow);
-const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
-
-
-
-
-    if (!elevationData.length) return alert(`No elevation data for "${folder}"`);
-    if (!breakoutMerged.length) return alert(`No breakout data for "${folder}"`);
-
-    showToast(`📤 Sending data for "${folder}"...`);
-
-enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder));
-
-    showToast(`✅ "${folder}" download complete.`);
-  } catch (err) {
-    console.error("❌ Injection error:", err);
-    alert(`Injection failed for ${folder}`);
-    showToast(`❌ Injection failed for "${folder}"`);
-  } finally {
-    button.disabled = false;
-    button.textContent = folder;
-    showLoadingOverlay(false);
-  }
-});
-    container.appendChild(button);
+    checkboxRow.appendChild(label);
   });
+
+  // ✅ Inject button
+  const injectBtn = document.createElement('button');
+  injectBtn.textContent = "Inject Selected Folders";
+  injectBtn.style.marginTop = "10px";
+  injectBtn.addEventListener('click', () => {
+    const selected = [...document.querySelectorAll('.folder-checkbox:checked')].map(cb => cb.value);
+    if (!selected.length) return alert("Please select at least one folder.");
+    injectMultipleFolders(selected);
+  });
+
+  container.appendChild(injectBtn);
 }
 
+
+
+
+function injectMultipleFolders(folders) {
+  disableAllFolderButtons(true, "Injecting...");
+
+  folders.forEach(folder => {
+    const elevationData = mergedData.filter(d => d.Folder === folder);
+    const rawRows = rawSheetData.filter(d => d.Folder === folder);
+    const normalizedRows = rawRows.map(normalizeRawRow);
+    const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
+    const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+
+    if (!elevationData.length || !breakoutMerged.length) {
+      showToast(`⚠️ Skipped "${folder}" due to missing data`);
+      return;
+    }
+
+    enqueueRequest(() =>
+      sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder)
+    );
+  });
+
+  showToast(`📦 Injecting ${folders.length} folder(s)...`);
+}
 
 
 function showLoadingOverlay(show = true, message = "Processing...") {
@@ -483,7 +525,7 @@ function renderMaterialBreakoutButtons() {
   const container = document.getElementById("materialBreakoutButtons");
   if (!section || !container) return;
 
-  container.innerHTML = '';
+container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;"></div>';
 
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
   if (!uniqueFolders.length) {
