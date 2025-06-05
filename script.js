@@ -400,7 +400,7 @@ function injectMultipleFolders(folders) {
     );
   });
 
-  showToast(`📦 Injecting ${folders.length} folder(s)...`);
+  showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
 
 
