@@ -176,8 +176,9 @@ let html = "";
 
   if (!nonLaborRows.length && !laborRows.length) return; 
 
-  const sortedNonLabor = nonLaborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
-  const sortedLabor = laborRows.sort((a, b) => (a.SKU || "").localeCompare(b.SKU || ""));
+  const sortedNonLabor = nonLaborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
+const sortedLabor = laborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
+
 
   const tableId = `copyTable_${index}`;
   let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
