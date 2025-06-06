@@ -27,6 +27,37 @@
     <div id="file-name"></div>
 
     <hr>
+    <h2>Step 2: Complete this table</h2>
+
+<table border="1" style="border-collapse: collapse;">
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Builder:</td>
+    <td><input type="text" name="builder" /></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Plan Name:</td>
+    <td><input type="text" name="planName" /></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Elevation:</td>
+    <td><input type="text" name="elevation" /></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Material Type:</td>
+    <td><input type="text" name="materialType" /></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Date:</td>
+    <td><input type="date" name="date" /></td>
+  </tr>
+  <tr>
+    <td style="white-space: nowrap; width: 1%;">Estimator:</td>
+    <td><input type="text" name="estimator" /></td>
+  </tr>
+</table>
+
+
+<hr>
 
     <div id="loadingOverlay">
       <div id="loadingMessage">Loading...</div>
@@ -34,7 +65,7 @@
     </div>
 
     <div id="elevationSection">
-      <h2>Step 2: Select Elevation</h2>
+      <h2>Step 3: Select Elevation</h2>
       <div id="folderButtons"></div>
       <hr>
     </div>
@@ -47,6 +78,28 @@
   </div>
 
   <script src="script.js"></script>
+
+  <script>
+  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+
+  // Load values from localStorage on page load
+  document.addEventListener("DOMContentLoaded", () => {
+    fields.forEach(field => {
+      const savedValue = localStorage.getItem(field);
+      if (savedValue !== null) {
+        document.querySelector(`[name="${field}"]`).value = savedValue;
+      }
+    });
+  });
+
+  // Save changes to localStorage when user types
+  fields.forEach(field => {
+    const input = document.querySelector(`[name="${field}"]`);
+    input.addEventListener("input", () => {
+      localStorage.setItem(field, input.value);
+    });
+  });
+</script>
 </body>
 
 
