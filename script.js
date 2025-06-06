@@ -129,23 +129,26 @@ function showToast(message = "Success!", durationMs = 4000) {
     return;
   }
 
-  const key = `${sku}___${folder}`;
+const normalizedFolder = folder.trim().toLowerCase();  // ensures exact folder match
+const normalizedSKU = sku.trim().toUpperCase();        // optional: normalize SKU too
+const key = `${normalizedSKU}___${normalizedFolder}`;
 
   const qtyRaw = row[colMap.qty];
   const qty = parseFloat(qtyRaw) || 0;
 
   if (!result[key]) {
-    result[key] = {
-      SKU: sku,
-      Description: row[colMap.description] || "",
-      Description2: row[colMap.description2] || "",
-      UOM: row[colMap.uom] || "",
-      Folder: folder,
-      ColorGroup: row[colMap.colorgroup] || "",
-      Vendor: row[colMap.vendor] || "",
-      UnitCost: parseFloat(row[colMap.unitcost]) || 0,
-      TotalQty: 0
-    };
+   result[key] = {
+  SKU: sku,
+  Description: row[colMap.description] || "",
+  Description2: row[colMap.description2] || "",
+  UOM: row[colMap.uom] || "",
+  Folder: folder,  // keep original case for display
+  ColorGroup: row[colMap.colorgroup] || "",
+  Vendor: row[colMap.vendor] || "",
+  UnitCost: parseFloat(row[colMap.unitcost]) || 0,
+  TotalQty: 0
+};
+
   }
 
   result[key].TotalQty += qty;
@@ -463,12 +466,13 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   const RETRY_DELAY = 3000 * attempt;
 
   return new Promise((resolve, reject) => {
-   const payload = {
-  data: mergedData,
+  const payload = {
+  data: elevationData,         // ✅ Correctly scoped to the selected folder
   breakout: breakoutData,
   type: "combined",
-  metadata: getFormMetadata() // ⬅️ This grabs values directly from the visible form inputs
+  metadata: getFormMetadata()
 };
+
 
 
     fetch(serverURL, {
