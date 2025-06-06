@@ -366,7 +366,7 @@ checkbox.style.cursor = 'pointer';
 
   // ✅ Inject button
   const injectBtn = document.createElement('button');
-  injectBtn.textContent = "Inject Selected Folders";
+  injectBtn.textContent = "Export Selected Folders";
   injectBtn.style.marginTop = "10px";
   injectBtn.addEventListener('click', () => {
     const selected = [...document.querySelectorAll('.folder-checkbox:checked')].map(cb => cb.value);
@@ -376,9 +376,6 @@ checkbox.style.cursor = 'pointer';
 
   container.appendChild(injectBtn);
 }
-
-
-
 
 function injectMultipleFolders(folders) {
   disableAllFolderButtons(true, "Injecting...");
@@ -402,7 +399,6 @@ function injectMultipleFolders(folders) {
 
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
-
 
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
@@ -491,8 +487,6 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   });
 }
 
-
-
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
   if (!filteredData.length) return alert(`No data for ${folder}`);
@@ -551,7 +545,6 @@ button.addEventListener('click', () => {
   sendToInjectionServer(breakoutMerged, folder, "material_breakout");
   showToast(`✅ Injected "${folder}" to Material Break Out`);
 });
-
     container.appendChild(button);
   });
 }
@@ -602,9 +595,6 @@ const merged = Object.values(result).map(item => {
   console.log(`✅ Preserved qty: ${item.TotalQty} (SKU: ${item.SKU})`);
   return item;
 });
-
-
-
   console.log("✅ Merging complete. Final item count:", merged.length);
   console.table(merged.map(i => ({
     SKU: i.SKU,
@@ -615,8 +605,6 @@ const merged = Object.values(result).map(item => {
 
   return merged;
 }
-
-
 
 // Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
