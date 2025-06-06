@@ -24,10 +24,6 @@ function getFormMetadata() {
   return metadata;
 }
 
-
-
-
-
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -634,22 +630,52 @@ const merged = Object.values(result).map(item => {
   return merged;
 }
 
-// Helper to copy from hidden textarea
 function copyToClipboard(textareaId) {
-const textarea = document.getElementById(textareaId);
-const lines = textarea.value.trim().split("\n");
+  const textarea = document.getElementById(textareaId);
+  const lines = textarea.value.trim().split("\n");
 
-// Skip the first row (usually the header)
-const trimmedLines = lines.slice(1);
-const modifiedText = trimmedLines.join("\n");
-// Create a temporary textarea to copy
-const tempTextarea = document.createElement("textarea");
-tempTextarea.value = modifiedText;
-document.body.appendChild(tempTextarea);
-tempTextarea.select();
-document.execCommand("copy");
-document.body.removeChild(tempTextarea);
+  // Skip the first line (header)
+  const trimmedLines = lines.slice(1);
+
+  const modifiedLines = trimmedLines
+    .map(line => {
+      const cols = line.split("\t");
+
+      // Skip if SKU contains "labor" (case-insensitive)
+      const sku = cols[0]?.toLowerCase();
+      if (sku.includes("labor")) return null;
+
+      // Pad columns to at least 6 to prevent index errors
+      while (cols.length < 6) {
+        cols.push("");
+      }
+
+      cols[1] = "";
+      cols[3] = "";
+
+      return cols.join("\t");
+    })
+    .filter(Boolean); // remove nulls
+
+  const modifiedText = modifiedLines.join("\n");
+
+  // 🔍 Log for verification
+  console.log("📋 Filtered and Copied to Clipboard:");
+  console.log(modifiedText);
+
+  // Copy to clipboard
+  const tempTextarea = document.createElement("textarea");
+  tempTextarea.value = modifiedText;
+  document.body.appendChild(tempTextarea);
+  tempTextarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(tempTextarea);
 }
+
+
+
+
+
 
 function getFormMetadata() {
   return {
