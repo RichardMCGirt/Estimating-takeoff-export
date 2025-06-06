@@ -64,6 +64,39 @@ def inject():
             print("📄 Injecting Elevation Sheet")
             sheet = wb.sheets["TakeOff Template"]
 
+             # === Inject metadata into LMNO15–20 ===
+            metadata = payload.get("metadata", {})
+
+            metadata_values = [
+                "Builder Example",
+                "Plan Name Example",
+                "Elevation A",
+                "Fiber Cement",
+                "2025-06-06",
+                "John Doe"
+            ]
+
+            print("📌 Injecting metadata into TakeOff Template:", metadata_values)  # ✅ ADD THIS HERE
+
+
+            # LMNO columns (L=12, M=13, N=14, O=15)
+        for row_index, value in enumerate(metadata_values, start=15):
+            start_col = 12  # Column L
+            end_col = 13    # Column M
+
+            # Unmerge if merged
+            cell_range = sheet.range((row_index, start_col), (row_index, end_col))
+            if cell_range.api.MergeCells:
+                cell_range.api.UnMerge()
+
+    # Write value into starting cell
+            cell_range[0, 0].value = value
+
+    # Re-merge the range
+            cell_range.api.Merge()
+
+
+
             labor_map = {
                 "lap labor": "zLABORLAP",
                 "B&B Labor": "zLABORBB",

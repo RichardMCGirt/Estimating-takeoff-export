@@ -126,6 +126,24 @@ input[type="file"].file-input,
   margin: 5px;
 }
 
+.autocomplete-dropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 200px;
+  z-index: 10;
+}
+.autocomplete-item {
+  padding: 6px;
+  cursor: pointer;
+}
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+
 table {
   border-collapse: collapse;
   margin-top: 20px;

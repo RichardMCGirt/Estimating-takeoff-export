@@ -46,14 +46,18 @@
     <td style="white-space: nowrap; width: 1%;">Material Type:</td>
     <td><input type="text" name="materialType" /></td>
   </tr>
-  <tr>
-    <td style="white-space: nowrap; width: 1%;">Date:</td>
-    <td><input type="date" name="date" /></td>
-  </tr>
-  <tr>
-    <td style="white-space: nowrap; width: 1%;">Estimator:</td>
-    <td><input type="text" name="estimator" /></td>
-  </tr>
+<tr>
+  <td style="white-space: nowrap; width: 1%;">Date:</td>
+  <td><input type="date" name="date" id="dateInput" /></td>
+</tr>
+<tr>
+  <td style="white-space: nowrap; width: 1%;">Estimator:</td>
+  <td>
+    <input type="text" name="estimator" id="estimatorInput" autocomplete="off" />
+    <div id="estimatorDropdown" class="autocomplete-dropdown"></div>
+  </td>
+</tr>
+
 </table>
 
 
@@ -78,6 +82,7 @@
   </div>
 
   <script src="script.js"></script>
+<script src="autocomplete-estimator.js"></script>
 
   <script>
   const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];

@@ -8,6 +8,29 @@ const serverURL = savedServer || defaultServer;
 
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
+function getFormMetadata() {
+  const builder = document.querySelector('[name="builder"]')?.value.trim() || "";
+  const planName = document.querySelector('[name="planName"]')?.value.trim() || "";
+  const elevation = document.querySelector('[name="elevation"]')?.value.trim() || "";
+  const materialType = document.querySelector('[name="materialType"]')?.value.trim() || "";
+  const date = document.querySelector('[name="date"]')?.value.trim() || "";
+  const estimator = document.querySelector('[name="estimator"]')?.value.trim() || "";
+
+  console.log("🛠️ Builder:", builder);
+  console.log("📐 Plan Name:", planName);
+  console.log("📏 Elevation:", elevation);
+  console.log("🧱 Material Type:", materialType);
+  console.log("📅 Date:", date);
+  console.log("👷 Estimator:", estimator);
+
+  const metadata = { builder, planName, elevation, materialType, date, estimator };
+  console.log("📦 Full metadata object:", metadata);
+
+  return metadata;
+}
+
+
+
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -377,6 +400,12 @@ checkbox.style.cursor = 'pointer';
   container.appendChild(injectBtn);
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const dateInput = document.getElementById("dateInput");
+    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
+    dateInput.value = today;
+  });
+
 function injectMultipleFolders(folders) {
   disableAllFolderButtons(true, "Injecting...");
 
@@ -623,18 +652,32 @@ document.execCommand("copy");
 document.body.removeChild(tempTextarea);
 }
 
-function sendToInjectionServer(data, folderName, type = "elevation") {
-
- const payload = {
-  data,
-  type
-};
-
-if (type !== "material_breakout") {
-  payload.raw = rawSheetData;
+function getFormMetadata() {
+  return {
+    builder: document.querySelector('input[name="builder"]')?.value || "",
+    planName: document.querySelector('input[name="planName"]')?.value || "",
+    elevation: document.querySelector('input[name="elevation"]')?.value || "",
+    materialType: document.querySelector('input[name="materialType"]')?.value || "",
+    date: document.querySelector('input[name="date"]')?.value || "",
+    estimator: document.querySelector('input[name="estimator"]')?.value || ""
+  };
 }
 
-  console.log("📤 Sending payload:", payload);
+
+function sendToInjectionServer(data, folderName, type = "elevation") {
+  const payload = {
+    data,
+    type
+  };
+
+  // ✅ Include metadata for both elevation and combined types
+if (type === "elevation" || type === "combined") {
+  const metadata = getFormMetadata();
+  console.log("📤 Metadata:", metadata);
+  payload.metadata = metadata;
+}
+console.log("📤 Sending payload:", payload);
+
 
   fetch(serverURL, {
     method: "POST",
@@ -645,19 +688,19 @@ if (type !== "material_breakout") {
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
-.then(blob => {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `${folderName}.xlsb`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  showToast("✅ Download complete.");
-
-  // Delay hiding to ensure user sees the message
-  setTimeout(() => showLoadingOverlay(false), 1500);
-});
+    .then(blob => {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folderName}.xlsb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast("✅ Download complete.");
+      setTimeout(() => showLoadingOverlay(false), 1500);
+    });
 }
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
