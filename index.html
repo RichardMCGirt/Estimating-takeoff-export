@@ -30,10 +30,14 @@
     <h2>Step 2: Complete this table</h2>
 
 <table border="1" style="border-collapse: collapse;">
-  <tr>
-    <td style="white-space: nowrap; width: 1%;">Builder:</td>
-    <td><input type="text" name="builder" /></td>
-  </tr>
+ <tr>
+  <td style="white-space: nowrap; width: 1%;">Builder:</td>
+  <td>
+    <input type="text" name="builder" id="builderInput" autocomplete="off" />
+    <div id="builderDropdown" class="autocomplete-dropdown"></div>
+  </td>
+</tr>
+
   <tr>
     <td style="white-space: nowrap; width: 1%;">Plan Name:</td>
     <td><input type="text" name="planName" /></td>
@@ -83,6 +87,7 @@
 
   <script src="script.js"></script>
 <script src="autocomplete-estimator.js"></script>
+<script src="autocomplete-builder.js"></script>
 
   <script>
  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
