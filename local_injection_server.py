@@ -68,12 +68,12 @@ def inject():
             metadata = payload.get("metadata", {})
 
             metadata_values = [
-                "Builder Example",
-                "Plan Name Example",
-                "Elevation A",
-                "Fiber Cement",
-                "2025-06-06",
-                "John Doe"
+                metadata.get("builder", ""),
+                metadata.get("planName", ""),
+                metadata.get("elevation", ""),
+                metadata.get("materialType", ""),
+                metadata.get("date", ""),
+                metadata.get("estimator", "")
             ]
 
             print("📌 Injecting metadata into TakeOff Template:", metadata_values)  # ✅ ADD THIS HERE

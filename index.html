@@ -85,25 +85,31 @@
 <script src="autocomplete-estimator.js"></script>
 
   <script>
-  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+ const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
-  // Load values from localStorage on page load
-  document.addEventListener("DOMContentLoaded", () => {
-    fields.forEach(field => {
-      const savedValue = localStorage.getItem(field);
-      if (savedValue !== null) {
-        document.querySelector(`[name="${field}"]`).value = savedValue;
-      }
-    });
-  });
-
-  // Save changes to localStorage when user types
+// ✅ Load values from localStorage into inputs on page load
+document.addEventListener("DOMContentLoaded", () => {
   fields.forEach(field => {
     const input = document.querySelector(`[name="${field}"]`);
-    input.addEventListener("input", () => {
-      localStorage.setItem(field, input.value);
-    });
+    const savedValue = localStorage.getItem(field);
+    if (input && savedValue !== null) {
+      input.value = savedValue;
+    }
+
+    // ✅ Default to today's date if not set and field is "date"
+    if (field === "date" && input && !input.value) {
+      input.value = new Date().toISOString().split("T")[0];
+    }
+
+    // ✅ Add input event listener to save to localStorage
+    if (input) {
+      input.addEventListener("input", () => {
+        localStorage.setItem(field, input.value);
+      });
+    }
   });
+});
+
 </script>
 </body>
 

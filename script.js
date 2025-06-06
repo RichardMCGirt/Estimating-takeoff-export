@@ -9,25 +9,22 @@ const serverURL = savedServer || defaultServer;
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
 function getFormMetadata() {
-  const builder = document.querySelector('[name="builder"]')?.value.trim() || "";
-  const planName = document.querySelector('[name="planName"]')?.value.trim() || "";
-  const elevation = document.querySelector('[name="elevation"]')?.value.trim() || "";
-  const materialType = document.querySelector('[name="materialType"]')?.value.trim() || "";
-  const date = document.querySelector('[name="date"]')?.value.trim() || "";
-  const estimator = document.querySelector('[name="estimator"]')?.value.trim() || "";
+  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+  const metadata = {};
 
-  console.log("🛠️ Builder:", builder);
-  console.log("📐 Plan Name:", planName);
-  console.log("📏 Elevation:", elevation);
-  console.log("🧱 Material Type:", materialType);
-  console.log("📅 Date:", date);
-  console.log("👷 Estimator:", estimator);
+  fields.forEach(field => {
+    const input = document.querySelector(`[name="${field}"]`);
+    metadata[field] = input?.value.trim() || "";
+  });
 
-  const metadata = { builder, planName, elevation, materialType, date, estimator };
-  console.log("📦 Full metadata object:", metadata);
+  // 🧪 Debug logs
+  console.log("📦 Metadata from input fields:");
+  console.table(metadata);
 
   return metadata;
 }
+
+
 
 
 
@@ -469,11 +466,13 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   const RETRY_DELAY = 3000 * attempt;
 
   return new Promise((resolve, reject) => {
-    const payload = {
-      data: elevationData,
-      breakout: breakoutData,
-      type: "combined"
-    };
+   const payload = {
+  data: mergedData,
+  breakout: breakoutData,
+  type: "combined",
+  metadata: getFormMetadata() // ⬅️ This grabs values directly from the visible form inputs
+};
+
 
     fetch(serverURL, {
       method: "POST",
@@ -663,42 +662,6 @@ function getFormMetadata() {
   };
 }
 
-
-function sendToInjectionServer(data, folderName, type = "elevation") {
-  const payload = {
-    data,
-    type
-  };
-
-  // ✅ Include metadata for both elevation and combined types
-if (type === "elevation" || type === "combined") {
-  const metadata = getFormMetadata();
-  console.log("📤 Metadata:", metadata);
-  payload.metadata = metadata;
-}
-console.log("📤 Sending payload:", payload);
-
-
-  fetch(serverURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-    .then(response => {
-      if (!response.ok) throw new Error(`Server returned ${response.status}`);
-      return response.blob();
-    })
-    .then(blob => {
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("✅ Download complete.");
-      setTimeout(() => showLoadingOverlay(false), 1500);
-    });
-}
 
 
 
