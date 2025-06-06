@@ -82,12 +82,13 @@ def inject():
             # LMNO columns (L=12, M=13, N=14, O=15)
         for row_index, value in enumerate(metadata_values, start=15):
             start_col = 12  # Column L
-            end_col = 13    # Column M
+            end_col = 15    # Column M
 
             # Unmerge if merged
             cell_range = sheet.range((row_index, start_col), (row_index, end_col))
             if cell_range.api.MergeCells:
                 cell_range.api.UnMerge()
+            print(f"✅ Merged range at row {row_index}: {cell_range.address}")
 
     # Write value into starting cell
             cell_range[0, 0].value = value
@@ -95,7 +96,8 @@ def inject():
     # Re-merge the range
             cell_range.api.Merge()
 
-
+            cell_range.api.HorizontalAlignment = -4108  # xlCenter
+            cell_range.api.VerticalAlignment = -4108    # xlCenter
 
             labor_map = {
                 "lap labor": "zLABORLAP",
