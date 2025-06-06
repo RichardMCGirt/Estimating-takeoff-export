@@ -158,10 +158,11 @@ const merged = Object.values(result).map(item => {
   // ✅ Skip rounding if it's labor OR UOM is SQ
   const skipRounding = isLabor || uom === "SQ";
 
-  if (!skipRounding && !Number.isInteger(item.TotalQty)) {
+if (!skipRounding && !Number.isInteger(item.TotalQty)) {
   const qty = item.TotalQty;
-  item.TotalQty = qty > 0 ? Math.ceil(qty) : Math.floor(qty); // ✅ Rounds away from zero
+  item.TotalQty = Math.ceil(Math.abs(qty)); // ✅ Always round *up* from the absolute value
 }
+
 
   return item;
 });
