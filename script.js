@@ -2,7 +2,7 @@ let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = []; // 👈 global to store unmerged data
 
-const defaultServer = "  https://ceda-174-108-187-19.ngrok-free.app/inject";
+const defaultServer = "https://1a48-174-108-187-19.ngrok-free.app/inject";
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 
