@@ -76,7 +76,7 @@ def inject():
                 metadata.get("estimator", "")
             ]
 
-            print("📌 Injecting metadata into TakeOff Template:", metadata_values)  # ✅ ADD THIS HERE
+            print("📌 Injecting metadata into TakeOff Template:", metadata_values)  
 
 
             # LMNO columns (L=12, M=13, N=14, O=15)
