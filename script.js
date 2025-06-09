@@ -27,7 +27,12 @@ function getFormMetadata() {
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
+
+  // ✅ Remove any previously injected elevation row
+  const existing = document.getElementById("dynamicElevationRow");
+  if (existing) existing.remove();
+
+  document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
 
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -37,14 +42,53 @@ document.getElementById('file-name').textContent = `📄 File selected: ${file.n
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    rawSheetData = json; // ✅ save raw unmerged data
+    rawSheetData = json;
     mergedData = mergeBySKU(json);
+
     displayMergedTable(mergedData);
-renderFolderButtons();
-renderMaterialBreakoutButtons();
+    renderFolderButtons();
+    renderMaterialBreakoutButtons();
+
+    // ✅ Re-inject elevation row if only one folder exists
+    const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
+    if (uniqueFolders.length === 1) {
+      injectDynamicElevation(uniqueFolders[0]);
+    }
   };
+
   reader.readAsArrayBuffer(file);
 }
+
+
+function injectDynamicElevation(folderName) {
+  const formTable = document.querySelector("table"); // or specific ID if known
+  if (!formTable) return;
+
+  // Check if row already exists
+  if (document.getElementById("dynamicElevationRow")) return;
+
+  const tr = document.createElement("tr");
+  tr.id = "dynamicElevationRow";
+
+  const tdLabel = document.createElement("td");
+  tdLabel.style.whiteSpace = "nowrap";
+  tdLabel.style.width = "1%";
+  tdLabel.textContent = "Elevation:";
+
+  const tdInput = document.createElement("td");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "elevation";
+  input.value = folderName;
+  tdInput.appendChild(input);
+
+  tr.appendChild(tdLabel);
+  tr.appendChild(tdInput);
+
+  // Insert before the last row, or append to end
+  formTable.appendChild(tr);
+}
+
 
 function injectMaterialBreakout() {
   if (!mergedData.length) {
