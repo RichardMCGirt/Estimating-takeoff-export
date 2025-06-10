@@ -1,8 +1,9 @@
 let mergedData = [];
 let mappedWorkbook = null;
-let rawSheetData = []; // 👈 global to store unmerged data
+let rawSheetData = [];
 
-const defaultServer = "https://324f-174-108-187-19.ngrok-free.app/inject";
+const baseServer = "https://5700-174-108-187-19.ngrok-free.app";
+const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 
@@ -27,23 +28,71 @@ function getFormMetadata() {
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
+
+  // ✅ Remove any previously injected elevation row
+  const existing = document.getElementById("dynamicElevationRow");
+  if (existing) existing.remove();
+
+  document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: 'array' });
+  const data = new Uint8Array(e.target.result);
+  const workbook = XLSX.read(data, { type: 'array' });
 
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    rawSheetData = json; // ✅ save raw unmerged data
-    mergedData = mergeBySKU(json);
-    displayMergedTable(mergedData);
-renderFolderButtons();
-renderMaterialBreakoutButtons();
+  rawSheetData = json;
+  mergedData = mergeBySKU(json);
+
+  displayMergedTable(mergedData);
+  renderFolderButtons();
+  renderMaterialBreakoutButtons();
+
+  // ✅ Define uniqueFolders before checking
+  const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
+  console.log("🔍 Folder values in mergedData:", uniqueFolders);
+
+  const elevationInput = document.querySelector('input[name="elevation"]');
+  if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
+    injectDynamicElevation(uniqueFolders[0]);
+  }
+
   };
+  console.log("🔍 Folder values in mergedData:", mergedData.map(d => d.Folder));
+
+
   reader.readAsArrayBuffer(file);
+}
+
+function injectDynamicElevation(folderName) {
+  const formTable = document.querySelector("table"); // or specific ID if known
+  if (!formTable) return;
+
+  // Check if row already exists
+  if (document.getElementById("dynamicElevationRow")) return;
+
+  const tr = document.createElement("tr");
+  tr.id = "dynamicElevationRow";
+
+  const tdLabel = document.createElement("td");
+  tdLabel.style.whiteSpace = "nowrap";
+  tdLabel.style.width = "1%";
+  tdLabel.textContent = "Elevation:";
+
+  const tdInput = document.createElement("td");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "elevation";
+  input.value = folderName;
+  tdInput.appendChild(input);
+
+  tr.appendChild(tdLabel);
+  tr.appendChild(tdInput);
+
+  // Insert before the last row, or append to end
+  formTable.appendChild(tr);
 }
 
 function injectMaterialBreakout() {
@@ -75,7 +124,6 @@ function showToast(message = "Success!", durationMs = 4000) {
     }, 300);
   }, durationMs);
 }
-
 
   function mergeBySKU(data) {
     if (!data.length) return [];
@@ -118,7 +166,8 @@ function showToast(message = "Success!", durationMs = 4000) {
       qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
       
     };
-    
+    console.log("🗺️ Folder column mapped to:", colMap.folder);
+
     const result = {};
   
   data.forEach((row, i) => {
@@ -316,7 +365,6 @@ function normalizeRawRow(row) {
     UnitCost: parseFloat(getValue(["unitcost", "cost"])) || 0,
   };
 }
-
 
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
@@ -677,11 +725,6 @@ function copyToClipboard(textareaId) {
   document.body.removeChild(tempTextarea);
 }
 
-
-
-
-
-
 function getFormMetadata() {
   return {
     builder: document.querySelector('input[name="builder"]')?.value || "",
@@ -689,12 +732,11 @@ function getFormMetadata() {
     elevation: document.querySelector('input[name="elevation"]')?.value || "",
     materialType: document.querySelector('input[name="materialType"]')?.value || "",
     date: document.querySelector('input[name="date"]')?.value || "",
-    estimator: document.querySelector('input[name="estimator"]')?.value || ""
+    estimator: document.querySelector('input[name="estimator"]')?.value || "",
+        paintlabor: document.querySelector('input[name="paintlabor"]')?.value || ""
+
   };
 }
-
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
@@ -757,6 +799,3 @@ function processQueue() {
     processQueue();
   });
 }
-
-
-

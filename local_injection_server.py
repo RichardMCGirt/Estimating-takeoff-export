@@ -66,11 +66,13 @@ def inject():
 
              # === Inject metadata into LMNO15–20 ===
             metadata = payload.get("metadata", {})
+            folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
+            elevation_value = metadata.get("elevation", "").strip() or folder_name
 
             metadata_values = [
                 metadata.get("builder", ""),
                 metadata.get("planName", ""),
-                metadata.get("elevation", ""),
+                elevation_value,  # ✅ Now guaranteed to fall back
                 metadata.get("materialType", ""),
                 metadata.get("date", ""),
                 metadata.get("estimator", "")
@@ -99,6 +101,15 @@ def inject():
             cell_range.api.HorizontalAlignment = -4108  # xlCenter
             cell_range.api.VerticalAlignment = -4108    # xlCenter
 
+            # ✅ Inject Paint Labor value into cell L48
+        paint_labor = metadata.get("paintlabor", "").strip()
+        if paint_labor:
+            try:
+                sheet.range("L48").value = float(paint_labor)
+                print(f"🖌️ Paint Labor injected into L48: {paint_labor}")
+            except ValueError:
+                print(f"⚠️ Invalid paint labor value: {paint_labor}")
+
             labor_map = {
                 "lap labor": "zLABORLAP",
                 "B&B Labor": "zLABORBB",
@@ -122,7 +133,7 @@ def inject():
                 sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
                 sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
-            folder_name = data[0].get("Folder", "").strip().lower() if data else ""
+            folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
 
 
             for row_index in range(34, 44):  # ✅ MUST be row_index
