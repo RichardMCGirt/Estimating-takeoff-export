@@ -188,9 +188,9 @@ const key = `${normalizedSKU}___${normalizedFolder}`;
   if (!result[key]) {
    result[key] = {
   SKU: sku,
-  Description: row[colMap.description] || "",
+Description: row[colMap.description] ?? null,
   Description2: row[colMap.description2] || "",
-  UOM: row[colMap.uom] || "",
+UOM: row[colMap.uom] ?? null,
   Folder: folder,  // keep original case for display
   ColorGroup: row[colMap.colorgroup] || "",
   Vendor: row[colMap.vendor] || "",

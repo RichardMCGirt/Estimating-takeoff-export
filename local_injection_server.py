@@ -105,17 +105,30 @@ def inject():
             cell_range.api.VerticalAlignment = -4108    # xlCenter
 
              # ✅ Clear and inject non-labor items into A–F starting row 8
-        sheet.range("A8:F100").clear_contents()
+            sheet.range("A8:A100").clear_contents()
+            sheet.range("C8:C100").clear_contents()
+            sheet.range("E8:E100").clear_contents()
+            sheet.range("F8:F100").clear_contents()
 
         non_labor_data, _ = split_labor(data)
         non_labor_data = sorted(non_labor_data, key=lambda x: (x.get("Description") == "", (x.get("Description") or "").lower()))
         print("🔠 Injecting Elevation Description values:")
+
+        print("🔠 Sorted Elevation Description values:")
+
         for i, row in enumerate(non_labor_data, start=8):
-            print(f"Injecting Row {i}: SKU={row.get('SKU')}, Qty={row.get('TotalQty')}")
-            sheet.range(f"A{i}").value = row.get("SKU", "")
-            sheet.range(f"C{i}").value = row.get("Description2", "")
-            sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
-            sheet.range(f"F{i}").value = row.get("ColorGroup", "")
+    # Inject only into columns A, C, E, F — skip B and G
+            sku = row.get("SKU") or None
+            desc2 = row.get("Description2") or None
+            total_qty = math.ceil(row.get("TotalQty", 0))
+            color_group = row.get("ColorGroup") or None
+
+            sheet.range(f"A{i}").value = sku
+            sheet.range(f"C{i}").value = desc2
+            sheet.range(f"E{i}").value = total_qty
+            sheet.range(f"F{i}").value = color_group
+
+
 
             # ✅ Inject Paint Labor value into cell L48
         paint_labor = metadata.get("paintlabor", "").strip()
