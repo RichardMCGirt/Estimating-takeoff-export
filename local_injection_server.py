@@ -184,7 +184,8 @@ def inject():
             material_sheet.range("A9:Z1000").clear_contents()
             current_row = 9
 
-            sorted_breakout = sort_by_description(breakout_data, key="Description")
+            filtered_breakout = [item for item in breakout_data if item.get("SKU", "").strip()]
+            sorted_breakout = sort_by_description(filtered_breakout, key="Description")
             print("🔠 Sorted Description values:")
 
             for item in sorted_breakout:
