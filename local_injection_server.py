@@ -67,7 +67,10 @@ def inject():
              # === Inject metadata into LMNO15–20 ===
             metadata = payload.get("metadata", {})
             folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
-            elevation_value = metadata.get("elevation", "").strip() or folder_name
+            elevation_value = (metadata.get("elevation", "") or folder_name).strip().title()
+
+
+
 
             metadata_values = [
                 metadata.get("builder", ""),
@@ -133,7 +136,9 @@ def inject():
                 sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
                 sheet.range(f"F{i}").value = row.get("ColorGroup", "")
 
-            folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
+            folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
+
+
 
 
             for row_index in range(34, 44):  # ✅ MUST be row_index
