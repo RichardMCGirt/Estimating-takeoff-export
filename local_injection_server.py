@@ -113,6 +113,18 @@ def inject():
             except ValueError:
                 print(f"⚠️ Invalid paint labor value: {paint_labor}")
 
+        # ⬇️ Always run this regardless of paint labor
+        non_labor_data, labor_data = split_labor(data)
+        non_labor_data = sorted(non_labor_data, key=lambda x: (x.get("Description") == "", (x.get("Description") or "").lower()))
+        print("🔠 Sorted Elevation Description values:")
+
+        for i, row in enumerate(non_labor_data, start=8):
+            sheet.range(f"A{i}").value = row.get("SKU", "")
+            sheet.range(f"C{i}").value = row.get("Description2", "")
+            sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
+            sheet.range(f"F{i}").value = row.get("ColorGroup", "")
+            
+            
             labor_map = {
                 "lap labor": "zLABORLAP",
                 "B&B Labor": "zLABORBB",
