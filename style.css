@@ -101,6 +101,19 @@ h2 {
   border-radius: 4px;
 }
 
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+  font-size: 24px;
+  min-width: 70% !important;
+  width: -moz-fit-content;
+  box-sizing: content-box;
+  padding: 0.25em 0.5em;
+  display: inline-block;
+  max-width: none;
+}
+
+
 ol.steps {
   padding: 15px 20px;
   margin-bottom: 30px;
@@ -146,7 +159,7 @@ input[type="file"].file-input,
 table {
   border-collapse: collapse;
   margin-top: 20px;
-  width: 100%;
+  width: 70% !important;
   font-size: 17px;
 }
 

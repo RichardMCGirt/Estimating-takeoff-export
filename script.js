@@ -10,7 +10,16 @@ const serverURL = savedServer || defaultServer;
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
 function getFormMetadata() {
-  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+  const fields = [
+    "builder",
+    "planName",
+    "elevation",
+    "materialType",
+    "date",
+    "estimator",
+    "paintlabor"
+  ];
+
   const metadata = {};
 
   fields.forEach(field => {
@@ -24,6 +33,7 @@ function getFormMetadata() {
 
   return metadata;
 }
+
 
 function handleSourceUpload(event) {
   const file = event.target.files[0];
@@ -366,6 +376,21 @@ function normalizeRawRow(row) {
   };
 }
 
+function autoResizeInput(input) {
+  input.style.width = '1px'; // reset
+  input.style.width = input.scrollWidth + 'px';
+}
+
+// For all matching inputs
+document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(input => {
+  // Resize on input change (user typing)
+  input.addEventListener('input', () => autoResizeInput(input));
+
+  // Resize if JS sets a value
+  autoResizeInput(input);
+});
+
+
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
   const section = document.getElementById('elevationSection');
@@ -394,7 +419,7 @@ function renderFolderButtons() {
   checkboxRow.id = 'folderCheckboxRow';
   checkboxRow.style.display = 'flex';
   checkboxRow.style.flexWrap = 'wrap';
-  checkboxRow.style.gap = '12px';
+  checkboxRow.style.gap = '18px';
   checkboxRow.style.marginBottom = '12px';
   container.appendChild(checkboxRow);
 
@@ -725,19 +750,6 @@ function copyToClipboard(textareaId) {
   document.body.removeChild(tempTextarea);
 }
 
-function getFormMetadata() {
-  return {
-    builder: document.querySelector('input[name="builder"]')?.value || "",
-    planName: document.querySelector('input[name="planName"]')?.value || "",
-    elevation: document.querySelector('input[name="elevation"]')?.value || "",
-    materialType: document.querySelector('input[name="materialType"]')?.value || "",
-    date: document.querySelector('input[name="date"]')?.value || "",
-    estimator: document.querySelector('input[name="estimator"]')?.value || "",
-        paintlabor: document.querySelector('input[name="paintlabor"]')?.value || ""
-
-  };
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('sourceFile');
@@ -799,3 +811,26 @@ function processQueue() {
     processQueue();
   });
 }
+
+ const toggleButton = document.getElementById('darkModeToggle');
+  const root = document.documentElement;
+
+  function updateButtonText() {
+    toggleButton.textContent = root.classList.contains('dark') 
+      ? ' Switch to Light Mode' 
+      : ' Switch to Dark Mode';
+  }
+
+  // Load preference on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+      root.classList.add('dark');
+    }
+    updateButtonText();
+  });
+
+  toggleButton.addEventListener('click', () => {
+    root.classList.toggle('dark');
+    localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    updateButtonText();
+  });

@@ -43,67 +43,83 @@ function setupBuilderDropdown() {
 
   fetchBuilders().then(data => (builders = data));
 
-  input.addEventListener('input', () => {
-    const value = input.value.toLowerCase();
-    dropdown.innerHTML = '';
-    currentIndex = -1;
+ input.addEventListener('input', () => {
+  const value = input.value.toLowerCase();
+  dropdown.innerHTML = '';
+  currentIndex = -1; // 🔄 Reset navigation
 
-    if (!value) {
+  if (!value) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  const matches = builders.filter(name => name.toLowerCase().includes(value));
+  if (matches.length === 0) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  dropdown.style.display = 'block';
+  matches.forEach((match) => {
+    const item = document.createElement('div');
+    item.textContent = match;
+    item.className = 'autocomplete-item';
+    item.addEventListener('mousedown', () => {
+      input.value = match;
       dropdown.style.display = 'none';
-      return;
-    }
-
-    const matches = builders.filter(name =>
-      name.toLowerCase().includes(value)
-    );
-
-    if (matches.length === 0) {
-      dropdown.style.display = 'none';
-      return;
-    }
-
-    dropdown.style.display = 'block';
-    matches.forEach((match, index) => {
-      const item = document.createElement('div');
-      item.textContent = match;
-      item.className = 'autocomplete-item';
-      item.addEventListener('mousedown', () => {
-        input.value = match;
-        dropdown.style.display = 'none';
-        localStorage.setItem("builder", match);
-      });
-      dropdown.appendChild(item);
+      localStorage.setItem("builder", match);
     });
+    dropdown.appendChild(item);
   });
+});
 
-  input.addEventListener('keydown', (e) => {
-    const items = dropdown.querySelectorAll('.autocomplete-item');
-    if (e.key === 'ArrowDown') {
-      currentIndex = (currentIndex + 1) % items.length;
-      highlight(items, currentIndex);
-      e.preventDefault();
-    } else if (e.key === 'ArrowUp') {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
-      highlight(items, currentIndex);
-      e.preventDefault();
-    } else if (e.key === 'Enter' && currentIndex >= 0) {
-      items[currentIndex].dispatchEvent(new Event('mousedown'));
-      e.preventDefault();
-    }
-  });
+
+input.addEventListener('keydown', (e) => {
+  const items = dropdown.querySelectorAll('.autocomplete-item');
+
+  if (dropdown.style.display === 'none' || items.length === 0) {
+    console.log("⚠️ No visible items to navigate.");
+    return;
+  }
+
+  if (e.key === 'ArrowDown') {
+    currentIndex = (currentIndex + 1) % items.length;
+    console.log(`⬇️ ArrowDown: currentIndex = ${currentIndex}`);
+    highlight(items, currentIndex);
+    e.preventDefault();
+  } else if (e.key === 'ArrowUp') {
+    currentIndex = (currentIndex - 1 + items.length) % items.length;
+    console.log(`⬆️ ArrowUp: currentIndex = ${currentIndex}`);
+    highlight(items, currentIndex);
+    e.preventDefault();
+  } else if (e.key === 'Enter' && currentIndex >= 0) {
+    console.log(`⏎ Enter: Selecting "${items[currentIndex].textContent}"`);
+    items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
+    e.preventDefault();
+  }
+});
+
+
+
 
   input.addEventListener('blur', () => {
     setTimeout(() => (dropdown.style.display = 'none'), 200);
   });
 
-  const saved = localStorage.getItem("builder");
+    const saved = localStorage.getItem("builder");
   if (saved) input.value = saved;
 
   function highlight(items, index) {
     items.forEach((item, i) => {
-      item.classList.toggle('active', i === index);
+      const isActive = i === index;
+      item.classList.toggle('active', isActive);
+      if (isActive) {
+        console.log(`🔦 Highlighting "${item.textContent}" @ ${i}`);
+        item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
     });
   }
-}
+
+} // <-- ✅ This closes setupBuilderDropdown()
 
 document.addEventListener('DOMContentLoaded', setupBuilderDropdown);

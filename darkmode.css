@@ -1,0 +1,76 @@
+/* DARK MODE VARIABLES */
+:root.dark {
+  --color-bg: #1e1e1e;
+  --color-text: #f0f0f0;
+  --color-header-bg: #2a2a2a;
+  --color-border: #444;
+  --color-primary: #80c0ff;
+  --color-primary-dark: #4aa3f0;
+  --color-white: #121212;
+  --color-overlay: rgba(255, 255, 255, 0.05);
+  --color-toast-bg: #333;
+}
+
+/* Optional extra tweaks for dark mode */
+:root.dark input[type="text"],
+:root.dark input[type="date"],
+:root.dark input[type="number"],
+:root.dark input[type="file"],
+:root.dark .autocomplete-dropdown {
+  background: #2a2a2a !important;
+  color: #f0f0f0;
+  border-color: #555;
+}
+
+:root.dark table tbody tr:nth-child(odd) {
+  background-color: #2c2c2c;
+}
+
+:root.dark table tbody tr:nth-child(even) {
+  background-color: #1f1f1f;
+}
+
+:root.dark table tbody tr:hover {
+  background-color: #333f48;
+}
+
+:root.dark th {
+  background-color: #3a3a3a;
+}
+
+:root.dark #drop-zone {
+  background-color: #2a2a2a;
+  border-color: #4aa3f0;
+}
+
+:root.dark #drop-zone p {
+  color: #aaa;
+}
+
+:root.dark .click-browse:hover {
+  color: #80c0ff;
+}
+.autocomplete-item {
+  display: block;          /* ensures height takes up a line */
+  padding: 6px;
+  cursor: pointer;
+}
+
+.autocomplete-item.active,
+.autocomplete-item:hover {
+  background-color: gray !important;
+}
+
+#builderDropdown {
+  position: absolute;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #2a2a2a;
+  border: 1px solid #ccc;
+  z-index: 1000;
+}
+
+.autocomplete-item.active {
+  background-color: #007BFF;
+  color: #2a2a2a;
+}

@@ -5,15 +5,18 @@
   <title>Vanir Estimating Tool</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="./darkmode.css">
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="main-wrapper">
-    <ol>
+   <!-- <ol>
       <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data from Planswift</li>
       <li><strong>Review Table</strong> – confirm SKUs and quantities</li>
       <li><strong>Select Elevation</strong> – choose which elevation to use</li>
-    </ol>
+    </ol> -->
+<button id="darkModeToggle" style="position: fixed; top: 10px; right: 10px; z-index: 10000;"> Switch to Dark Mode</button>
 
     <h2>Step 1: Upload Source File</h2>
     <div id="drop-zone">
