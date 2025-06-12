@@ -28,7 +28,7 @@ async function fetchBuilders(offset = '') {
     nextOffset = data.offset;
   } while (nextOffset);
 
-  return [...new Set(allBuilders)]; // Remove duplicates
+  return [...new Set(allBuilders)]; 
 }
 
 function setupBuilderDropdown() {
@@ -73,7 +73,6 @@ function setupBuilderDropdown() {
   });
 });
 
-
 input.addEventListener('keydown', (e) => {
   const items = dropdown.querySelectorAll('.autocomplete-item');
 
@@ -98,9 +97,6 @@ input.addEventListener('keydown', (e) => {
     e.preventDefault();
   }
 });
-
-
-
 
   input.addEventListener('blur', () => {
     setTimeout(() => (dropdown.style.display = 'none'), 200);

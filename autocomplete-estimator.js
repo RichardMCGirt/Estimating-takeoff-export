@@ -84,7 +84,7 @@ function setupEstimatorAutocomplete() {
 
     matches.forEach((match) => {
       const item = document.createElement('div');
-      item.textContent = match;
+item.textContent = match === "Heath Kornegay" ? "Nice Guy" : match;
       item.className = 'autocomplete-item';
       item.style.padding = '4px 8px';
       item.style.cursor = 'pointer';
@@ -96,12 +96,14 @@ function setupEstimatorAutocomplete() {
         item.style.backgroundColor = '';
       });
 
-      item.addEventListener('mousedown', () => {
-        input.value = match;
-        dropdown.innerHTML = '';
-        dropdown.style.display = 'none';
-        localStorage.setItem("estimator", match);
-      });
+    item.addEventListener('mousedown', () => {
+  const finalValue = match === "Heath Kornegay" ? "Heath Kornegay" : match;
+  input.value = finalValue;
+  dropdown.innerHTML = '';
+  dropdown.style.display = 'none';
+  localStorage.setItem("estimator", finalValue);
+});
+
 
       dropdown.appendChild(item);
     });

@@ -117,16 +117,21 @@ def inject():
         print("🔠 Sorted Elevation Description values:")
 
         for i, row in enumerate(non_labor_data, start=8):
-    # Inject only into columns A, C, E, F — skip B and G
-            sku = row.get("SKU") or None
-            desc2 = row.get("Description2") or None
-            total_qty = math.ceil(row.get("TotalQty", 0))
-            color_group = row.get("ColorGroup") or None
+            sku = row.get("SKU", "")
+            desc2 = row.get("Description2", "")
+            qty_raw = row.get("TotalQty", 0)
+            color_group = row.get("ColorGroup", "")
+            uom = (row.get("UOM") or "").strip().upper()
+
+            is_labor = "labor" in sku.lower()
+            skip_rounding = is_labor or uom == "SQ"
+            total_qty = qty_raw if skip_rounding else math.ceil(abs(qty_raw))
 
             sheet.range(f"A{i}").value = sku
             sheet.range(f"C{i}").value = desc2
             sheet.range(f"E{i}").value = total_qty
             sheet.range(f"F{i}").value = color_group
+
 
 
 
@@ -160,10 +165,21 @@ def inject():
             print("🔠 Sorted Elevation Description values:")
 
             for i, row in enumerate(non_labor_data, start=8):
-                sheet.range(f"A{i}").value = row.get("SKU", "")
-                sheet.range(f"C{i}").value = row.get("Description2", "")
-                sheet.range(f"E{i}").value = math.ceil(row.get("TotalQty", 0))
-                sheet.range(f"F{i}").value = row.get("ColorGroup", "")
+                sku = row.get("SKU", "")
+                desc2 = row.get("Description2", "")
+                qty_raw = row.get("TotalQty", 0)
+                color_group = row.get("ColorGroup", "")
+                uom = (row.get("UOM") or "").strip().upper()
+
+                is_labor = "labor" in sku.lower()
+                skip_rounding = is_labor or uom == "SQ"
+                total_qty = qty_raw if skip_rounding else math.ceil(abs(qty_raw))
+
+                sheet.range(f"A{i}").value = sku
+                sheet.range(f"C{i}").value = desc2
+                sheet.range(f"E{i}").value = total_qty
+                sheet.range(f"F{i}").value = color_group
+
 
             folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
 
