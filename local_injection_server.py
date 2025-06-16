@@ -69,7 +69,18 @@ def inject():
             folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
             elevation_value = (metadata.get("elevation", "") or folder_name).strip().title()
 
-
+            labor_map = {
+                "lap labor": "zLABORLAP",
+                "b&b labor": "zLABORBB",
+                "shake labor": "zLABORSHAK",
+                "ceiling labor": "zLABORCEIL",
+                "column labor": "zLABORSTCOL",
+                "shutter labor": "zLABORSHUT",
+                "louver labor": "zLABORLOUV",
+                "bracket labor": "zLABORBRKT",
+                "beam wrap labor": "zLABORBEAM",
+                "t&g ceiling labor": "zLABORTGCEIL"
+            }
 
 
             metadata_values = [
@@ -147,18 +158,7 @@ def inject():
        
             
             
-            labor_map = {
-                "lap labor": "zLABORLAP",
-                "B&B Labor": "zLABORBB",
-                "Shake Labor": "zLABORSHAK",
-                "ceiling labor": "zLABORCEIL",
-                "column labor": "zLABORSTCOL",
-                "shutter labor": "zLABORSHUT",
-                "louver labor": "zLABORLOUV",
-                "bracket labor": "zLABORBRKT",
-                "beam wrap labor": "zLABORBEAM",
-                "t&g ceiling labor": "zLABORTGCEIL"
-            }
+            
 
             non_labor_data, labor_data = split_labor(data)
             non_labor_data = sorted(non_labor_data, key=lambda x: (x.get("Description") == "", (x.get("Description") or "").lower()))
@@ -186,27 +186,37 @@ def inject():
 
 
 
-            for row_index in range(34, 44):  # ✅ MUST be row_index
-
+        for row_index in range(34, 44):
                 raw_val = sheet.range(f"K{row_index}").value
-
                 if not raw_val:
+                    print(f"⚠️ K{row_index} is empty. Skipping.")
                     continue
 
-                labor_desc = str(raw_val).strip().lower()
+                labor_desc = str(raw_val).strip().lower()  # normalize case and spacing
                 sku = labor_map.get(labor_desc)
+
+                if not sku:
+                    print(f"❌ No SKU mapping found for labor description '{raw_val}' (normalized: '{labor_desc}') in labor_map.")
+                    continue
+
+
+                # Matching logic for TotalQty
+                folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
                 qty = 0
-                if sku:
-                    matching_item = next(
-                        (item for item in data
-                        if item.get("SKU", "").strip().lower() == sku.lower()
-                        and item.get("Folder", "").strip().lower() == folder_name),
-                        None
-                    )
-                    if matching_item:
-                        qty = matching_item.get("TotalQty", 0)
+                matching_item = next(
+                    (item for item in data
+                    if item.get("SKU", "").strip().lower() == sku.lower()
+                    and item.get("Folder", "").strip().lower() == folder_name),
+                    None
+                )
+                if matching_item:
+                    qty = matching_item.get("TotalQty", 0)
+                else:
+                    print(f"⚠️ No matching item in data found for SKU '{sku}' and folder '{folder_name}'.")
 
                 sheet.range(f"L{row_index}").value = qty
+                print(f"✅ Injected labor '{raw_val}' (SKU: {sku}) → Qty: {qty} into L{row_index}")
+
 
 
 
