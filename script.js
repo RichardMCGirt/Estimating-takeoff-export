@@ -862,3 +862,27 @@ function processQueue() {
     localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
     updateButtonText();
   });
+
+  
+  // ✅ Load values from localStorage into inputs on page load
+document.addEventListener("DOMContentLoaded", () => {
+  fields.forEach(field => {
+    const input = document.querySelector(`[name="${field}"]`);
+    const savedValue = localStorage.getItem(field);
+    if (input && savedValue !== null) {
+      input.value = savedValue;
+    }
+
+    // ✅ Default to today's date if not set and field is "date"
+    if (field === "date" && input && !input.value) {
+      input.value = new Date().toISOString().split("T")[0];
+    }
+
+    // ✅ Add input event listener to save to localStorage
+    if (input) {
+      input.addEventListener("input", () => {
+        localStorage.setItem(field, input.value);
+      });
+    }
+  });
+});

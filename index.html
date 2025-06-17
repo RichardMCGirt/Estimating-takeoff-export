@@ -11,11 +11,7 @@
 </head>
 <body>
   <div class="main-wrapper">
-   <!-- <ol>
-      <li><strong>Upload Excel (.xlsx)</strong> – source file with raw data from Planswift</li>
-      <li><strong>Review Table</strong> – confirm SKUs and quantities</li>
-      <li><strong>Select Elevation</strong> – choose which elevation to use</li>
-    </ol> -->
+   
 <button id="darkModeToggle" style="position: fixed; top: 10px; right: 10px; z-index: 10000;"> Switch to Dark Mode</button>
 
     <h2>Step 1: Upload Source File</h2>
@@ -93,29 +89,6 @@
 
   <script>
  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
-
-// ✅ Load values from localStorage into inputs on page load
-document.addEventListener("DOMContentLoaded", () => {
-  fields.forEach(field => {
-    const input = document.querySelector(`[name="${field}"]`);
-    const savedValue = localStorage.getItem(field);
-    if (input && savedValue !== null) {
-      input.value = savedValue;
-    }
-
-    // ✅ Default to today's date if not set and field is "date"
-    if (field === "date" && input && !input.value) {
-      input.value = new Date().toISOString().split("T")[0];
-    }
-
-    // ✅ Add input event listener to save to localStorage
-    if (input) {
-      input.addEventListener("input", () => {
-        localStorage.setItem(field, input.value);
-      });
-    }
-  });
-});
 
 </script>
 </body>
