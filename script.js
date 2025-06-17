@@ -34,7 +34,6 @@ function getFormMetadata() {
   return metadata;
 }
 
-
 function handleSourceUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -47,34 +46,48 @@ function handleSourceUpload(event) {
 
   const reader = new FileReader();
   reader.onload = function(e) {
-  const data = new Uint8Array(e.target.result);
-  const workbook = XLSX.read(data, { type: 'array' });
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
 
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-  rawSheetData = json;
-  mergedData = mergeBySKU(json);
+    rawSheetData = json;
+    mergedData = mergeBySKU(json);
 
-  displayMergedTable(mergedData);
-  renderFolderButtons();
-  renderMaterialBreakoutButtons();
+    displayMergedTable(mergedData);
+    renderFolderButtons();
+    renderMaterialBreakoutButtons();
 
-  // ✅ Define uniqueFolders before checking
-  const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-  console.log("🔍 Folder values in mergedData:", uniqueFolders);
+    const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
+    console.log("🔍 Folder values in mergedData:", uniqueFolders);
 
-  const elevationInput = document.querySelector('input[name="elevation"]');
-  if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
-    injectDynamicElevation(uniqueFolders[0]);
-  }
+    const elevationInput = document.querySelector('input[name="elevation"]');
+    if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
+      injectDynamicElevation(uniqueFolders[0]);
+    }
 
+    // ✅ Auto-inject if only one elevation is found
+    if (uniqueFolders.length === 1) {
+      const singleFolder = uniqueFolders[0];
+
+      requestAnimationFrame(() => {
+        const checkbox = document.querySelector(`.folder-checkbox[value="${singleFolder}"]`);
+        if (checkbox) {
+          checkbox.checked = true;
+        }
+
+        setTimeout(() => {
+          injectMultipleFolders([singleFolder]);
+        }, 500);
+      });
+    }
   };
-  console.log("🔍 Folder values in mergedData:", mergedData.map(d => d.Folder));
-
 
   reader.readAsArrayBuffer(file);
 }
+
+
 
 function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table"); // or specific ID if known

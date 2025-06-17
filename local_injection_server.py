@@ -73,12 +73,12 @@ def inject():
                 "b&b labor": "zLABORBB",
                 "shake labor": "zLABORSHAK",
                 "ceiling labor": "zLABORCEIL",
-                "column labor": "zLABORSTCOL",
+                "column labor": "zLABORCOL",
                 "shutter labor": "zLABORSHUT",
                 "louver labor": "zLABORLOUV",
-                "bracket labor": "zLABORBRKT",
+                "bracket labor": "zLABORBKTS",
                 "beam wrap labor": "zLABORBEAM",
-                "t&g ceiling labor": "zLABORTGCEIL"
+                "t&g ceiling labor": "zLABORCEILTNG"
             }
 
             metadata_values = [
