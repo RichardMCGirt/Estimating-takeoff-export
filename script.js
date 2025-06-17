@@ -228,6 +228,10 @@ if (!skipRounding && !Number.isInteger(item.TotalQty)) {
 
   return item;
 });
+const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
+if (containsZLaborWR) {
+  console.log("🧩 zLABORWR detected in merged data.");
+}
 
 return merged;
   }
@@ -491,13 +495,20 @@ function injectMultipleFolders(folders) {
       return;
     }
 
-    enqueueRequest(() =>
-      sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder)
-    );
+    enqueueRequest(() => {
+      const hasZLaborWR = elevationData.some(d => d.SKU === "zLABORWR");
+      if (hasZLaborWR) {
+        console.log(`🚀 Folder "${folder}" contains zLABORWR with qty:`,
+          elevationData.find(d => d.SKU === "zLABORWR")?.TotalQty);
+      }
+      return sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
+    });
   });
 
+  // ✅ Show only once after loop
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
+
 
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
@@ -704,6 +715,10 @@ const merged = Object.values(result).map(item => {
     TotalQty: i.TotalQty,
     ColorGroup: i.ColorGroup
   })));
+const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
+if (containsZLaborWR) {
+  console.log("🧩 zLABORWR detected in merged data.");
+}
 
   return merged;
 }

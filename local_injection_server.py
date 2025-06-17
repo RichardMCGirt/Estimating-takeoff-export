@@ -21,7 +21,6 @@ def split_labor(data):
         [row for row in data if "labor" in row.get("SKU", "").lower()]
     )
 
-
 @app.after_request
 def add_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -81,7 +80,6 @@ def inject():
                 "beam wrap labor": "zLABORBEAM",
                 "t&g ceiling labor": "zLABORTGCEIL"
             }
-
 
             metadata_values = [
                 metadata.get("builder", ""),
@@ -186,36 +184,78 @@ def inject():
 
 
 
-        for row_index in range(34, 44):
-                raw_val = sheet.range(f"K{row_index}").value
-                if not raw_val:
-                    print(f"⚠️ K{row_index} is empty. Skipping.")
+        used_labor_skus = set()
+        all_labor_skus = [
+            item.get("SKU", "")
+            for item in data
+            if "labor" in item.get("SKU", "").lower()
+        ]
+
+        alreadyInjectedOtherLabor = False  # ✅ track if we've already injected an "Other Labor"
+
+        for row_index in list(range(34, 44)) + list(range(49, 53)):
+
+            raw_val = sheet.range(f"K{row_index}").value
+            if not raw_val:
+                print(f"⚠️ K{row_index} is empty. Skipping.")
+                continue
+
+            labor_desc = str(raw_val).strip().lower()
+            cell_l = sheet.range(f"L{row_index}")
+            current_val = cell_l.value
+
+    # 🧠 If it's a known description, inject via mapping
+            if labor_desc in labor_map:
+                sku = labor_map[labor_desc]
+    # 🧠 If it's "Other Labor", assign an unused labor SKU (e.g., zLABORWR)
+            elif "other labor" in labor_desc:
+    # Get unused SKUs that are labor and not mapped already
+                potential_labor = [
+                    sku for sku in all_labor_skus
+                    if sku not in used_labor_skus and sku not in labor_map.values()
+                ]
+
+                if not potential_labor:
+                    print(f"❌ No more unmapped labor SKUs for 'Other Labor' at row {row_index}")
                     continue
 
-                labor_desc = str(raw_val).strip().lower()  # normalize case and spacing
-                sku = labor_map.get(labor_desc)
+    # Use next available unmapped SKU
+                sku = potential_labor[0]
+                used_labor_skus.add(sku)
 
-                if not sku:
-                    print(f"❌ No SKU mapping found for labor description '{raw_val}' (normalized: '{labor_desc}') in labor_map.")
-                    continue
-
-
-                # Matching logic for TotalQty
-                folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
-                qty = 0
-                matching_item = next(
-                    (item for item in data
-                    if item.get("SKU", "").strip().lower() == sku.lower()
-                    and item.get("Folder", "").strip().lower() == folder_name),
-                    None
+    # Rename K cell to friendly name
+                matching_desc = next(
+                    (item.get("Description", "").strip() for item in data if item.get("SKU", "") == sku),
+                    ""
                 )
-                if matching_item:
-                    qty = matching_item.get("TotalQty", 0)
-                else:
-                    print(f"⚠️ No matching item in data found for SKU '{sku}' and folder '{folder_name}'.")
+                if matching_desc:
+                    new_label = matching_desc.lower().replace("labor -", "").strip().title() + " Labor"
+                    sheet.range(f"K{row_index}").value = new_label
+                    print(f"✏️ Renamed 'Other Labor' at K{row_index} → '{new_label}'")
 
-                sheet.range(f"L{row_index}").value = qty
-                print(f"✅ Injected labor '{raw_val}' (SKU: {sku}) → Qty: {qty} into L{row_index}")
+                print(f"✅ Assigned SKU '{sku}' to 'Other Labor' at row {row_index}")
+
+               
+
+            folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
+            qty = 0
+            matching_item = next(
+                (item for item in data
+                if item.get("SKU", "").strip().lower() == sku.lower()
+                and item.get("Folder", "").strip().lower() == folder_name),
+                None
+            )
+            if matching_item:
+                qty = matching_item.get("TotalQty", 0)
+                print(f"✅ Injected '{labor_desc}' → SKU: {sku} → Qty: {qty} into L{row_index}")
+            else:
+                print(f"⚠️ No matching item found for SKU '{sku}' and folder '{folder_name}'.")
+                print(f"🚨 Attempted injection of '{sku}' for '{labor_desc}' but found no matching folder entry.")
+
+
+            sheet.range(f"L{row_index}").value = qty
+            print(f"✅ Injected '{labor_desc}' → SKU: {sku} → Qty: {qty} into L{row_index}")
+
 
 
 
