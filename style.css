@@ -54,6 +54,10 @@ td {
     vertical-align: top;
 max-width: 350px !important;
 }
+input[type="file"] {
+  display: none;
+}
+
 td:first-child {
   font-weight: bold;
   white-space: nowrap;

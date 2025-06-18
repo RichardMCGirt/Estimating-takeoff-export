@@ -27,7 +27,6 @@ function getFormMetadata() {
   ];
 
   const metadata = {};
-
   fields.forEach(field => {
     const input = document.querySelector(`[name="${field}"]`);
     metadata[field] = input?.value.trim() || "";
@@ -87,7 +86,6 @@ function handleSourceUpload(event) {
 
   reader.readAsArrayBuffer(file);
 }
-
 
 function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table"); // or specific ID if known
@@ -272,7 +270,6 @@ let html = "";
   const sortedNonLabor = nonLaborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
 const sortedLabor = laborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
 
-
   const tableId = `copyTable_${index}`;
   let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 
@@ -355,7 +352,6 @@ if (sortedLabor.length) {
 </tr>`;
 });
 
-
   html += `</tbody></table><br/>`;
 });
 
@@ -403,7 +399,6 @@ document.querySelectorAll('input[type="text"], input[type="date"], input[type="n
   // Resize if JS sets a value
   autoResizeInput(input);
 });
-
 
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
@@ -500,25 +495,32 @@ function injectMultipleFolders(folders) {
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
     const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
 
-    if (!elevationData.length || !breakoutMerged.length) {
-      showToast(`⚠️ Skipped "${folder}" due to missing data`);
-      return;
-    }
+   if (!elevationData.length) {
+  showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
+  return;
+}
+
+if (!breakoutMerged.length) {
+  console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
+}
+
 
     enqueueRequest(() => {
-      const hasZLaborWR = elevationData.some(d => d.SKU === "zLABORWR");
-      if (hasZLaborWR) {
-        console.log(`🚀 Folder "${folder}" contains zLABORWR with qty:`,
-          elevationData.find(d => d.SKU === "zLABORWR")?.TotalQty);
-      }
-      return sendToInjectionServerDualSheet(elevationData, breakoutMerged, folder);
-    });
+  const hasZLaborWR = elevationData.some(d => d.SKU === "zLABORWR");
+  if (hasZLaborWR) {
+    console.log(`🚀 Folder "${folder}" contains zLABORWR with qty:`,
+      elevationData.find(d => d.SKU === "zLABORWR")?.TotalQty);
+  }
+
+  // Always send elevationData, send breakoutMerged even if empty
+  return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder);
+});
+
   });
 
   // ✅ Show only once after loop
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
-
 
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
@@ -566,9 +568,6 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   type: "combined",
   metadata: getFormMetadata()
 };
-
-
-
     fetch(serverURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -629,13 +628,16 @@ const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "scre
   const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
   if (!nonLabor.length && !isBreakout) return alert(`No non-labor data to inject for ${folder}`);
 
-  sendToInjectionServer(
-    isBreakout ? filteredData : nonLabor,
-    folder,
-    injectionType
-  );
+const dataToSend = isBreakout ? filteredData : nonLabor.length ? nonLabor : filteredData;
 
-  showToast(`✅ Injected "${folder}" to server (${injectionType})`);
+sendToInjectionServer(
+  dataToSend,
+  folder,
+  injectionType
+);
+
+
+  showToast(`✅ Sent "${folder}" to server (${injectionType})`);
 }
 
 function renderMaterialBreakoutButtons() {
@@ -660,19 +662,38 @@ container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wr
 button.addEventListener('click', () => {
   const rawRows = rawSheetData.filter(d => d.Folder === folder);
   const normalizedRows = rawRows.map(normalizeRawRow);
-  const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-  
-  const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
 
-  if (!breakoutMerged.length) return alert(`No data for ${folder}`);
+  const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
+let breakoutMerged = mergeForMaterialBreakout(nonLaborRows, true);
+
+// Fallback: try with labor included
+if (!breakoutMerged.length) {
+  console.warn("⚠️ No non-labor rows. Retrying with labor included...");
+  breakoutMerged = mergeForMaterialBreakout(normalizedRows, false); // don't skip labor
+}
+
+  // 🔁 Fallback if only labor rows exist
+if (!breakoutMerged.length) {
+  console.warn("⚠️ No non-labor rows. Retrying with labor included...");
+  breakoutMerged = mergeForMaterialBreakout(normalizedRows, false); // don't skip labor
+// this version must NOT skip labor
+
+    if (!breakoutMerged.length) {
+      alert(`Still no usable data for "${folder}"`);
+      return;
+    }
+  }
+
+  // ✅ Continue with injection
   sendToInjectionServer(breakoutMerged, folder, "material_breakout");
   showToast(`✅ Injected "${folder}" to Material Break Out`);
 });
+
     container.appendChild(button);
   });
 }
 
-function mergeForMaterialBreakout(data) {
+function mergeForMaterialBreakout(data, skipLabor = true) {
   console.log("🔍 Starting mergeForMaterialBreakout with", data.length, "rows");
 
   const result = {};
@@ -692,11 +713,22 @@ function mergeForMaterialBreakout(data) {
       TotalQty: qty,
     });
 
-    // ❌ Skip if SKU contains "labor" (case-insensitive)
-    if (sku.toLowerCase().includes("labor")) {
-      console.log(`⏭️ Skipping SKU "${sku}" because it includes 'labor'`);
-      return;
-    }
+let breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+
+// 👇 Manually bypass labor filter in fallback
+if (!breakoutMerged.length) {
+  console.warn("⚠️ No non-labor rows. Retrying with labor rows included...");
+
+  // ⚠️ Use a version of mergeForMaterialBreakout that skips the labor check
+  breakoutMerged = normalizedRows.map(row => ({
+    ...row,
+    TotalQty: parseFloat(row.TotalQty) || 0
+  }));
+
+  if (!breakoutMerged.length) {
+    return alert(`Still no usable data for "${folder}"`);
+  }
+}
 
     const key = `${sku}___${desc2}___${colorGroup}`;
     console.log(`🔑 Generated merge key: ${key}`);
@@ -807,13 +839,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const files = e.dataTransfer.files;
   if (files.length > 0) {
-const pseudoInput = document.createElement("input");
-pseudoInput.type = "file";
-pseudoInput.files = files;
-handleSourceUpload({ target: pseudoInput });
+handleSourceUpload({ target: { files } });
+
   }
 });
-
   }
 });
 
