@@ -41,17 +41,12 @@ function getFormMetadata() {
 }
 
 function handleSourceUpload(event) {
-  const file = event.target.files[0];
+  const file = event.target?.files?.[0];
   if (!file) return;
 
-  // ✅ Remove any previously injected elevation row
-  const existing = document.getElementById("dynamicElevationRow");
-  if (existing) existing.remove();
-
-  document.getElementById('file-name').textContent = `📄 File selected: ${file.name}`;
-
+  // Process file
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function (e) {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: 'array' });
 
@@ -60,42 +55,39 @@ function handleSourceUpload(event) {
 
     rawSheetData = json;
     mergedData = mergeBySKU(json);
-localStorage.setItem('mergedData', JSON.stringify(mergedData));
-localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
+
+    localStorage.setItem('mergedData', JSON.stringify(mergedData));
+    localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
 
     displayMergedTable(mergedData);
     renderFolderButtons();
     renderMaterialBreakoutButtons();
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-    console.log("🔍 Folder values in mergedData:", uniqueFolders);
-
     const elevationInput = document.querySelector('input[name="elevation"]');
+
     if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
       injectDynamicElevation(uniqueFolders[0]);
     }
 
-    // ✅ Auto-inject if only one elevation is found
     if (uniqueFolders.length === 1) {
       const singleFolder = uniqueFolders[0];
-
       requestAnimationFrame(() => {
         const checkbox = document.querySelector(`.folder-checkbox[value="${singleFolder}"]`);
-        if (checkbox) {
-          checkbox.checked = true;
-        }
-
-        setTimeout(() => {
-          injectMultipleFolders([singleFolder]);
-        }, 500);
+        if (checkbox) checkbox.checked = true;
+        setTimeout(() => injectMultipleFolders([singleFolder]), 500);
       });
+    }
+
+    // ✅ Only reset if it's a real input element (has a .value)
+    if (event.target?.type === "file") {
+      event.target.value = "";
     }
   };
 
   reader.readAsArrayBuffer(file);
-  event.target.value = ''; // Allow same file to trigger change event again
-
 }
+
 
 function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table"); // or specific ID if known
@@ -815,7 +807,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const files = e.dataTransfer.files;
   if (files.length > 0) {
-    handleSourceUpload({ target: { files } }); // ✅ call directly
+const pseudoInput = document.createElement("input");
+pseudoInput.type = "file";
+pseudoInput.files = files;
+handleSourceUpload({ target: pseudoInput });
   }
 });
 
