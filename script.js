@@ -61,12 +61,14 @@ function handleSourceUpload(event) {
     displayMergedTable(mergedData);
     renderFolderButtons();
     renderMaterialBreakoutButtons();
+showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
     const elevationInput = document.querySelector('input[name="elevation"]');
 
     if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
       injectDynamicElevation(uniqueFolders[0]);
+      
     }
 
     if (uniqueFolders.length === 1) {
@@ -114,6 +116,8 @@ function injectDynamicElevation(folderName) {
 
   // Insert before the last row, or append to end
   formTable.appendChild(tr);
+  showToast(allSelected ? "✅ All folders selected" : "🔄 All folders deselected");
+
 }
 
 function injectMaterialBreakout() {
@@ -660,33 +664,10 @@ container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wr
     button.textContent = `Download "${folder}"`;
     button.style.margin = '6px';
 button.addEventListener('click', () => {
-  const rawRows = rawSheetData.filter(d => d.Folder === folder);
-  const normalizedRows = rawRows.map(normalizeRawRow);
-
-  const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-let breakoutMerged = mergeForMaterialBreakout(nonLaborRows, true);
-
-// Fallback: try with labor included
-if (!breakoutMerged.length) {
-  console.warn("⚠️ No non-labor rows. Retrying with labor included...");
-  breakoutMerged = mergeForMaterialBreakout(normalizedRows, false); // don't skip labor
-}
-
-  // 🔁 Fallback if only labor rows exist
-if (!breakoutMerged.length) {
-  console.warn("⚠️ No non-labor rows. Retrying with labor included...");
-  breakoutMerged = mergeForMaterialBreakout(normalizedRows, false); // don't skip labor
-// this version must NOT skip labor
-
-    if (!breakoutMerged.length) {
-      alert(`Still no usable data for "${folder}"`);
-      return;
-    }
-  }
 
   // ✅ Continue with injection
   sendToInjectionServer(breakoutMerged, folder, "material_breakout");
-  showToast(`✅ Injected "${folder}" to Material Break Out`);
+showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
 });
 
     container.appendChild(button);
@@ -713,22 +694,6 @@ function mergeForMaterialBreakout(data, skipLabor = true) {
       TotalQty: qty,
     });
 
-let breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
-
-// 👇 Manually bypass labor filter in fallback
-if (!breakoutMerged.length) {
-  console.warn("⚠️ No non-labor rows. Retrying with labor rows included...");
-
-  // ⚠️ Use a version of mergeForMaterialBreakout that skips the labor check
-  breakoutMerged = normalizedRows.map(row => ({
-    ...row,
-    TotalQty: parseFloat(row.TotalQty) || 0
-  }));
-
-  if (!breakoutMerged.length) {
-    return alert(`Still no usable data for "${folder}"`);
-  }
-}
 
     const key = `${sku}___${desc2}___${colorGroup}`;
     console.log(`🔑 Generated merge key: ${key}`);
@@ -805,6 +770,8 @@ function copyToClipboard(textareaId) {
   tempTextarea.select();
   document.execCommand("copy");
   document.body.removeChild(tempTextarea);
+  showToast("📋 Copied to clipboard (non-labor only)");
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
