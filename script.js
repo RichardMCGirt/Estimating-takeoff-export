@@ -8,7 +8,12 @@ const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
  const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
-document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('sourceFile');
+  if (fileInput) {
+    fileInput.addEventListener('change', handleSourceUpload);
+  }
+});
 
 function getFormMetadata() {
   const fields = [
@@ -55,6 +60,8 @@ function handleSourceUpload(event) {
 
     rawSheetData = json;
     mergedData = mergeBySKU(json);
+localStorage.setItem('mergedData', JSON.stringify(mergedData));
+localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
 
     displayMergedTable(mergedData);
     renderFolderButtons();
@@ -86,6 +93,8 @@ function handleSourceUpload(event) {
   };
 
   reader.readAsArrayBuffer(file);
+  event.target.value = ''; // Allow same file to trigger change event again
+
 }
 
 function injectDynamicElevation(folderName) {
@@ -254,6 +263,8 @@ return merged;
   }
 
   wrapper.style.display = "block";
+    wrapper.classList.add("has-data"); // ✅ Apply the professional border
+
 const folders = [...new Set(data.map(d => d.Folder))];
 let html = "";
 
@@ -308,7 +319,7 @@ const sortedLabor = laborRows.sort((a, b) => (a.Description || "").localeCompare
   // Render non-labor
  sortedNonLabor.forEach(row => {
   html += `<tr>
-  <td style="text-align:center;">${row.SKU}</td>
+<td>${row.SKU}</td>
   <td style="text-align:center;">${row.Description}</td>
   <td style="text-align:center;">${row.Description2 || ""}</td>
   <td style="text-align:center;">${row.UOM}</td> <!-- ✅ added -->
@@ -798,16 +809,16 @@ document.addEventListener('DOMContentLoaded', () => {
       dropZone.classList.remove('dragover');
     });
 
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
+   dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
 
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        fileInput.files = files;
-        fileInput.dispatchEvent(new Event('change'));
-      }
-    });
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    handleSourceUpload({ target: { files } }); // ✅ call directly
+  }
+});
+
   }
 });
 
@@ -833,30 +844,6 @@ function processQueue() {
     processQueue();
   });
 }
-
- const toggleButton = document.getElementById('darkModeToggle');
-  const root = document.documentElement;
-
-  function updateButtonText() {
-    toggleButton.textContent = root.classList.contains('dark') 
-      ? ' Switch to Light Mode' 
-      : ' Switch to Dark Mode';
-  }
-
-  // Load preference on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    if (localStorage.getItem('theme') === 'dark') {
-      root.classList.add('dark');
-    }
-    updateButtonText();
-  });
-
-  toggleButton.addEventListener('click', () => {
-    root.classList.toggle('dark');
-    localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
-    updateButtonText();
-  });
-
   
   // ✅ Load values from localStorage into inputs on page load
 document.addEventListener("DOMContentLoaded", () => {
@@ -879,4 +866,27 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
+});
+
+ const toggleButton = document.getElementById('darkModeToggle');
+const body = document.body;
+
+function updateButtonText() {
+  toggleButton.textContent = body.classList.contains('dark') 
+    ? 'Switch to Light Mode' 
+    : 'Switch to Dark Mode';
+}
+
+// Load preference on page load
+document.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('theme') === 'dark') {
+    body.classList.add('dark');
+  }
+  updateButtonText();
+});
+
+toggleButton.addEventListener('click', () => {
+  body.classList.toggle('dark');
+  localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
+  updateButtonText();
 });

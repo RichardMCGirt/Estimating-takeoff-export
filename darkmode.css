@@ -1,76 +1,331 @@
-/* DARK MODE VARIABLES */
-:root.dark {
-  --color-bg: #1e1e1e;
-  --color-text: #f0f0f0;
-  --color-header-bg: #2a2a2a;
+/* 🌞 Light Theme (Default) */
+:root {
+  --color-bg: #f4f7fa;
+  --color-text: #2c3e50;
+  --color-border: #d0d7de;
+  --color-accent: #1d72b8;
+  --color-accent-dark: #155a8a;
+  --color-white: #ffffff;
+  --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 20px;
+}
+
+body.dark {
+  --color-bg: #1a1a1a;
+  --color-text: #e0e0e0;
   --color-border: #444;
-  --color-primary: #80c0ff;
-  --color-primary-dark: #4aa3f0;
-  --color-white: #121212;
-  --color-overlay: rgba(255, 255, 255, 0.05);
-  --color-toast-bg: #333;
+  --color-accent: #4dabf7;
+  --color-accent-dark: #339af0;
+  --color-white: #2a2a2a;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
-/* Optional extra tweaks for dark mode */
-:root.dark input[type="text"],
-:root.dark input[type="date"],
-:root.dark input[type="number"],
-:root.dark input[type="file"],
-:root.dark .autocomplete-dropdown {
-  background: #2a2a2a !important;
-  color: #f0f0f0;
-  border-color: #555;
+/* 🧱 Base Layout */
+.main-wrapper,
+body.dark .main-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-:root.dark table tbody tr:nth-child(odd) {
-  background-color: #2c2c2c;
+h2,
+body.dark h2 {
+  margin-top: 30px;
+  color: var(--color-accent-dark);
+  font-size: 1.5rem;
+  border-left: 6px solid var(--color-accent);
+  padding-left: 12px;
 }
 
-:root.dark table tbody tr:nth-child(even) {
-  background-color: #1f1f1f;
+table,
+body.dark table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
 }
 
-:root.dark table tbody tr:hover {
-  background-color: #333f48;
+#estimateForm,
+body.dark #estimateForm {
+  width: 100%;
+  max-width: 700px;
+  border-collapse: collapse;
 }
 
-:root.dark th {
-  background-color: #3a3a3a;
+td,
+body.dark td {
+  padding: 10px 8px;
+  vertical-align: middle;
+  color: var(--color-text);
 }
 
-:root.dark #drop-zone {
-  background-color: #2a2a2a;
-  border-color: #4aa3f0;
+#estimateForm td,
+body.dark #estimateForm td {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  vertical-align: top;
+  max-width: 350px !important;
 }
 
-:root.dark #drop-zone p {
-  color: #aaa;
+td:first-child,
+#estimateForm .label-cell,
+body.dark td:first-child,
+body.dark #estimateForm .label-cell {
+  font-weight: bold;
+  white-space: nowrap;
+  width: 1%;
+  color: var(--color-text);
 }
 
-:root.dark .click-browse:hover {
-  color: #80c0ff;
+/* 🧾 Inputs */
+input[type="text"],
+input[type="date"],
+input[type="number"],
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark input[type="number"] {
+  width: 300px !important;
+  max-width: 100%;
+  padding: 4px;
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-white);
+  color: var(--color-text);
+  box-sizing: border-box;
 }
-.autocomplete-item {
-  display: block;          /* ensures height takes up a line */
-  padding: 6px;
+
+input[type="file"],
+body.dark input[type="file"] {
+  margin-top: 10px;
+}
+
+/* 📁 Drop Zone */
+#drop-zone,
+body.dark #drop-zone {
+  border: 2px dashed var(--color-accent);
+  padding: 30px;
+  text-align: center;
+  border-radius: 10px;
+  background-color: var(--color-white);
+  color: var(--color-text);
+  transition: background-color 0.3s;
+}
+
+#drop-zone:hover,
+body.dark #drop-zone:hover {
+  background-color: rgba(77, 171, 247, 0.1);
+}
+
+.click-browse,
+body.dark .click-browse {
+  color: var(--color-accent);
   cursor: pointer;
+  text-decoration: underline;
 }
 
-.autocomplete-item.active,
-.autocomplete-item:hover {
-  background-color: gray !important;
+#file-name,
+body.dark #file-name {
+  margin-top: 10px;
+  font-style: italic;
 }
 
-#builderDropdown {
-  position: absolute;
-  max-height: 200px;
+/* 🔽 Autocomplete */
+#builderDropdown,
+#estimatorDropdown,
+body.dark #builderDropdown,
+body.dark #estimatorDropdown {
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  color: var(--color-text);
+  max-height: 150px;
   overflow-y: auto;
-  background: #2a2a2a;
-  border: 1px solid #ccc;
-  z-index: 1000;
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  display: none;
+  border-radius: 4px;
+}
+/* 🌙 Dark Mode Dropdown Improvements */
+body.dark #builderDropdown,
+body.dark #estimatorDropdown,
+body.dark .autocomplete-dropdown {
+  background-color: #2a2a2a !important;           /* darker surface */
+  border: 1px solid #555;              /* more visible border */
+  color: #f0f0f0 !important;                      /* bright text */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* subtle shadow */
 }
 
-.autocomplete-item.active {
-  background-color: #007BFF;
-  color: #2a2a2a;
+body.dark .autocomplete-dropdown div {
+  padding: 8px;
+  cursor: pointer;
+  color: #f0f0f0;                      /* ensure visible text */
+  background-color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+body.dark .autocomplete-dropdown div:hover {
+  background-color: #444 !important;             /* higher contrast hover */
+  color: #ffffff !important;
+}
+
+.autocomplete-dropdown div,
+body.dark .autocomplete-dropdown div {
+  padding: 8px;
+  cursor: pointer;
+  color: var(--color-text);
+  background: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.autocomplete-dropdown div:hover,
+body.dark .autocomplete-dropdown div:hover {
+  background-color: rgba(77, 171, 247, 0.2);
+  color: var(--color-text);
+}
+
+/* 🔄 Loading Overlay */
+#loadingOverlay,
+body.dark #loadingOverlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#loadingMessage,
+body.dark #loadingMessage {
+  color: white;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.loader,
+body.dark .loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid var(--color-accent);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 🛎️ Toast Notification */
+#toast,
+body.dark #toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--color-accent-dark);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 6px;
+  display: none;
+  z-index: 10000;
+  font-size: 1rem;
+}
+
+/* 📂 Folder Buttons */
+#folderButtons button,
+body.dark #folderButtons button {
+  margin: 6px;
+  padding: 10px 14px;
+  background-color: var(--color-accent);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+#folderButtons button:hover,
+body.dark #folderButtons button:hover {
+  background-color: var(--color-accent-dark);
+}
+
+/* 📊 Merged Table Styling */
+#mergedTableWrapper,
+body.dark #mergedTableWrapper {
+  display: none;
+  border: none;
+  padding: 0;
+  margin-top: 20px;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+#mergedTableWrapper.has-data,
+body.dark #mergedTableWrapper.has-data {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--color-white);
+  color: var(--color-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#mergedTableWrapper table,
+body.dark #mergedTableWrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#mergedTableWrapper th,
+#mergedTableWrapper td,
+body.dark #mergedTableWrapper th,
+body.dark #mergedTableWrapper td {
+  border: 1px solid var(--color-border);
+  padding: 8px;
+  text-align: center;
+  color: var(--color-text);
+  background-color: var(--color-white);
+}
+
+/* 📐 Elevation Section */
+#elevationSection,
+body.dark #elevationSection {
+  display: none;
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background-color: var(--color-white);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+#elevationSection h2,
+body.dark #elevationSection h2 {
+  margin-top: 0;
+  color: var(--color-text);
+}
+
+#elevationSection hr,
+body.dark #elevationSection hr {
+  margin-top: 20px;
+  border: none;
+  border-top: 1px solid var(--color-border);
 }
