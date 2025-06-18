@@ -2,10 +2,11 @@ let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = [];
 
-const baseServer = "https://d604-174-108-187-19.ngrok-free.app";
+const baseServer = "https://470a-174-108-187-19.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
+ const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
 document.getElementById('sourceFile').addEventListener('change', handleSourceUpload);
 
@@ -86,8 +87,6 @@ function handleSourceUpload(event) {
 
   reader.readAsArrayBuffer(file);
 }
-
-
 
 function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table"); // or specific ID if known
@@ -220,9 +219,7 @@ UOM: row[colMap.uom] ?? null,
   UnitCost: parseFloat(row[colMap.unitcost]) || 0,
   TotalQty: 0
 };
-
   }
-
   result[key].TotalQty += qty;
 });
 
@@ -237,18 +234,15 @@ if (!skipRounding && !Number.isInteger(item.TotalQty)) {
   const qty = item.TotalQty;
   item.TotalQty = Math.ceil(Math.abs(qty)); // ✅ Always round *up* from the absolute value
 }
-
-
   return item;
 });
 const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
 if (containsZLaborWR) {
   console.log("🧩 zLABORWR detected in merged data.");
 }
-
 return merged;
   }
-  
+
   function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
   const wrapper = document.getElementById("mergedTableWrapper");

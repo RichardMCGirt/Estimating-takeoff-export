@@ -84,7 +84,7 @@ def inject():
             metadata_values = [
                 metadata.get("builder", ""),
                 metadata.get("planName", ""),
-                elevation_value,  # ✅ Now guaranteed to fall back
+                elevation_value,  
                 metadata.get("materialType", ""),
                 metadata.get("date", ""),
                 metadata.get("estimator", "")

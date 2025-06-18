@@ -159,8 +159,8 @@ input[type="file"].file-input,
 table {
   border-collapse: collapse;
   margin-top: 20px;
-  width: 70% !important;
-  font-size: 17px;
+  width: 65% !important;
+  font-size: 15px;
 }
 
 th, td {
