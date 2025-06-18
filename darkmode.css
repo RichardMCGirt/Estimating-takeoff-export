@@ -59,7 +59,6 @@ body.dark table {
 #estimateForm,
 body.dark #estimateForm {
   width: 100%;
-  max-width: 700px;
   border-collapse: collapse;
 }
 
