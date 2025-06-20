@@ -797,7 +797,6 @@ function updateButtonText() {
     : 'Switch to Dark Mode';
 }
 
-
 function getLaborRates() {
   const inputs = document.querySelectorAll('#estimateForm input[name]');
   const rates = {};
@@ -814,9 +813,6 @@ function getLaborRates() {
 
   return rates;
 }
-
-
-
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("laborRatesForm");
