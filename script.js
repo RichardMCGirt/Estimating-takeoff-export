@@ -1,14 +1,33 @@
 let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = [];
+let isProcessingQueue = false;
+let html = "";
+let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
+let allSelected = false;
+let toggleButton;
 
 const baseServer = "https://556c-174-108-187-19.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
- const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+document.addEventListener("DOMContentLoaded", () => {
+  // Restore saved form fields or default to today's date
+  fields.forEach(field => {
+    const input = document.querySelector(`[name="${field}"]`);
+    const savedValue = localStorage.getItem(field);
+    if (input && savedValue !== null) {
+      input.value = savedValue;
+    }
 
-document.addEventListener('DOMContentLoaded', () => {
+    // Default to today's date if field is "date" and empty
+    if (field === "date" && input && !input.value) {
+      input.value = new Date().toISOString().split("T")[0];
+    }
+  });
+
+  // Attach file input listener
   const fileInput = document.getElementById('sourceFile');
   if (fileInput) {
     fileInput.addEventListener('change', handleSourceUpload);
@@ -33,7 +52,6 @@ function getFormMetadata() {
   });
 
   // 🧪 Debug logs
-  console.log("📦 Metadata from input fields:");
   console.table(metadata);
 
   return metadata;
@@ -117,7 +135,6 @@ function injectDynamicElevation(folderName) {
   // Insert before the last row, or append to end
   formTable.appendChild(tr);
   showToast(allSelected ? "✅ All folders selected" : "🔄 All folders deselected");
-
 }
 
 function injectMaterialBreakout() {
@@ -125,7 +142,6 @@ function injectMaterialBreakout() {
     alert("No merged data found.");
     return;
   }
-
   sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
 }
 
@@ -160,7 +176,6 @@ function showToast(message = "Success!", durationMs = 4000) {
       normalizedHeaders[keyLower] = key;
     });
   
-    console.log("🔍 Normalized Headers:", normalizedHeaders);
  function getHeaderMatch(possibleNames, normalizedHeaders) {
   const normalizedKeys = Object.keys(normalizedHeaders);
 
@@ -176,8 +191,6 @@ function showToast(message = "Success!", durationMs = 4000) {
   return "";
 }
 
-    console.log("📋 Raw headers:", Object.keys(data[0]));
-
     const colMap = {
       
       sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
@@ -191,7 +204,6 @@ function showToast(message = "Success!", durationMs = 4000) {
       qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
       
     };
-    console.log("🗺️ Folder column mapped to:", colMap.folder);
 
     const result = {};
   
@@ -246,7 +258,7 @@ if (containsZLaborWR) {
 return merged;
   }
 
-  function displayMergedTable(data) {
+function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
   const wrapper = document.getElementById("mergedTableWrapper");
 
@@ -257,109 +269,76 @@ return merged;
   }
 
   wrapper.style.display = "block";
-    wrapper.classList.add("has-data"); // ✅ Apply the professional border
+  wrapper.classList.add("has-data");
 
-const folders = [...new Set(data.map(d => d.Folder))];
-let html = "";
+  const folders = [...new Set(data.map(d => d.Folder))];
+  let allHTML = "";
 
- folders.forEach((folder, index) => {
-  const allRows = data.filter(d => d.Folder === folder);
+  folders.forEach((folder, index) => {
+    const rows = data.filter(d => d.Folder === folder);
+    const nonLabor = rows.filter(d => !/labor/i.test(d.SKU));
+    const labor = rows.filter(d => /labor/i.test(d.SKU));
 
-  // Separate non-labor and labor rows
-  const nonLaborRows = allRows.filter(d => !/labor/i.test(d.SKU));
-  const laborRows = allRows.filter(d => /labor/i.test(d.SKU));
+    if (!nonLabor.length && !labor.length) return;
 
-  if (!nonLaborRows.length && !laborRows.length) return; 
+    const sortedNonLabor = [...nonLabor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
+    const sortedLabor = [...labor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
 
-  const sortedNonLabor = nonLaborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
-const sortedLabor = laborRows.sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
+    const tableId = `copyTable_${index}`;
+    let tsvContent = "";
 
-  const tableId = `copyTable_${index}`;
-  let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
+    const buildRow = row => `
+      <tr>
+        <td>${row.SKU || ""}</td>
+        <td>${row.Description || ""}</td>
+        <td>${row.Description2 || ""}</td>
+        <td>${row.UOM || ""}</td>
+        <td title="Pre-rounded: ${row.TotalQty}">${(row.TotalQty || 0).toFixed(2)}</td>
+        <td>${row.ColorGroup || ""}</td>
+      </tr>`;
 
-  html += `<h3>${folder}</h3>
-  <button onclick="copyToClipboard('${tableId}')">Copy ${folder} to Clipboard</button>
-  <textarea id="${tableId}" style="display:none;">`;
+    const buildSpacerRows = () => `
+      <tr>${'<td style="border: 1px solid #ccc;">&nbsp;</td>'.repeat(6)}</tr>
+      <tr>${'<td style="border: 1px solid #ccc;">&nbsp;</td>'.repeat(6)}</tr>`;
 
-  // Append non-labor to TSV + HTML
-  sortedNonLabor.forEach(row => {
-    tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
+    sortedNonLabor.forEach(row => {
+      tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${(row.TotalQty || 0).toFixed(2)}\t${row.ColorGroup || ""}\n`;
+    });
+
+    if (sortedLabor.length) {
+      tsvContent += `\n\n`;
+      sortedLabor.forEach(row => {
+        tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${(row.TotalQty || 0).toFixed(2)}\t${row.ColorGroup || ""}\n`;
+      });
+    }
+
+    const headerRow = `
+      <tr>
+        <th>SKU</th>
+        <th>Description</th>
+        <th>Description 2</th>
+        <th>UOM</th>
+        <th>QTY</th>
+        <th>Color Group</th>
+      </tr>`;
+
+    let tableHTML = `
+      <h3>${folder}</h3>
+      <button onclick="copyToClipboard('${tableId}')">Copy ${folder} to Clipboard</button>
+      <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
+      <table style="width:100%; text-align:center; border-collapse: collapse;">
+        <thead>${headerRow}</thead>
+        <tbody>
+          ${sortedNonLabor.map(buildRow).join("")}
+          ${sortedLabor.length ? buildSpacerRows() : ""}
+          ${sortedLabor.map(buildRow).join("")}
+        </tbody>
+      </table><br/>`;
+
+    allHTML += tableHTML;
   });
 
-  // Spacer lines
-  if (sortedLabor.length) {
-    tsvContent += `\n\n`; 
-  }
-
-  // Append labor to TSV
-  sortedLabor.forEach(row => {
-    tsvContent += `${row.SKU}\t${row.Description}\t${row.Description2 || ""}\t${row.UOM}\t${row.TotalQty.toFixed(2)}\t${row.ColorGroup}\n`;
-  });
-
-  html += `${tsvContent.trim()}</textarea>
-  <table style="width:100%; text-align:center; border-collapse: collapse;">
-   <thead><tr>
-  <th style="text-align:center;">SKU</th>
-  <th style="text-align:center;">Description</th>
-  <th style="text-align:center;">Description 2</th>
-  <th style="text-align:center;">UOM</th> <!-- ✅ added -->
-  <th style="text-align:center;">QTY</th>
-  <th style="text-align:center;">Color Group</th>
-</tr></thead>
-
-<tbody>`;
-
-  // Render non-labor
- sortedNonLabor.forEach(row => {
-  html += `<tr>
-<td>${row.SKU}</td>
-  <td style="text-align:center;">${row.Description}</td>
-  <td style="text-align:center;">${row.Description2 || ""}</td>
-  <td style="text-align:center;">${row.UOM}</td> <!-- ✅ added -->
-  <td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
-  <td style="text-align:center;">${row.ColorGroup}</td>
-</tr>`;
-});
-
-
-// Spacer rows with full 6-column bordered layout
-if (sortedLabor.length) {
-  html += `
-    <tr>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-    </tr>
-    <tr>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-      <td style="height:10px; border: 1px solid #ccc;">&nbsp;</td>
-    </tr>
-  `;
-}
-
-  // Render labor
-  sortedLabor.forEach(row => {
-  html += `<tr>
-  <td style="text-align:center;">${row.SKU}</td>
-  <td style="text-align:center;">${row.Description}</td>
-  <td style="text-align:center;">${row.Description2 || ""}</td>
-  <td style="text-align:center;">${row.UOM}</td> <!-- ✅ added -->
-  <td style="text-align:center;" title="Pre-rounded: ${row.TotalQty}">${row.TotalQty.toFixed(2)}</td>
-  <td style="text-align:center;">${row.ColorGroup}</td>
-</tr>`;
-});
-
-  html += `</tbody></table><br/>`;
-});
-
-  container.innerHTML = html;
+  container.innerHTML = allHTML;
 }
 
 function normalizeRawRow(row) {
@@ -416,8 +395,6 @@ function renderFolderButtons() {
   selectAllBtn.textContent = "Select All";
   selectAllBtn.style.marginBottom = '12px';
   selectAllBtn.style.marginRight = '12px';
-
-  let allSelected = false;
   selectAllBtn.addEventListener('click', () => {
     const checkboxes = document.querySelectorAll('.folder-checkbox');
     allSelected = !allSelected;
@@ -426,8 +403,6 @@ function renderFolderButtons() {
   });
 
   container.appendChild(selectAllBtn);
-
-  // ✅ Folder checkboxes row
   const checkboxRow = document.createElement('div');
   checkboxRow.id = 'folderCheckboxRow';
   checkboxRow.style.display = 'flex';
@@ -435,7 +410,6 @@ function renderFolderButtons() {
   checkboxRow.style.gap = '18px';
   checkboxRow.style.marginBottom = '12px';
   container.appendChild(checkboxRow);
-
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
   if (!uniqueFolders.length) {
     section.style.display = "none";
@@ -453,20 +427,19 @@ function renderFolderButtons() {
     label.style.borderRadius = '6px';
     label.style.background = '#f9f9f9';
     label.style.cursor = 'pointer';
-label.style.fontSize = '24px'; // ✅ Larger font size
+    label.style.fontSize = '24px'; 
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.value = folder;
     checkbox.classList.add('folder-checkbox');
     checkbox.style.marginRight = '8px';
-checkbox.style.transform = 'scale(2)';  // ✅ Increase size
-checkbox.style.marginRight = '10px';
-checkbox.style.cursor = 'pointer';
+    checkbox.style.transform = 'scale(2)'; 
+    checkbox.style.marginRight = '10px';
+    checkbox.style.cursor = 'pointer';
 
     label.appendChild(checkbox);
     label.append(folder);
-
     checkboxRow.appendChild(label);
   });
 
@@ -484,10 +457,33 @@ checkbox.style.cursor = 'pointer';
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const dateInput = document.getElementById("dateInput");
-    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
-    dateInput.value = today;
-  });
+  const toggleButton = document.getElementById("darkModeToggle");
+  const body = document.body;
+
+  // ✅ Update button text based on current mode
+  function updateButtonText() {
+    if (!toggleButton) return;
+    toggleButton.textContent = body.classList.contains("dark-mode")
+      ? "Switch to Light Mode"
+      : "Switch to Dark Mode";
+  }
+
+  if (toggleButton) {
+    toggleButton.addEventListener("click", () => {
+      body.classList.toggle("dark-mode");
+      localStorage.setItem("darkMode", body.classList.contains("dark-mode"));
+      updateButtonText();
+    });
+
+    // ✅ Apply saved state
+    if (localStorage.getItem("darkMode") === "true") {
+      body.classList.add("dark-mode");
+    }
+
+    updateButtonText(); // Initialize text on load
+  }
+});
+
 
 function injectMultipleFolders(folders) {
   disableAllFolderButtons(true, "Injecting...");
@@ -507,22 +503,16 @@ function injectMultipleFolders(folders) {
 if (!breakoutMerged.length) {
   console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
 }
-
-
     enqueueRequest(() => {
   const hasZLaborWR = elevationData.some(d => d.SKU === "zLABORWR");
   if (hasZLaborWR) {
     console.log(`🚀 Folder "${folder}" contains zLABORWR with qty:`,
       elevationData.find(d => d.SKU === "zLABORWR")?.TotalQty);
   }
-
-  // Always send elevationData, send breakoutMerged even if empty
   return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder);
 });
 
   });
-
-  // ✅ Show only once after loop
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
 
@@ -566,52 +556,61 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   const RETRY_DELAY = 3000 * attempt;
 
   return new Promise((resolve, reject) => {
-  const payload = {
-  data: elevationData,         // ✅ Correctly scoped to the selected folder
+    const metadata = getFormMetadata();
+
+   const laborRates = getLaborRates(); // ✅ Add this line before the payload
+
+const payload = {
+  data: elevationData,
   breakout: breakoutData,
   type: "combined",
-  metadata: getFormMetadata()
+  metadata,
+  laborRates // ✅ Add this line to include labor rates in the payload
 };
+
+
+
+
     fetch(serverURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
-      .then(response => {
-        if (response.status === 429) {
-          if (attempt < MAX_RETRIES) {
-            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-            return setTimeout(() => {
-              enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1));
-              resolve(); // resolve this retry now, continue queue
-            }, RETRY_DELAY);
-          } else {
-            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-            return reject(new Error("Max retries reached"));
-          }
+    .then(response => {
+      if (response.status === 429) {
+        if (attempt < MAX_RETRIES) {
+          showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+          return setTimeout(() => {
+            enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1));
+            resolve();
+          }, RETRY_DELAY);
+        } else {
+          showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+          return reject(new Error("Max retries reached"));
         }
+      }
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      return response.blob();
+    })
+    .then(blob => {
+      if (!blob) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${folderName}.xlsb`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-        if (!response.ok) throw new Error(`Server returned ${response.status}`);
-        return response.blob();
-      })
-      .then(blob => {
-        if (!blob) return; // was a retry delay, not blob yet
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `${folderName}.xlsb`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        showToast(`✅ "${folderName}" workbook downloaded.`);
-        resolve();
-      })
-      .catch(error => {
-        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
-        reject(error);
-      });
+      showToast(`✅ "${folderName}" workbook downloaded.`);
+      resolve();
+    })
+    .catch(error => {
+      showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
+      reject(error);
+    });
   });
 }
+
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
@@ -621,26 +620,21 @@ function injectSelectedFolder(folder) {
   const filename = `merged-data-${safeFolder}.json`;
   const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
 
-  // Save full JSON in case user wants to download
   window.currentJSONBlob = blob;
   window.currentJSONFilename = filename;
 
   // Auto-decide type: "material_breakout" if folder name includes breakout, else "elevation"
-const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
+  const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
   const injectionType = isBreakout ? "material_breakout" : "elevation";
-
   const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
   if (!nonLabor.length && !isBreakout) return alert(`No non-labor data to inject for ${folder}`);
-
-const dataToSend = isBreakout ? filteredData : nonLabor.length ? nonLabor : filteredData;
+  const dataToSend = isBreakout ? filteredData : nonLabor.length ? nonLabor : filteredData;
 
 sendToInjectionServer(
   dataToSend,
   folder,
   injectionType
 );
-
-
   showToast(`✅ Sent "${folder}" to server (${injectionType})`);
 }
 
@@ -669,101 +663,64 @@ button.addEventListener('click', () => {
   sendToInjectionServer(breakoutMerged, folder, "material_breakout");
 showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
 });
-
-    container.appendChild(button);
+   container.appendChild(button);
   });
 }
 
 function mergeForMaterialBreakout(data, skipLabor = true) {
-  console.log("🔍 Starting mergeForMaterialBreakout with", data.length, "rows");
 
   const result = {};
 
   data.forEach((row, index) => {
     const sku = row.SKU?.trim() || "";
     const desc2Raw = row.Description2;
-    const desc2 = desc2Raw ?? `__EMPTY_${Math.random()}`; // Treat empty Description2 as unique
+    const desc2 = desc2Raw ?? `__EMPTY_${Math.random()}`; 
     const colorGroup = row.ColorGroup?.trim() || "";
     const qty = parseFloat(row.TotalQty) || 0;
-
-    console.log(`➡️ Row ${index}:`, {
-      SKU: sku,
-      Description2: desc2Raw,
-      NormalizedDescription2: desc2,
-      ColorGroup: colorGroup,
-      TotalQty: qty,
-    });
-
-
-    const key = `${sku}___${desc2}___${colorGroup}`;
-    console.log(`🔑 Generated merge key: ${key}`);
-
+     const key = `${sku}___${desc2}___${colorGroup}`;
     if (!result[key]) {
       result[key] = {
         ...row,
         TotalQty: 0
       };
-      console.log(`🆕 New entry created for key: ${key}`);
     }
-
     result[key].TotalQty += qty;
-    console.log(`➕ Updated TotalQty for key ${key}:`, result[key].TotalQty);
   });
 
-  // Convert to array and round if needed
 const merged = Object.values(result).map(item => {
-  console.log(`✅ Preserved qty: ${item.TotalQty} (SKU: ${item.SKU})`);
   return item;
 });
-  console.log("✅ Merging complete. Final item count:", merged.length);
   console.table(merged.map(i => ({
     SKU: i.SKU,
     Description2: i.Description2,
     TotalQty: i.TotalQty,
     ColorGroup: i.ColorGroup
   })));
-const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
-if (containsZLaborWR) {
-  console.log("🧩 zLABORWR detected in merged data.");
-}
-
   return merged;
 }
 
 function copyToClipboard(textareaId) {
   const textarea = document.getElementById(textareaId);
   const lines = textarea.value.trim().split("\n");
-
-  // Skip the first line (header)
   const trimmedLines = lines.slice(1);
-
   const modifiedLines = trimmedLines
+  
     .map(line => {
       const cols = line.split("\t");
 
-      // Skip if SKU contains "labor" (case-insensitive)
       const sku = cols[0]?.toLowerCase();
       if (sku.includes("labor")) return null;
 
-      // Pad columns to at least 6 to prevent index errors
       while (cols.length < 6) {
         cols.push("");
       }
-
       cols[1] = "";
       cols[3] = "";
-
       return cols.join("\t");
     })
-    .filter(Boolean); // remove nulls
+    .filter(Boolean); 
 
   const modifiedText = modifiedLines.join("\n");
-
-  // 🔍 Log for verification
-  console.log("📋 Filtered and Copied to Clipboard:");
-  console.log(modifiedText);
-
-  // Copy to clipboard
   const tempTextarea = document.createElement("textarea");
   tempTextarea.value = modifiedText;
   document.body.appendChild(tempTextarea);
@@ -771,7 +728,6 @@ function copyToClipboard(textareaId) {
   document.execCommand("copy");
   document.body.removeChild(tempTextarea);
   showToast("📋 Copied to clipboard (non-labor only)");
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -781,7 +737,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (clickableText && fileInput) {
     clickableText.addEventListener('click', (e) => {
-      e.stopPropagation(); // prevent event bubbling to dropZone
+      e.stopPropagation(); 
       fileInput.click();
     });
   }
@@ -807,14 +763,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const files = e.dataTransfer.files;
   if (files.length > 0) {
 handleSourceUpload({ target: { files } });
-
   }
 });
   }
 });
 
 const requestQueue = [];
-let isProcessingQueue = false;
 
 function enqueueRequest(fn) {
   requestQueue.push(fn);
@@ -836,48 +790,72 @@ function processQueue() {
   });
 }
   
-  // ✅ Load values from localStorage into inputs on page load
-document.addEventListener("DOMContentLoaded", () => {
-  fields.forEach(field => {
-    const input = document.querySelector(`[name="${field}"]`);
-    const savedValue = localStorage.getItem(field);
-    if (input && savedValue !== null) {
-      input.value = savedValue;
-    }
-
-    // ✅ Default to today's date if not set and field is "date"
-    if (field === "date" && input && !input.value) {
-      input.value = new Date().toISOString().split("T")[0];
-    }
-
-    // ✅ Add input event listener to save to localStorage
-    if (input) {
-      input.addEventListener("input", () => {
-        localStorage.setItem(field, input.value);
-      });
-    }
-  });
-});
-
- const toggleButton = document.getElementById('darkModeToggle');
-const body = document.body;
-
 function updateButtonText() {
-  toggleButton.textContent = body.classList.contains('dark') 
-    ? 'Switch to Light Mode' 
+  const body = document.body;
+  toggleButton.textContent = body.classList.contains('dark')
+    ? 'Switch to Light Mode'
     : 'Switch to Dark Mode';
 }
 
-// Load preference on page load
-document.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('theme') === 'dark') {
-    body.classList.add('dark');
+
+function getLaborRates() {
+  const form = document.getElementById("laborRatesForm");
+  const inputs = form?.querySelectorAll("input[name]");
+  const rates = {};
+
+  if (!form) {
+    console.warn("⚠️ laborRatesForm not found.");
+    return rates;
   }
-  updateButtonText();
+
+  console.log("🔍 Scanning labor rate inputs...");
+
+  inputs.forEach(input => {
+    const val = parseFloat(input.value);
+    const key = input.name;
+    if (!isNaN(val)) {
+      rates[key] = val;
+      console.log(`✅ ${key}: ${val}`);
+    } else {
+      console.log(`⛔ Skipped ${key} (invalid or empty)`);
+    }
+  });
+
+  console.log("📦 Final laborRates object:", rates);
+  return rates;
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("laborRatesForm");
+  if (!form) {
+    console.warn("⚠️ laborRatesForm not found.");
+    return;
+  }
+
+  const inputs = form.querySelectorAll("input[name]");
+
+  inputs.forEach(input => {
+    input.addEventListener("input", () => {
+      console.log(`📝 ${input.name} updated → ${input.value}`);
+    });
+  });
 });
 
-toggleButton.addEventListener('click', () => {
-  body.classList.toggle('dark');
-  localStorage.setItem('theme', body.classList.contains('dark') ? 'dark' : 'light');
-  updateButtonText();
+function attachLaborRateInputListeners() {
+  const form = document.getElementById("laborRatesForm");
+  if (!form) return;
+
+  const inputs = form.querySelectorAll("input[name]");
+  inputs.forEach(input => {
+    input.addEventListener("input", (e) => {
+      console.log(`📝 ${input.name} updated → ${e.target.value}`);
+    });
+  });
+}
+
+// Attach listeners once the DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  attachLaborRateInputListeners();
 });
+

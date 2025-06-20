@@ -1,61 +1,117 @@
 :root {
+  /* Colors */
   --color-bg: #f4f7fa;
+  --color-white: #ffffff;
   --color-text: #2c3e50;
   --color-border: #d0d7de;
   --color-accent: #1d72b8;
   --color-accent-dark: #155a8a;
-  --color-white: #ffffff;
+  --color-hover: #eef4fb;
+  --color-shadow: rgba(0, 0, 0, 0.08);
+  --color-toast-bg: var(--color-accent-dark);
+
+  /* Typography */
   --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-size-base: 1rem;
+  --font-size-heading: 1.5rem;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 30px;
+
+  /* Radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+
+  /* Shadows */
+  --shadow-light: 0 2px 6px var(--color-shadow);
+  --shadow-medium: 0 4px 12px var(--color-shadow);
 }
 
+/* ────────────── Global & Base ────────────── */
 body {
   font-family: var(--font-main);
   background: var(--color-bg);
   color: var(--color-text);
   margin: 0;
-  padding: 20px;
+  padding: var(--space-md);
 }
 
+input[type="text"],
+input[type="date"],
+input[type="number"] {
+  width: 300px;
+  max-width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-sizing: border-box;
+}
+
+input[type="file"] {
+  display: none;
+  margin-top: var(--space-sm);
+}
+
+/* ────────────── Main Layout ────────────── */
 .main-wrapper {
   max-width: 900px;
   margin: 0 auto;
-  background-color: var(--color-white);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--color-white);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-medium);
 }
 
+/* ────────────── Headings ────────────── */
 h2 {
-  margin-top: 30px;
+  margin-top: var(--space-lg);
   color: var(--color-accent-dark);
-  font-size: 1.5rem;
+  font-size: var(--font-size-heading);
   border-left: 6px solid var(--color-accent);
-  padding-left: 12px;
+  padding-left: var(--space-sm);
 }
 
+#elevationSection h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+/* ────────────── Form Styles ────────────── */
+#estimateForm {
+  width: 100%;
+  max-width: 700px;
+  border-collapse: collapse;
+}
+
+#estimateForm td {
+  padding: var(--space-sm);
+  border: 1px solid var(--color-border);
+  vertical-align: top;
+  max-width: 350px;
+}
+
+#estimateForm .label-cell {
+  white-space: nowrap;
+  width: 1%;
+  font-weight: bold;
+}
+
+/* ────────────── Tables ────────────── */
 table {
   width: 100%;
-  margin-top: 10px;
+  margin-top: var(--space-sm);
   border-collapse: collapse;
 }
-#estimateForm {
-  border-collapse: collapse;
-  width: 100%;
-    max-width: 700px;
 
-}
 td {
-  padding: 10px 8px;
+  padding: var(--space-sm) var(--space-xs);
   vertical-align: middle;
-}
-#estimateForm td {
-  padding: 8px;
-  border: 1px solid #ccc;
-    vertical-align: top;
-max-width: 350px !important;
-}
-input[type="file"] {
-  display: none;
 }
 
 td:first-child {
@@ -63,36 +119,44 @@ td:first-child {
   white-space: nowrap;
   width: 1%;
 }
-#estimateForm .label-cell {
-  white-space: nowrap;
-  width: 1%;
-  font-weight: bold;
-}
-input[type="text"],
-input[type="date"],
-input[type="number"] {
-  width: 300px !important; /* ✅ adjust as needed */
-    max-width: 100%;
 
-  padding: 8px 10px;
-  font-size: 1rem;
+#mergedTableContainer table {
+  text-align: center;
+  border-collapse: collapse;
+}
+
+#mergedTableContainer th,
+#mergedTableContainer td,
+#mergedTableWrapper th,
+#mergedTableWrapper td {
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-    padding: 4px;
-
-  box-sizing: border-box;
+  padding: var(--space-sm);
+  text-align: center;
 }
 
-input[type="file"] {
-  margin-top: 10px;
+#mergedTableWrapper {
+  display: none;
+  padding: 0;
+  margin-top: var(--space-md);
+  border: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
+#mergedTableWrapper.has-data {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  background: var(--color-white);
+  box-shadow: var(--shadow-light);
+}
+
+/* ────────────── File Drop Zone ────────────── */
 #drop-zone {
   border: 2px dashed var(--color-accent);
-  padding: 30px;
+  padding: var(--space-lg);
   text-align: center;
-  border-radius: 10px;
-  background-color: #ffffff;
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
   transition: background-color 0.3s;
 }
 
@@ -107,10 +171,11 @@ input[type="file"] {
 }
 
 #file-name {
-  margin-top: 10px;
+  margin-top: var(--space-sm);
   font-style: italic;
 }
 
+/* ────────────── Dropdowns ────────────── */
 #builderDropdown,
 #estimatorDropdown {
   border: 1px solid var(--color-border);
@@ -121,19 +186,19 @@ input[type="file"] {
   z-index: 10;
   width: 100%;
   display: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .autocomplete-dropdown div {
-  padding: 8px;
+  padding: var(--space-sm);
   cursor: pointer;
 }
 
 .autocomplete-dropdown div:hover {
-  background-color: #eef4fb;
+  background-color: var(--color-hover);
 }
 
-/* Loading Overlay */
+/* ────────────── Loading Overlay ────────────── */
 #loadingOverlay {
   display: none;
   position: fixed;
@@ -149,9 +214,9 @@ input[type="file"] {
 }
 
 #loadingMessage {
-  color: white;
+  color: var(--color-white);
   font-size: 1.2rem;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-md);
 }
 
 .loader {
@@ -168,28 +233,28 @@ input[type="file"] {
   100% { transform: rotate(360deg); }
 }
 
-/* Toast Notification */
+/* ────────────── Toast Notification ────────────── */
 #toast {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
-  background: var(--color-accent-dark);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 6px;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  background: var(--color-toast-bg);
+  color: var(--color-white);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
   display: none;
   z-index: 10000;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }
 
-/* Elevation Buttons */
+/* ────────────── Buttons ────────────── */
 #folderButtons button {
-  margin: 6px;
-  padding: 10px 14px;
+  margin: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
   background-color: var(--color-accent);
   border: none;
-  border-radius: 6px;
-  color: white;
+  border-radius: var(--radius-md);
+  color: var(--color-white);
   cursor: pointer;
   font-weight: bold;
   transition: background 0.3s;
@@ -198,52 +263,21 @@ input[type="file"] {
 #folderButtons button:hover {
   background-color: var(--color-accent-dark);
 }
-/* Default: no border until data is loaded */
-#mergedTableWrapper {
-  display: none; /* hidden by default */
-  border: none;
-  padding: 0;
-  margin-top: 20px;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-}
 
-#mergedTableWrapper.has-data {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-/* Style all tables inside mergedTableWrapper */
-#mergedTableWrapper table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-#mergedTableWrapper th,
-#mergedTableWrapper td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
+/* ────────────── Elevation Section ────────────── */
 #elevationSection {
-  display: none; /* 🔒 Hide by default */
-  margin-top: 30px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: #fdfdfd;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  display: none;
+  margin-top: var(--space-lg);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: var(--shadow-light);
   transition: all 0.3s ease;
 }
 
-#elevationSection h2 {
-  margin-top: 0;
-  color: #333;
-}
-
 #elevationSection hr {
-  margin-top: 20px;
+  margin-top: var(--space-md);
   border: none;
   border-top: 1px solid #ddd;
 }

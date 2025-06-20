@@ -81,6 +81,23 @@ def inject():
                 "t&g ceiling labor": "zLABORCEILTNG"
             }
 
+            labor_rates = payload.get("laborRates", {})  # from frontend
+            frontend_labor_keys = {
+                "lap labor": "lapLabor",
+                "b&b labor": "bbLabor",
+                "shake labor": "shakeLabor",
+                "ceiling labor": "ceilingLabor",
+                "column labor": "columnLabor",
+                "shutter labor": "shutterLabor",
+                "louver labor": "louverLabor",
+                "bracket labor": "bracketLabor",
+                "beam wrap labor": "beamWrapLabor",
+                "t&g ceiling labor": "tngCeilingLabor",
+                "paint labor": "paintLabor",  # already handled separately at L48
+                "other labor": "otherLabor"
+            }
+
+
             metadata_values = [
                 metadata.get("builder", ""),
                 metadata.get("planName", ""),
@@ -141,6 +158,30 @@ def inject():
             sheet.range(f"E{i}").value = total_qty
             sheet.range(f"F{i}").value = color_group
 
+        for row_index in range(34, 44):  # N34 to N43
+            k_cell = sheet.range(f"K{row_index}")
+            n_cell = sheet.range(f"N{row_index}")
+
+            raw_label = k_cell.value
+            if not raw_label:
+                print(f"⚠️ K{row_index} is empty, skipping N{row_index}")
+                continue
+
+            label = str(raw_label).strip().lower()
+            mapped_key = frontend_labor_keys.get(label)
+
+            if mapped_key:
+                raw_value = labor_rates.get(mapped_key)
+                if raw_value not in (None, ""):
+                    try:
+                        n_cell.value = float(raw_value)
+                        print(f"💰 Injected ${raw_value} into N{row_index} for '{label}'")
+                    except ValueError:
+                        print(f"⚠️ Invalid float for '{mapped_key}' → N{row_index}: {raw_value}")
+                else:
+                    print(f"ℹ️ No labor rate for '{mapped_key}', skipping N{row_index}")
+            else:
+                print(f"❓ Label '{label}' in K{row_index} not in frontend mapping")
 
 
 
