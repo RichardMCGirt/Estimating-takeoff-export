@@ -322,3 +322,17 @@ input[type="number"] {
 .autocomplete-item.active {
   background-color: #e0e0e0;
 }
+#branchSelect {
+    width: fit-content;
+    padding: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  label[for="branchSelect"] {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+  }

@@ -64,20 +64,24 @@
       <input type="text" name="paintlabor" />
     </label>
   </div>
-<label for="branchSelect">Select Branch:</label>
-<select id="branchSelect">
-  <option value="">-- Select a Branch --</option>
-  <option value="Raleigh">Raleigh</option>
-  <option value="Myrtle Beach">Myrtle Beach</option>
-  <option value="Charleston">Charleston</option>
-  <option value="Charlotte">Charlotte</option>
-  <option value="Greenville">Greenville</option>
-  <option value="Greensboro">Greensboro</option>
-  <option value="Wilmington">Wilmington</option>
-</select>
+<div style="margin-bottom: 16px;">
+  <label for="branchSelect">Select Branch:</label>
+  <select id="branchSelect">
+    <option value="">-- Select a Branch --</option>
+    <option value="Raleigh">Raleigh</option>
+    <option value="Myrtle Beach">Myrtle Beach</option>
+    <option value="Charleston">Charleston</option>
+    <option value="Charlotte">Charlotte</option>
+    <option value="Greenville">Greenville</option>
+    <option value="Greensboro">Greensboro</option>
+    <option value="Wilmington">Wilmington</option>
+  </select>
+</div>
+
 
   <!-- Labor Rates -->
-<div class="form-section">
+<!-- Labor Rates -->
+<div id="laborRatesForm" class="form-section">
   <label>Beam Wrap Labor rate<br><input type="text" name="beamWrapLabor" /></label>
   <label>B&amp;B Labor rate<br><input type="text" name="bbLabor" /></label>
   <label>Bracket Labor rate<br><input type="text" name="bracketLabor" /></label>
@@ -91,6 +95,7 @@
   <label>Shutter Labor rate<br><input type="text" name="shutterLabor" /></label>
   <label>T&amp;G Ceiling Labor rate<br><input type="text" name="tngCeilingLabor" /></label>
 </div>
+
 </form>
 
     <hr>
@@ -119,7 +124,6 @@
 
   <!-- 📜 Scripts -->
   <script src="script.js"></script>
-    <script src="branchdropdown.js"></script>
   <script src="autocomplete-estimator.js"></script>
   <script src="autocomplete-builder.js"></script>
 </body>
