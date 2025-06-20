@@ -859,3 +859,32 @@ document.addEventListener("DOMContentLoaded", () => {
   attachLaborRateInputListeners();
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("laborRatesForm");
+  if (!form) return;
+
+  const inputs = form.querySelectorAll("input[name]");
+
+  inputs.forEach(input => {
+    // Remove $ on focus
+    input.addEventListener("focus", () => {
+      input.value = input.value.replace(/^\$/, '');
+    });
+
+    // Add $ on blur if it's a valid number
+    input.addEventListener("blur", () => {
+      const raw = input.value.replace(/[^\d.\-]/g, ''); // Remove non-numeric symbols
+      const val = parseFloat(raw);
+      if (!isNaN(val)) {
+        input.value = `$${val.toFixed(2)}`;
+      } else {
+        input.value = ''; // Clear if invalid
+      }
+    });
+
+    input.addEventListener("input", () => {
+      console.log(`📝 ${input.name} updated → ${input.value}`);
+    });
+  });
+});
+
