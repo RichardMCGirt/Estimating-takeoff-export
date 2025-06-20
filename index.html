@@ -34,63 +34,90 @@
     <hr>
 
     <!-- ✍️ Step 2: Complete This Table -->
- <h2>Step 2: Complete this table</h2>
-<table id="estimateForm">
-  <tr>
-    <td class="label-cell">Builder:</td>
-    <td>
+<h2>Step 2: Complete this table</h2>
+<form id="estimateForm" class="form-grid">
+  <!-- General Info -->
+  <div class="form-section">
+    <label>Builder:
       <input type="text" name="builder" id="builderInput" autocomplete="off" />
       <div id="builderDropdown" class="autocomplete-dropdown"></div>
-    </td>
-  </tr>
+    </label>
 
-  <tr>
-    <td class="label-cell">Plan Name:</td>
-    <td><input type="text" name="planName" /></td>
-  </tr>
+    <label>Plan Name:
+      <input type="text" name="planName" />
+    </label>
 
-  <tr>
-    <td class="label-cell">Material Type:</td>
-    <td><input type="text" name="materialType" /></td>
-  </tr>
+    <label>Material Type:
+      <input type="text" name="materialType" />
+    </label>
 
-  <tr>
-    <td class="label-cell">Date:</td>
-    <td><input type="date" name="date" id="dateInput" /></td>
-  </tr>
+    <label>Date:
+      <input type="date" name="date" id="dateInput" />
+    </label>
 
-  <tr>
-    <td class="label-cell">Estimator:</td>
-    <td>
+    <label>Estimator:
       <input type="text" name="estimator" id="estimatorInput" autocomplete="off" />
       <div id="estimatorDropdown" class="autocomplete-dropdown"></div>
-    </td>
-  </tr>
+    </label>
 
-  <tr>
-    <td class="label-cell">Paint labor:</td>
-    <td><input type="number" name="paintlabor" /></td>
-  </tr>
-</table>
+    <label>Paint labor:
+      <input type="number" name="paintlabor" />
+    </label>
+  </div>
 
-<form id="laborRatesForm">
-  <input type="text" name="lapLabor" placeholder="Lap Labor" />
-  <input type="text" name="bbLabor" placeholder="B&B Labor" />
-  <input type="text" name="shakeLabor" placeholder="Shake Labor" />
-  <input type="text" name="ceilingLabor" placeholder="Ceiling Labor" />
-  <input type="text" name="columnLabor" placeholder="Column Labor" />
-  <input type="text" name="shutterLabor" placeholder="Shutter Labor" />
-  <input type="text" name="louverLabor" placeholder="Louver Labor" />
-  <input type="text" name="bracketLabor" placeholder="Bracket Labor" />
-  <input type="text" name="beamWrapLabor" placeholder="Beam Wrap Labor" />
-  <input type="text" name="tngCeilingLabor" placeholder="T&G Ceiling Labor" />
-  <input type="text" name="paintLabor" placeholder="Paint Labor" />
-  <input type="text" name="otherLabor" placeholder="Other Labor" />
+  <!-- Labor Rates -->
+<div class="form-section">
+  <label>
+    Lap Labor rate<br>
+    <input type="text" name="lapLabor" />
+  </label>
+  <label>
+    B&amp;B Labor rate<br>
+    <input type="text" name="bbLabor" />
+  </label>
+  <label>
+    Shake Labor<br>
+    <input type="text" name="shakeLabor" />
+  </label>
+  <label>
+    Ceiling Labor rate<br>
+    <input type="text" name="ceilingLabor" />
+  </label>
+  <label>
+    Column Labor rate<br>
+    <input type="text" name="columnLabor" />
+  </label>
+  <label>
+    Shutter Labor rate<br>
+    <input type="text" name="shutterLabor" />
+  </label>
+  <label>
+    Louver Labor rate<br>
+    <input type="text" name="louverLabor" />
+  </label>
+  <label>
+    Bracket Labor rate<br>
+    <input type="text" name="bracketLabor" />
+  </label>
+  <label>
+    Beam Wrap Labor rate<br>
+    <input type="text" name="beamWrapLabor" />
+  </label>
+  <label>
+    T&amp;G Ceiling Labor rate<br>
+    <input type="text" name="tngCeilingLabor" />
+  </label>
+  <label>
+    Paint Labor rate<br>
+    <input type="text" name="paintLabor" />
+  </label>
+  <label>
+    Other Labor rate<br>
+    <input type="text" name="otherLabor" />
+  </label>
+</div>
+
 </form>
-
-
-
-
 
     <hr>
 

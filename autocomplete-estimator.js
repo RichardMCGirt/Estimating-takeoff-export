@@ -109,36 +109,39 @@ item.textContent = match === "Heath Kornegay" ? "Nice Guy" : match;
     });
   });
 
-  input.addEventListener('keydown', (e) => {
-    const items = dropdown.querySelectorAll('.autocomplete-item');
-    if (items.length === 0) return;
+input.addEventListener('keydown', (e) => {
+  const items = dropdown.querySelectorAll('.autocomplete-item');
+  if (items.length === 0 || dropdown.style.display === 'none') return;
 
-    if (e.key === 'ArrowDown') {
-      currentIndex = (currentIndex + 1) % items.length;
-      highlight(items, currentIndex);
-      e.preventDefault();
-    } else if (e.key === 'ArrowUp') {
-      currentIndex = (currentIndex - 1 + items.length) % items.length;
-      highlight(items, currentIndex);
-      e.preventDefault();
-    } else if (e.key === 'Enter' && currentIndex >= 0) {
-      items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
-      e.preventDefault();
-    }
-  });
+  if (e.key === 'ArrowDown') {
+    currentIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+    highlight(items, currentIndex);
+    e.preventDefault();
+  } else if (e.key === 'ArrowUp') {
+    currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+    highlight(items, currentIndex);
+    e.preventDefault();
+  } else if (e.key === 'Enter' && currentIndex >= 0) {
+    items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
+    e.preventDefault();
+  }
+});
+
 
   input.addEventListener('blur', () => {
     setTimeout(() => (dropdown.style.display = 'none'), 200);
   });
 
-  function highlight(items, index) {
-    items.forEach((item, i) => {
-      const isActive = i === index;
-      item.classList.toggle('active', isActive);
-      if (isActive) {
-        item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
-    });
+ function highlight(items, index) {
+  items.forEach((item, i) => {
+    const isActive = i === index;
+    item.classList.toggle('active', isActive);
+    item.style.backgroundColor = isActive ? '#e0e0e0' : ''; // Add visual cue
+  });
+
+  if (items[index]) {
+    items[index].scrollIntoView({ block: 'nearest' });
+  }
   }
 }
 

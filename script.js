@@ -799,31 +799,23 @@ function updateButtonText() {
 
 
 function getLaborRates() {
-  const form = document.getElementById("laborRatesForm");
-  const inputs = form?.querySelectorAll("input[name]");
+  const inputs = document.querySelectorAll('#estimateForm input[name]');
   const rates = {};
 
-  if (!form) {
-    console.warn("⚠️ laborRatesForm not found.");
-    return rates;
-  }
-
-  console.log("🔍 Scanning labor rate inputs...");
-
   inputs.forEach(input => {
-    const val = parseFloat(input.value);
-    const key = input.name;
-    if (!isNaN(val)) {
-      rates[key] = val;
-      console.log(`✅ ${key}: ${val}`);
-    } else {
-      console.log(`⛔ Skipped ${key} (invalid or empty)`);
+    if (input.name.toLowerCase().includes("labor") && input.type === "text") {
+      const raw = input.value.replace(/[^\d.\-]/g, '');
+      const val = parseFloat(raw);
+
+      // If invalid or empty, set to 0
+      rates[input.name] = !isNaN(val) ? val : 0;
     }
   });
 
-  console.log("📦 Final laborRates object:", rates);
   return rates;
 }
+
+
 
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -860,31 +852,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("laborRatesForm");
-  if (!form) return;
+  const estimateForm = document.getElementById("estimateForm");
+  if (estimateForm) {
+    estimateForm.querySelectorAll("input[name]").forEach(input => {
+      input.addEventListener("input", () => {
+        console.log(`📝 ${input.name} updated → ${input.value}`);
+      });
 
-  const inputs = form.querySelectorAll("input[name]");
+      input.addEventListener("focus", () => {
+        input.value = input.value.replace(/^\$/, '');
+      });
 
-  inputs.forEach(input => {
-    // Remove $ on focus
-    input.addEventListener("focus", () => {
-      input.value = input.value.replace(/^\$/, '');
+      input.addEventListener("blur", () => {
+        const raw = input.value.replace(/[^\d.\-]/g, '');
+        const val = parseFloat(raw);
+        if (!isNaN(val)) {
+          input.value = `$${val.toFixed(2)}`;
+        } else {
+          input.value = '';
+        }
+      });
     });
+  }
+}); // ✅ Missing closing brace and parenthesis
 
-    // Add $ on blur if it's a valid number
-    input.addEventListener("blur", () => {
-      const raw = input.value.replace(/[^\d.\-]/g, ''); // Remove non-numeric symbols
-      const val = parseFloat(raw);
-      if (!isNaN(val)) {
-        input.value = `$${val.toFixed(2)}`;
-      } else {
-        input.value = ''; // Clear if invalid
-      }
-    });
-
-    input.addEventListener("input", () => {
-      console.log(`📝 ${input.name} updated → ${input.value}`);
-    });
-  });
-});
 
