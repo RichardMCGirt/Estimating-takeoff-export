@@ -186,13 +186,20 @@ def inject():
 
 
             # ✅ Inject Paint Labor value into cell L48
-        paint_labor = metadata.get("paintlabor", "").strip()
-        if paint_labor:
+        paint_labor_raw = metadata.get("paintlabor", "").strip()
+
+            # Strip $ or any non-numeric characters
+        import re
+        paint_labor_cleaned = re.sub(r'[^\d.\-]', '', paint_labor_raw)
+
+        if paint_labor_cleaned:
             try:
-                sheet.range("L48").value = float(paint_labor)
-                print(f"🖌️ Paint Labor injected into L48: {paint_labor}")
+                sheet.range("L48").value = float(paint_labor_cleaned)
+                print(f"🖌️ Paint Labor injected into L48: {paint_labor_cleaned}")
             except ValueError:
-                print(f"⚠️ Invalid paint labor value: {paint_labor}")
+                print(f"⚠️ Invalid paint labor value after cleanup: {paint_labor_cleaned}")
+        else:
+            print("ℹ️ No paint labor value provided.")
 
        
             
