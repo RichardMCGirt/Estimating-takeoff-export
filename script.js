@@ -7,7 +7,7 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "https://556c-174-108-187-19.ngrok-free.app";
+const baseServer = "https://c275-174-108-187-19.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -552,22 +552,58 @@ function disableAllFolderButtons(disabled, message = "") {
   });
 }
 
+function parseLaborRate(value) {
+  if (!value) return null;
+  const cleaned = value.toString().replace(/[^\d.\-]/g, '');
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? null : num;
+}
+
+function getLaborRates() {
+  const laborRates = {};
+
+  // 1. Standard fields from predefinedLaborFields
+  predefinedLaborFields.forEach(({ name }) => {
+    const input = document.querySelector(`input[name="${name}"]`);
+    if (input) {
+      const parsed = parseLaborRate(input.value);
+      if (parsed !== null) laborRates[name] = parsed;
+    }
+  });
+
+  // 2. Custom fields added under "otherLabor"
+  document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
+    const name = input.name;
+    const parsed = parseLaborRate(input.value);
+    if (name && parsed !== null) {
+      laborRates[name] = parsed;
+    }
+  });
+
+  return laborRates;
+}
+
+
+
+
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
   const MAX_RETRIES = 5;
   const RETRY_DELAY = 3000 * attempt;
 
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
+    metadata.paintlabor = parseLaborRate(metadata.paintlabor); // ✅ Sanitize paintlabor
 
-   const laborRates = getLaborRates(); 
+    const laborRates = getLaborRates(); // ✅ All values will be numeric
 
-const payload = {
-  data: elevationData,
-  breakout: breakoutData,
-  type: "combined",
-  metadata,
-  laborRates 
-};
+    const payload = {
+      data: elevationData,
+      breakout: breakoutData,
+      type: "combined",
+      metadata,
+      laborRates
+    };
+
     fetch(serverURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -577,15 +613,19 @@ const payload = {
       if (response.status === 429) {
         if (attempt < MAX_RETRIES) {
           showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-          return setTimeout(() => {
-            enqueueRequest(() => sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1));
-            resolve();
+          setTimeout(() => {
+            enqueueRequest(() =>
+              sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
+            );
+            resolve(); // resolve here so it doesn't hang the queue
           }, RETRY_DELAY);
         } else {
           showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-          return reject(new Error("Max retries reached"));
+          reject(new Error("Max retries reached"));
         }
+        return;
       }
+
       if (!response.ok) throw new Error(`Server returned ${response.status}`);
       return response.blob();
     })
@@ -607,6 +647,7 @@ const payload = {
     });
   });
 }
+
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
@@ -794,21 +835,41 @@ function updateButtonText() {
 }
 
 function getLaborRates() {
-  const inputs = document.querySelectorAll('#estimateForm input[name]');
-  const rates = {};
+  const laborRates = {};
 
-  inputs.forEach(input => {
-    if (input.name.toLowerCase().includes("labor") && input.type === "text") {
-      const raw = input.value.replace(/[^\d.\-]/g, '');
-      const val = parseFloat(raw);
-
-      // If invalid or empty, set to 0
-      rates[input.name] = !isNaN(val) ? val : 0;
+  // Handle all predefined fields (like lapLabor, ceilingLabor, etc.)
+  predefinedLaborFields.forEach(({ name }) => {
+    const input = document.querySelector(`input[name="${name}"]`);
+    if (input) {
+      const parsed = parseLaborRate(input.value);
+      if (parsed !== null) laborRates[name] = parsed;
     }
   });
 
-  return rates;
+  // 🔍 Handle additional custom inputs under otherLabor (based on how your UI builds them)
+  const otherLaborWrapper = document.querySelector('.labor-field input[name="otherLabor"]');
+  if (otherLaborWrapper) {
+    const raw = otherLaborWrapper.value?.trim();
+    if (raw) {
+      const parsed = parseLaborRate(raw);
+      if (parsed !== null) {
+        laborRates["otherLabor"] = parsed;
+      }
+    }
+  }
+
+  // 🔁 BONUS: handle dynamically added inputs with a special class
+  document.querySelectorAll('.labor-field input[data-custom-labor="true"]').forEach(input => {
+    const name = input.name;
+    const parsed = parseLaborRate(input.value);
+    if (parsed !== null && name) {
+      laborRates[name] = parsed;
+    }
+  });
+
+  return laborRates;
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("laborRatesForm");
@@ -848,7 +909,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (estimateForm) {
     estimateForm.querySelectorAll("input[name]").forEach(input => {
       input.addEventListener("input", () => {
-        console.log(`📝 ${input.name} updated → ${input.value}`);
       });
 
       input.addEventListener("focus", () => {

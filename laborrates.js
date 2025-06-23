@@ -230,7 +230,7 @@ function renderLaborInputs(laborRates) {
 
     wrapper.appendChild(manualInput);
 
-    // Custom add logic for otherLabor
+    // Custom input logic for 'Other Labor'
     if (name === "otherLabor") {
       const customInput = document.createElement("input");
       customInput.type = "text";
@@ -249,17 +249,26 @@ function renderLaborInputs(laborRates) {
           const label = match[1].trim();
           const rate = parseFloat(match[2]);
 
-          const option = document.createElement("option");
-          option.value = rate;
-          option.textContent = `${label} - $${rate.toFixed(2)}`;
+          // Create input for custom labor
+          const customWrapper = document.createElement("div");
+          customWrapper.classList.add("labor-field");
 
-          // Append to dropdown if it exists
-          const dropdown = wrapper.querySelector(`select[name="${name}-preset"]`);
-          if (dropdown) dropdown.appendChild(option);
+          const labelElement = document.createElement("label");
+          labelElement.textContent = `${label} Labor:`;
+          customWrapper.appendChild(labelElement);
 
-          manualInput.value = `$${rate.toFixed(2)}`;
+          const input = document.createElement("input");
+          input.name = label.toLowerCase().replace(/\s+/g, '');
+          input.setAttribute("data-custom-labor", "true");
+          input.value = `$${rate.toFixed(2)}`;
+          input.placeholder = "$rate";
+
+          customWrapper.appendChild(input);
+          wrapper.appendChild(document.createElement("br"));
+          wrapper.appendChild(customWrapper);
+
           customInput.value = "";
-          console.log(`✅ Added custom option: ${option.textContent}`);
+          console.log(`✅ Added custom input: ${label} → $${rate}`);
         } else {
           console.warn("⚠️ Invalid format. Expected 'Label - $Rate'");
           alert("Please use format: Label - $Rate");
@@ -276,6 +285,7 @@ function renderLaborInputs(laborRates) {
 
   console.log("✅ Finished rendering all labor rate fields");
 }
+
 
 
 async function applyLaborRatesToForm() {
@@ -365,3 +375,4 @@ top: "20px",
 }, duration);
 
 }
+
