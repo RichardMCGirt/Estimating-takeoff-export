@@ -105,7 +105,11 @@ async function fetchLaborRatesFromAirtable() {
     return {};
   }
 
-  const filterFormula = `AND({Siding Style}="${sidingStyle}", {Vanir Offices}="${branch}", {Type}="${projectType}")`;
+const filterFormula = `AND(
+  FIND(" ${projectType} ", " " & {Type} & " "),
+  {Siding Style}="${sidingStyle}",
+  {Vanir Offices}="${branch}"
+)`;
   const encodedFormula = encodeURIComponent(filterFormula);
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
 
@@ -125,10 +129,12 @@ async function fetchLaborRatesFromAirtable() {
     const data = await res.json();
     console.log("📦 Raw Airtable response:", data);
 
-    if (!data.records || data.records.length === 0) {
-      console.warn(`❌ No matching record found for Siding Style: "${sidingStyle}", Branch: "${branch}", and Project Type: "${projectType}".`);
-      return {};
-    }
+   if (!data.records || data.records.length === 0) {
+  const msg = `❌ No matching record found for Siding Style: "${sidingStyle}", Branch: "${branch}", and Project Type: "${projectType}".`;
+  showToast(msg); // 👈 NEW
+  return {};
+}
+
 
     const laborRates = {};
 
@@ -144,6 +150,7 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
   if (!laborRates[name]) laborRates[name] = [];
   laborRates[name].push({ label: desc, rate });
 }
+
 
 });
 
@@ -170,7 +177,7 @@ function renderLaborInputs(laborRates) {
   console.log("🛠 Rendering predefined inputs...");
   console.log("📊 LaborRates received:", laborRates);
 
-  // Force otherLabor to be array to ensure UI renders
+  // Ensure otherLabor is always an array
   if (!Array.isArray(laborRates.otherLabor)) {
     laborRates.otherLabor = [];
   }
@@ -185,26 +192,45 @@ function renderLaborInputs(laborRates) {
     labelEl.innerHTML = `${label}<br>`;
     wrapper.appendChild(labelEl);
 
-    // ✅ Render editable input with datalist
-    const input = document.createElement("input");
-    input.setAttribute("list", `${name}-options`);
-    input.name = name;
-    input.placeholder = "$rate";
-    input.value = value[0] ? `${value[0].label} - $${value[0].rate.toFixed(2)}` : "";
+    // Editable input (always present)
+    const manualInput = document.createElement("input");
+    manualInput.name = name;
+    manualInput.placeholder = "$rate";
 
-    const datalist = document.createElement("datalist");
-    datalist.id = `${name}-options`;
+    // If only one value, set it directly in the input
+    if (value.length === 1) {
+      manualInput.value = `$${parseFloat(value[0].rate).toFixed(2)}`;
+    }
 
-    value.forEach(opt => {
-      const option = document.createElement("option");
-      option.value = `${opt.label} - $${opt.rate.toFixed(2)}`;
-      datalist.appendChild(option);
-    });
+    // If multiple options, render the dropdown
+    if (value.length > 1) {
+      const select = document.createElement("select");
+      select.name = `${name}-preset`;
 
-    wrapper.appendChild(input);
-    wrapper.appendChild(datalist);
+      const placeholderOption = document.createElement("option");
+      placeholderOption.textContent = "-- Select Rate --";
+      placeholderOption.disabled = true;
+      placeholderOption.selected = true;
+      select.appendChild(placeholderOption);
 
-    // ✅ If it's otherLabor, add custom "Add" input
+      value.forEach(opt => {
+        const option = document.createElement("option");
+        option.value = `${opt.rate}`;
+        option.textContent = `${opt.label} - $${opt.rate.toFixed(2)}`;
+        select.appendChild(option);
+      });
+
+      // When dropdown changes, populate the input
+      select.addEventListener("change", () => {
+        manualInput.value = `$${parseFloat(select.value).toFixed(2)}`;
+      });
+
+      wrapper.appendChild(select);
+    }
+
+    wrapper.appendChild(manualInput);
+
+    // Custom add logic for otherLabor
     if (name === "otherLabor") {
       const customInput = document.createElement("input");
       customInput.type = "text";
@@ -224,12 +250,16 @@ function renderLaborInputs(laborRates) {
           const rate = parseFloat(match[2]);
 
           const option = document.createElement("option");
-          option.value = `${label} - $${rate.toFixed(2)}`;
-          datalist.appendChild(option);
+          option.value = rate;
+          option.textContent = `${label} - $${rate.toFixed(2)}`;
 
-          input.value = option.value;
+          // Append to dropdown if it exists
+          const dropdown = wrapper.querySelector(`select[name="${name}-preset"]`);
+          if (dropdown) dropdown.appendChild(option);
+
+          manualInput.value = `$${rate.toFixed(2)}`;
           customInput.value = "";
-          console.log(`✅ Added custom option: ${option.value}`);
+          console.log(`✅ Added custom option: ${option.textContent}`);
         } else {
           console.warn("⚠️ Invalid format. Expected 'Label - $Rate'");
           alert("Please use format: Label - $Rate");
@@ -248,35 +278,28 @@ function renderLaborInputs(laborRates) {
 }
 
 
-
-
-
-
-
 async function applyLaborRatesToForm() {
   const rates = await fetchLaborRatesFromAirtable();
   console.log("📊 Rates returned:", rates);
 Object.entries(rates).forEach(([inputName, value]) => {
   const input = document.querySelector(`[name="${inputName}"]`);
-  if (input) {
-   if (input.tagName === "SELECT") {
-  const linkedRateInput = document.getElementById(`${inputName}-rate`);
-  if (linkedRateInput) {
-    linkedRateInput.value = input.value;
-    console.log(`💰 Selected ${inputName} and synced rate: $${input.value}`);
-  }
-}
-else {
-      input.value = `$${value.toFixed(2)}`;
-      console.log(`💰 Set value for ${inputName}: $${value.toFixed(2)}`);
-    }
+
+  // ✅ If it's an array, grab the first rate
+  let finalRate = Array.isArray(value) ? value[0]?.rate : value;
+
+ if (input && !isNaN(finalRate)) {
+  const currentValue = input.value?.trim();
+  const formattedRate = `$${parseFloat(finalRate).toFixed(2)}`;
+
+  if (!currentValue || currentValue === "" || currentValue === formattedRate) {
+    input.value = formattedRate;
+    console.log(`💰 Set value for ${inputName}: ${formattedRate}`);
   } else {
-    console.warn(`⚠️ No input found for: ${inputName}`);
+    console.log(`✏️ Skipped overwriting ${inputName}; user entered: ${currentValue}`);
   }
-});
-
 }
-
+});
+}
 
 // Auto-apply when branch changes
 document.getElementById("branchSelect").addEventListener("change", applyLaborRatesToForm);
@@ -302,4 +325,43 @@ function areRequiredFieldsFilled() {
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
 
   return sidingStyle && branch && projectType;
+}
+function showToast(message, duration = 3000) {
+  // Remove existing toast if present
+  const existing = document.getElementById("toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.id = "toast";
+  toast.textContent = message;
+
+  // Style the toast
+  Object.assign(toast.style, {
+    position: "fixed",
+top: "20px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    backgroundColor: "#d9534f", 
+    color: "white",
+    padding: "12px 24px",
+    borderRadius: "8px",
+    fontSize: "14px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+    zIndex: 9999,
+    opacity: 1,
+    transition: "opacity 0.5s ease"
+  });
+
+  document.body.appendChild(toast);
+
+  // Auto-hide after `duration` ms
+ setTimeout(() => {
+  console.log("👋 Fading out toast");
+  toast.style.opacity = "0";
+  setTimeout(() => {
+    console.log("🧹 Removing toast from DOM");
+    toast.remove();
+  }, 500);
+}, duration);
+
 }

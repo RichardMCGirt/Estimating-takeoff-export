@@ -336,3 +336,7 @@ input[type="number"] {
     margin-bottom: 6px;
     font-weight: bold;
   }
+
+    #toast {
+    border: 2px dashed lime !important;
+  }
