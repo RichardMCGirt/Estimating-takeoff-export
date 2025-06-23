@@ -1,8 +1,8 @@
 const predefinedLaborFields = [
   { name: "beamWrapLabor", label: "Beam Wrap Labor rate", airtableName: "Beam Wrap" },
   { name: "bbLabor", label: "B&B Labor rate", airtableName: "Board & Batten" },
-  { name: "bracketLabor", label: "Bracket Labor rate", airtableName: "Brackets(Field Built)" },
-  { name: "ceilingLabor", label: "Ceiling Labor rate", airtableName: "Ceilings(Premium)" },
+  { name: "bracketLabor", label: "Bracket Labor rate", airtableName: "Brackets" },
+  { name: "ceilingLabor", label: "Ceiling Labor rate", airtableName: "Ceilings" },
   { name: "columnLabor", label: "Column Labor rate", airtableName: "Column" },
   { name: "lapLabor", label: "Lap Labor rate", airtableName: "Lap Siding" },
   { name: "louverLabor", label: "Louver Labor rate", airtableName: "Louver" },
@@ -137,6 +137,8 @@ async function fetchLaborRatesFromAirtable() {
       const rate = parseFloat(record.fields["Price/Rate"]);
       if (!desc || isNaN(rate)) return;
 
+      
+
 predefinedLaborFields.forEach(({ name, airtableName }) => {
  if (desc.includes(airtableName) && !isNaN(rate)) {
   if (!laborRates[name]) laborRates[name] = [];
@@ -163,34 +165,90 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
 
 function renderLaborInputs(laborRates) {
   const container = document.getElementById("laborRatesForm");
-  container.innerHTML = ""; // Clear previous content
+  container.innerHTML = "";
 
-  console.log("🛠 Rendering predefined inputs based on existing rates...");
+  console.log("🛠 Rendering predefined inputs...");
   console.log("📊 LaborRates received:", laborRates);
 
+  // Force otherLabor to be array to ensure UI renders
+  if (!Array.isArray(laborRates.otherLabor)) {
+    laborRates.otherLabor = [];
+  }
+
   predefinedLaborFields.forEach(({ name, label }) => {
-    const value = laborRates[name];
+    const value = laborRates[name] || [];
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("labor-field");
 
     const labelEl = document.createElement("label");
-    labelEl.innerHTML = `
-      ${label}<br>
-${
-  Array.isArray(value)
-    ? `<select name="${name}">${value.map(
-        opt => `<option value="${opt.rate}">${opt.label} - $${opt.rate.toFixed(2)}</option>`
-      ).join("")}</select>`
-    : `<input type="text" name="${name}" value="${!isNaN(value) ? `$${value.toFixed(2)}` : ""}" />`
-}
-    `;
-    container.appendChild(labelEl);
+    labelEl.innerHTML = `${label}<br>`;
+    wrapper.appendChild(labelEl);
 
-    if (value && !isNaN(value)) {
-      console.log(`✅ Showing ${name} with value: $${value.toFixed(2)}`);
-    } else {
-      console.log(`🚫 Showing ${name} with empty value (no rate returned)`);
+    // ✅ Render editable input with datalist
+    const input = document.createElement("input");
+    input.setAttribute("list", `${name}-options`);
+    input.name = name;
+    input.placeholder = "$rate";
+    input.value = value[0] ? `${value[0].label} - $${value[0].rate.toFixed(2)}` : "";
+
+    const datalist = document.createElement("datalist");
+    datalist.id = `${name}-options`;
+
+    value.forEach(opt => {
+      const option = document.createElement("option");
+      option.value = `${opt.label} - $${opt.rate.toFixed(2)}`;
+      datalist.appendChild(option);
+    });
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(datalist);
+
+    // ✅ If it's otherLabor, add custom "Add" input
+    if (name === "otherLabor") {
+      const customInput = document.createElement("input");
+      customInput.type = "text";
+      customInput.placeholder = "Custom label - $rate";
+
+      const button = document.createElement("button");
+      button.textContent = "Add Custom";
+      button.type = "button";
+
+      button.addEventListener("click", () => {
+        const inputVal = customInput.value.trim();
+        console.log("✏️ Custom input value:", inputVal);
+
+        const match = inputVal.match(/(.+)\s*-\s*\$(\d+(\.\d+)?)/);
+        if (match) {
+          const label = match[1].trim();
+          const rate = parseFloat(match[2]);
+
+          const option = document.createElement("option");
+          option.value = `${label} - $${rate.toFixed(2)}`;
+          datalist.appendChild(option);
+
+          input.value = option.value;
+          customInput.value = "";
+          console.log(`✅ Added custom option: ${option.value}`);
+        } else {
+          console.warn("⚠️ Invalid format. Expected 'Label - $Rate'");
+          alert("Please use format: Label - $Rate");
+        }
+      });
+
+      wrapper.appendChild(document.createElement("br"));
+      wrapper.appendChild(customInput);
+      wrapper.appendChild(button);
     }
+
+    container.appendChild(wrapper);
   });
+
+  console.log("✅ Finished rendering all labor rate fields");
 }
+
+
+
 
 
 
@@ -198,25 +256,25 @@ ${
 async function applyLaborRatesToForm() {
   const rates = await fetchLaborRatesFromAirtable();
   console.log("📊 Rates returned:", rates);
-
-  Object.entries(rates).forEach(([inputName, value]) => {
-    const input = document.querySelector(`input[name="${inputName}"]`);
-    if (input) {
-      console.log(`💰 Setting value for ${inputName}: $${value.toFixed(2)}`);
-const input = document.querySelector(`[name="${inputName}"]`);
-if (input) {
-  if (input.tagName === "SELECT") {
-    input.selectedIndex = 0; // default to first option
-    console.log(`💰 Selected ${inputName}:`, input.value);
-  } else {
-    input.value = `$${value.toFixed(2)}`;
-    console.log(`💰 Set value for ${inputName}: $${value.toFixed(2)}`);
+Object.entries(rates).forEach(([inputName, value]) => {
+  const input = document.querySelector(`[name="${inputName}"]`);
+  if (input) {
+   if (input.tagName === "SELECT") {
+  const linkedRateInput = document.getElementById(`${inputName}-rate`);
+  if (linkedRateInput) {
+    linkedRateInput.value = input.value;
+    console.log(`💰 Selected ${inputName} and synced rate: $${input.value}`);
   }
 }
-    } else {
-      console.warn(`⚠️ No input found for: ${inputName}`);
+else {
+      input.value = `$${value.toFixed(2)}`;
+      console.log(`💰 Set value for ${inputName}: $${value.toFixed(2)}`);
     }
-  });
+  } else {
+    console.warn(`⚠️ No input found for: ${inputName}`);
+  }
+});
+
 }
 
 
