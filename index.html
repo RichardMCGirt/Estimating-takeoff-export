@@ -6,8 +6,8 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="./style.css">
-  <link rel="stylesheet" href="./darkmode.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="darkmode.css">
 
   <!-- XLSX Library -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -47,9 +47,25 @@
       <input type="text" name="planName" />
     </label>
 
-    <label>Material Type:
-      <input type="text" name="materialType" />
-    </label>
+   <label for="materialType">Material Type:
+  <select name="materialType" id="materialType">
+    <option value="">-- Select Material Type --</option>
+    <option value="Universal">Universal</option>
+    <option value="Hard Siding">Hard Siding</option>
+    <option value="Vinyl">Vinyl</option>
+  </select>
+</label>
+
+
+    <label>Project Type:
+<select id="ProjectSelect">
+    <option value="">-- Select a Project Type --</option>
+    <option value="Single Family">Single Family</option>
+        <option value="Townhome">Townhome</option>
+    <option value="2 Story Townhomes">2 Story Townhomes</option>
+    <option value="3 Story Townhomes">3 Story Townhomes</option>
+  </select>   
+ </label>
 
     <label>Date:
       <input type="date" name="date" id="dateInput" />
@@ -72,14 +88,15 @@
     <option value="Myrtle Beach">Myrtle Beach</option>
     <option value="Charleston">Charleston</option>
     <option value="Charlotte">Charlotte</option>
-    <option value="Greenville">Greenville</option>
+        <option value="Charlotte">Columbia</option>
+
+    <option value="Greenville SC">Greenville</option>
     <option value="Greensboro">Greensboro</option>
     <option value="Wilmington">Wilmington</option>
   </select>
 </div>
 
 
-  <!-- Labor Rates -->
 <!-- Labor Rates -->
 <div id="laborRatesForm" class="form-section">
   <label>Beam Wrap Labor rate<br><input type="text" name="beamWrapLabor" /></label>
@@ -123,7 +140,8 @@
   </div>
 
   <!-- 📜 Scripts -->
-  <script src="script.js"></script>
+ <!-- <script src="script.js"></script> -->
+    <script src="laborrates.js"></script>
   <script src="autocomplete-estimator.js"></script>
   <script src="autocomplete-builder.js"></script>
 </body>
