@@ -20,21 +20,10 @@
       Switch to Dark Mode
     </button>
 
-    <!-- 📁 Step 1: Upload Source File -->
-    <h2>Step 1: Upload Source File</h2>
-    <div id="drop-zone">
-      <p>
-        Drag & drop your Excel file here, or 
-        <span class="click-browse">click</span> to browse
-      </p>
-      <input type="file" id="sourceFile" accept=".xlsx" />
-    </div>
-    <div id="file-name"></div>
 
-    <hr>
 
     <!-- ✍️ Step 2: Complete This Table -->
-<h2>Step 2: Complete this table</h2>
+<h2>Step 1: Complete this table</h2>
 <form id="estimateForm" class="form-grid">
   <!-- General Info -->
   <div class="form-section">
@@ -104,7 +93,9 @@
   <label>Column Labor rate<br><input type="text" name="columnLabor" /></label>
   <label>Lap Labor rate<br><input type="text" name="lapLabor" /></label>
   <label>Louver Labor rate<br><input type="text" name="louverLabor" /></label>
-  <label>Other Labor rate<br><input type="text" name="otherLabor" /></label>
+<label style="display: none;">Other Labor rate<br>
+  <input type="text" name="otherLabor" />
+</label>
   <label>Paint Labor rate<br><input type="text" name="paintLabor" /></label>
   <label>Shake Labor<br><input type="text" name="shakeLabor" /></label>
   <label>Shutter Labor rate<br><input type="text" name="shutterLabor" /></label>
@@ -112,6 +103,19 @@
 </div>
 
 </form>
+
+    <!-- 📁 Step 1: Upload Source File -->
+    <h2>Step 2: Upload Source File</h2>
+    <div id="drop-zone">
+      <p>
+        Drag & drop your Excel file here, or 
+        <span class="click-browse">click</span> to browse
+      </p>
+      <input type="file" id="sourceFile" accept=".xlsx" />
+    </div>
+    <div id="file-name"></div>
+
+    <hr>
 
     <hr>
 

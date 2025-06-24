@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-
 async function fetchLaborRatesFromAirtable() {
   const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
   const baseId = 'appTxtZtAlIdKQ7Wt';
@@ -117,8 +116,6 @@ async function fetchLaborRatesFromAirtable() {
   }
 }
 
-
-
 async function fetchLaborRatesFromAirtable() {
   const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
   const baseId = 'appTxtZtAlIdKQ7Wt';
@@ -140,7 +137,6 @@ if (filledFields.length < 2) {
   showToast("⚠️ Please select at least two filters to look up labor rates.");
   return {};
 }
-
 
 const filterFormula = `AND(
   FIND(" ${projectType} ", " " & {Type} & " "),
@@ -168,7 +164,6 @@ const filterFormula = `AND(
   return {};
 }
 
-
     const laborRates = {};
 
     data.records.forEach(record => {
@@ -176,18 +171,12 @@ const filterFormula = `AND(
       const rate = parseFloat(record.fields["Price/Rate"]);
       if (!desc || isNaN(rate)) return;
 
-      
-
 predefinedLaborFields.forEach(({ name, airtableName }) => {
  if (desc.includes(airtableName) && !isNaN(rate)) {
   if (!laborRates[name]) laborRates[name] = [];
   laborRates[name].push({ label: desc, rate });
 }
-
-
 });
-
-
     });
 
     renderLaborInputs(laborRates); // ✅ Use after laborRates is defined
@@ -199,8 +188,6 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
     return {};
   }
 }
-
-
 
 
 function renderLaborInputs(laborRates) {
@@ -229,6 +216,11 @@ function renderLaborInputs(laborRates) {
     const manualInput = document.createElement("input");
     manualInput.name = name;
     manualInput.placeholder = "$rate";
+
+    if (name === "otherLabor") {
+  manualInput.style.display = "none";
+}
+
 
     // If only one value, set it directly in the input
     if (value.length === 1) {
@@ -264,54 +256,76 @@ function renderLaborInputs(laborRates) {
     wrapper.appendChild(manualInput);
 
     // Custom input logic for 'Other Labor'
-    if (name === "otherLabor") {
-      const customInput = document.createElement("input");
-      customInput.type = "text";
-      customInput.placeholder = "Custom label - $rate";
+if (name === "otherLabor") {
+  // Hide the default input
+  manualInput.style.display = "none";
 
-      const button = document.createElement("button");
-      button.textContent = "Add Custom";
-      button.type = "button";
+  // Create label and rate inputs
+  const labelInput = document.createElement("input");
+  labelInput.type = "text";
+  labelInput.placeholder = "Labor";
+  labelInput.style.marginRight = "8px";
 
-      button.addEventListener("click", () => {
-        const inputVal = customInput.value.trim();
-        console.log("✏️ Custom input value:", inputVal);
+  const rateInput = document.createElement("input");
+  rateInput.type = "number";
+  rateInput.placeholder = "Rate (e.g. 45)";
+  rateInput.style.marginRight = "8px";
 
-        const match = inputVal.match(/(.+)\s*-\s*\$(\d+(\.\d+)?)/);
-        if (match) {
-          const label = match[1].trim();
-          const rate = parseFloat(match[2]);
+  // Add Custom button
+  const button = document.createElement("button");
+  button.textContent = "Add Custom";
+  button.type = "button";
 
-          // Create input for custom labor
-          const customWrapper = document.createElement("div");
-          customWrapper.classList.add("labor-field");
+  button.addEventListener("click", () => {
+    const label = labelInput.value.trim();
+    const rate = parseFloat(rateInput.value.trim());
 
-          const labelElement = document.createElement("label");
-          labelElement.textContent = `${label} Labor:`;
-          customWrapper.appendChild(labelElement);
-
-          const input = document.createElement("input");
-          input.name = label.toLowerCase().replace(/\s+/g, '');
-          input.setAttribute("data-custom-labor", "true");
-          input.value = `$${rate.toFixed(2)}`;
-          input.placeholder = "$rate";
-
-          customWrapper.appendChild(input);
-          wrapper.appendChild(document.createElement("br"));
-          wrapper.appendChild(customWrapper);
-
-          customInput.value = "";
-          console.log(`✅ Added custom input: ${label} → $${rate}`);
-        } else {
-          console.warn("⚠️ Invalid format. Expected 'Label - $Rate'");
-          alert("Please use format: Label - $Rate");
-        }
-      });
-
-      wrapper.appendChild(document.createElement("br"));
-      wrapper.appendChild(customInput);
-      wrapper.appendChild(button);
+    if (!label || isNaN(rate)) {
+      alert("Please provide a valid label and numeric rate.");
+      return;
     }
+
+    const key = label.replace(/\s+/g, "").toLowerCase() + "Labor";
+
+    // ✅ Prevent duplicates
+    if (laborRates.hasOwnProperty(key)) {
+      alert(`Custom labor "${label}" already exists.`);
+      return;
+    }
+
+    // ✅ Add to laborRates
+    laborRates[key] = rate;
+
+    // Create custom input field
+    const customWrapper = document.createElement("div");
+    customWrapper.classList.add("labor-field");
+
+    const labelEl = document.createElement("label");
+    labelEl.textContent = `${label} Labor:`;
+    customWrapper.appendChild(labelEl);
+
+    const input = document.createElement("input");
+    input.name = key;
+    input.setAttribute("data-custom-labor", "true");
+    input.placeholder = "$rate";
+    input.value = `$${rate.toFixed(2)}`;
+    customWrapper.appendChild(input);
+
+    wrapper.appendChild(document.createElement("br"));
+    wrapper.appendChild(customWrapper);
+
+    // Clear input fields
+    labelInput.value = "";
+    rateInput.value = "";
+
+    console.log(`✅ Added custom labor "${label}" at $${rate}`);
+  });
+
+  wrapper.appendChild(labelInput);
+  wrapper.appendChild(rateInput);
+  wrapper.appendChild(button);
+}
+
 
     container.appendChild(wrapper);
   });
@@ -406,6 +420,62 @@ top: "20px",
     toast.remove();
   }, 500);
 }, duration);
-
 }
 
+function getLaborRates() {
+  const laborRates = {};
+
+  // Handle all predefined fields (lapLabor, ceilingLabor, etc.)
+  predefinedLaborFields.forEach(({ name }) => {
+    const input = document.querySelector(`input[name="${name}"]`);
+    if (input) {
+      const parsed = parseLaborRate(input.value);
+      if (parsed !== null) laborRates[name] = parsed;
+    }
+  });
+
+  // Handle dynamically added custom label + rate pairs
+  document.querySelectorAll(".custom-labor-entry").forEach(wrapper => {
+    const labelInput = wrapper.querySelector(".custom-labor-label");
+    const rateInput = wrapper.querySelector(".custom-labor-rate");
+
+    const label = labelInput?.value?.trim();
+    const rate = parseLaborRate(rateInput?.value);
+
+    if (label && rate !== null) {
+      const key = label.replace(/\s+/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase() + "Labor";
+      laborRates[key] = rate;
+    }
+  });
+
+  return laborRates;
+}
+
+
+function addCustomLaborField(label = "", rate = "") {
+  const container = document.getElementById("customLaborFields");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "custom-labor-entry";
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "8px";
+  wrapper.style.marginBottom = "6px";
+
+  // Label input
+  const labelInput = document.createElement("input");
+  labelInput.type = "text";
+  labelInput.placeholder = "Labor Label (e.g. Framing)";
+  labelInput.className = "custom-labor-label";
+  labelInput.value = label;
+
+  // Rate input
+  const rateInput = document.createElement("input");
+  rateInput.type = "number";
+  rateInput.placeholder = "Rate";
+  rateInput.className = "custom-labor-rate";
+  rateInput.value = rate;
+
+  wrapper.appendChild(labelInput);
+  wrapper.appendChild(rateInput);
+  container.appendChild(wrapper);
+}

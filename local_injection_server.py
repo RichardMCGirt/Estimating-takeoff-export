@@ -101,7 +101,25 @@ def inject():
                 "paint labor": "paintLabor", 
                 "other labor": "otherLabor"
             }
+            predefined_sku_map = set(labor_map.values())  # ✅ Move here
 
+            # 🔍 Dynamically find next blank K cell after predefined rows
+            custom_labor_start_row = 48
+            max_labor_row = 52
+            row_pointer = custom_labor_start_row
+
+            # 🔍 Dynamically find next blank K cell or one labeled "Other Labor"
+            while row_pointer <= max_labor_row:
+                k_val = sheet.range(f"K{row_pointer}").value
+                if not k_val or str(k_val).strip().lower() == "other labor":
+                    break
+                row_pointer += 1
+
+
+
+            if row_pointer > max_labor_row:
+                print("⚠️ No space available for custom labor injections.")
+                return jsonify({'error': 'No space left in the sheet for custom labor'}), 500
 
             metadata_values = [
                 metadata.get("builder", ""),
@@ -181,6 +199,18 @@ def inject():
                     try:
                         n_cell.value = float(raw_value)
                         print(f"💰 Injected ${raw_value} into N{row_index} for '{label}'")
+                        sku = labor_map.get(label, "").strip()
+                # ✅ Also inject qty into L column
+                        matching_item = next(
+                            (item for item in data if item.get("SKU", "").strip().upper() == sku.upper()),
+                            None
+                        )
+                        qty = matching_item.get("TotalQty", 0) if matching_item else 0
+                        sheet.range(f"L{row_index}").value = qty
+                        print(f"✅ Injected Qty {qty} into L{row_index} for '{label}'")
+
+                    except ValueError:
+                        print(f"⚠️ Invalid float for '{mapped_key}' → N{row_index}: {raw_value}")
                     except ValueError:
                         print(f"⚠️ Invalid float for '{mapped_key}' → N{row_index}: {raw_value}")
                 else:
@@ -326,13 +356,14 @@ def inject():
                     ]
 
                     # ✅ Insert this here
-                    if custom_matches:
-                        custom_item = custom_matches[0]
-                        custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
-                        qty = custom_item.get("TotalQty", 0)
-                    else:
-                        custom_sku = f"UNKNOWN_{custom_key.upper()}"
-                        qty = 0  # ⛔ Ensures clean fallback
+                    if not custom_matches:
+                        print(f"⚠️ No match found for custom key '{custom_key}', skipping.")
+                        continue  # ⛔ Skip this key entirely
+
+                    custom_item = custom_matches[0]
+                    custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
+                    qty = custom_item.get("TotalQty", 0)
+
                     custom_item = custom_matches[0] if custom_matches else {}
                     custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
                     qty = custom_item.get("TotalQty", 0)
@@ -341,17 +372,48 @@ def inject():
 
                     custom_label = custom_key.replace("labor", " Labor").title()
 
-# ✅ Inject into correct cells
-                    sheet.range(f"K{row_index}").value = custom_label
-                    sheet.range(f"N{row_index}").value = custom_rate
-                    sheet.range(f"A{row_index}").value = custom_sku
-                    sheet.range(f"L{row_index}").value = qty
+                        # === Handle any remaining custom labor fields not already injected ===
+                    
 
-                    print(f"✅ Injected custom labor '{custom_key}' as '{custom_label}' → SKU: {custom_sku}, Qty: {qty}, Rate: {custom_rate}")
-                    injected = True
-                    break
 
-                if not injected:
+        for key, rate in labor_rates.items():
+            if key in mapped_keys or not isinstance(rate, (int, float)) or rate <= 0:
+                continue  # already handled or invalid
+
+            label_clean = key.replace("Labor", "").replace("_", " ").title()
+            sku = f"zLABOR{key.replace('Labor', '').upper()}"
+
+                # Skip if this SKU is already used on the sheet
+            existing_skus = [sheet.range(f"A{r}").value for r in range(34, 60)]
+            if sku in existing_skus:
+                print(f"⏭️ SKU '{sku}' already injected in earlier row, skipping duplicate.")
+                continue
+
+            # Skip if already injected
+            if sku in predefined_sku_map:
+                continue
+
+            matching_item = next(
+                (item for item in data
+                 if item.get("SKU", "").strip().upper() == sku
+                 and item.get("Folder", "").strip().lower() == folder_name),
+                None
+            )
+
+            qty = float(matching_item["TotalQty"]) if matching_item else 0
+
+            sheet.range(f"K{row_pointer}").value = f"{label_clean} Labor"
+            sheet.range(f"N{row_pointer}").value = float(rate)
+            sheet.range(f"L{row_pointer}").value = qty
+            sheet.range(f"A{row_pointer}").value = sku
+
+            print(f"✅ Injected custom labor '{label_clean}' → SKU: {sku} → Qty: {qty} into L{row_pointer}")
+
+            row_pointer += 1
+
+            break
+
+            if not injected:
                     print(f"🛑 No valid unmapped labor key found with value > 0 for row {row_index}")
 
                 

@@ -22,9 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Default to today's date if field is "date" and empty
-    if (field === "date" && input && !input.value) {
-      input.value = new Date().toISOString().split("T")[0];
-    }
+  if (field === "date" && input) {
+  const today = new Date().toISOString().split("T")[0];
+  input.value = today;
+  localStorage.setItem("date", today); // optional: update localStorage too
+}
+
   });
 
   // Attach file input listener
@@ -457,6 +460,20 @@ function renderFolderButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+
+  const storedData = localStorage.getItem("mergedData");
+  if (storedData) {
+    try {
+      mergedData = JSON.parse(storedData);
+      displayMergedTable(mergedData);
+      renderFolderButtons();
+      renderMaterialBreakoutButtons();
+      showToast(`📦 Restored previous session with ${mergedData.length} items`);
+    } catch (err) {
+      console.error("❌ Failed to parse stored mergedData:", err);
+      localStorage.removeItem("mergedData");
+    }
+  }
   const toggleButton = document.getElementById("darkModeToggle");
   const body = document.body;
 
@@ -600,15 +617,28 @@ metadata.paintlabor = parseLaborRate(
 
     const laborRates = getLaborRates(); // ✅ collect all labor rates
  // 🔍 Add this debug log here
-    console.log("🧠 Final laborRates:", laborRates);
-    console.log("📦 Sending payload:", { metadata, laborRates, folderName });
-    const payload = {
-      data: elevationData,
-      breakout: breakoutData,
-      type: "combined",
-      metadata,
-      laborRates
-    };
+   // ✅ Collect all custom labor inputs before finalizing payload
+const customLaborInputs = document.querySelectorAll("input[data-custom-labor='true']");
+customLaborInputs.forEach(input => {
+  const key = input.name;
+  const raw = input.value.replace(/\$/g, "").trim();
+  const value = parseFloat(raw);
+  if (!isNaN(value)) {
+    laborRates[key] = value;
+  }
+});
+
+console.log("🧠 Final laborRates:", laborRates);
+console.log("📦 Sending payload:", { metadata, laborRates, folderName });
+
+const payload = {
+  data: elevationData,
+  breakout: breakoutData,
+  type: "combined",
+  metadata,
+  laborRates
+};
+
 
     fetch(serverURL, {
       method: "POST",
