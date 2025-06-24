@@ -38,6 +38,9 @@ def inject():
         
     try:
         payload = request.get_json()
+        import json
+        print("🔍 Full payload:\n", json.dumps(payload, indent=2))
+
         print("🔍 Received payload:", payload)
 
         if not payload or 'data' not in payload or 'type' not in payload:
@@ -65,7 +68,9 @@ def inject():
 
              # === Inject metadata into LMNO15–20 ===
             metadata = payload.get("metadata", {})
-            folder_name = data[0].get("Folder", "").strip().lower() or metadata.get("elevation", "").strip().lower()
+            raw_folder = data[0].get("Folder") or metadata.get("elevation", "")
+            folder_name = (raw_folder or "").strip().lower()
+
             elevation_value = (metadata.get("elevation", "") or folder_name).strip().title()
 
             labor_map = {
@@ -93,7 +98,7 @@ def inject():
                 "bracket labor": "bracketLabor",
                 "beam wrap labor": "beamWrapLabor",
                 "t&g ceiling labor": "tngCeilingLabor",
-                "paint labor": "paintLabor",  # already handled separately at L48
+                "paint labor": "paintLabor", 
                 "other labor": "otherLabor"
             }
 
@@ -186,7 +191,8 @@ def inject():
 
 
             # ✅ Inject Paint Labor value into cell L48
-        paint_labor_raw = metadata.get("paintlabor", "").strip()
+        paint_labor_raw = (metadata.get("paintlabor") or "").strip()
+
 
             # Strip $ or any non-numeric characters
         import re
@@ -203,8 +209,7 @@ def inject():
 
        
             
-            
-            
+    
 
             non_labor_data, labor_data = split_labor(data)
             non_labor_data = sorted(non_labor_data, key=lambda x: (x.get("Description") == "", (x.get("Description") or "").lower()))
@@ -227,9 +232,7 @@ def inject():
                 sheet.range(f"F{i}").value = color_group
 
 
-            folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
-
-
+            folder_name = ((data[0].get("Folder") or metadata.get("elevation") or "")).strip().lower()
 
 
         used_labor_skus = set()
@@ -240,32 +243,121 @@ def inject():
         ]
 
         alreadyInjectedOtherLabor = False  # ✅ track if we've already injected an "Other Labor"
+        potential_labor = [key for key in labor_rates if key.lower() not in labor_map]
+
+       # 🧠 Pull custom keys not in the map
+        unmapped_labor_keys = [
+            key for key in labor_rates
+            if key.lower() not in labor_map
+            and isinstance(labor_rates.get(key), (int, float))
+            and float(labor_rates.get(key)) > 0
+        ]
+
+        predefined_labor_fields = [
+            {"name": "beamWrapLabor", "label": "Beam Wrap Labor rate", "airtableName": "Beam Wrap"},
+            {"name": "bbLabor", "label": "B&B Labor rate", "airtableName": "Board & Batten"},
+            {"name": "bracketLabor", "label": "Bracket Labor rate", "airtableName": "Brackets"},
+            {"name": "ceilingLabor", "label": "Ceiling Labor rate", "airtableName": "Ceilings"},
+            {"name": "columnLabor", "label": "Column Labor rate", "airtableName": "Column"},
+            {"name": "lapLabor", "label": "Lap Labor rate", "airtableName": "Lap Siding"},
+            {"name": "louverLabor", "label": "Louver Labor rate", "airtableName": "Louver"},
+             {"name": "otherLabor", "label": "Other Labor rate", "airtableName": "Other"},
+            {"name": "paintLabor", "label": "Paint Labor rate", "airtableName": "Paint"},
+            {"name": "shakeLabor", "label": "Shake Labor rate", "airtableName": "Shake"},
+            {"name": "shutterLabor", "label": "Shutter Labor rate", "airtableName": "Shutters"},
+            {"name": "tngCeilingLabor", "label": "T&G Ceiling Labor rate", "airtableName": "T&G Ceiling"},
+        ]
+
+
+        mapped_keys = [field["name"] for field in predefined_labor_fields]
+        unmapped_labor_keys = [key for key in unmapped_labor_keys if key not in mapped_keys]
 
         for row_index in list(range(34, 44)) + list(range(49, 53)):
-
             raw_val = sheet.range(f"K{row_index}").value
             if not raw_val:
                 print(f"⚠️ K{row_index} is empty. Skipping.")
                 continue
 
             labor_desc = str(raw_val).strip().lower()
-            cell_l = sheet.range(f"L{row_index}")
-            current_val = cell_l.value
+            rate_cell = sheet.range(f"L{row_index}")
+            sku_cell = sheet.range(f"A{row_index}")
+            label_cell = sheet.range(f"K{row_index}")
 
-    # 🧠 If it's a known description, inject via mapping
+    # ✅ Case 1: Direct match from map
             if labor_desc in labor_map:
                 sku = labor_map[labor_desc]
-    # 🧠 If it's "Other Labor", assign an unused labor SKU (e.g., zLABORWR)
-            elif "other labor" in labor_desc:
-    # Get unused SKUs that are labor and not mapped already
-                potential_labor = [
-                    sku for sku in all_labor_skus
-                    if sku not in used_labor_skus and sku not in labor_map.values()
-                ]
+                rate = labor_rates.get(labor_desc, None)
+                if rate is not None:
+                    print(f"✅ Injecting mapped labor '{labor_desc}' at row {row_index}")
+                    rate_cell.value = rate
+                    sku_cell.value = sku
 
-                if not potential_labor:
-                    print(f"❌ No more unmapped labor SKUs for 'Other Labor' at row {row_index}")
-                    continue
+    # ✅ Case 2: Use empty 'Other Labor' rows for unmapped labor
+            elif "other labor" in labor_desc and not rate_cell.value:
+                injected = False
+                for i in range(len(unmapped_labor_keys)):
+                    if not unmapped_labor_keys:
+                        break
+                    candidate_key = unmapped_labor_keys[0]
+                    try:
+                        rate_val = float(labor_rates.get(candidate_key, 0))
+                        if rate_val <= 0:
+                            print(f"⏩ Skipping custom labor '{candidate_key}' due to 0 or invalid rate.")
+                            unmapped_labor_keys.pop(0)  # Remove invalid zero-rate key
+                            continue
+                    except (TypeError, ValueError):
+                        print(f"⚠️ Invalid value for custom labor '{candidate_key}', skipping.")
+                        if unmapped_labor_keys:
+                            unmapped_labor_keys.pop(0)
+
+                        continue
+
+                           # ✅ Valid key found
+                    custom_key = unmapped_labor_keys.pop(0)
+
+                    custom_rate = labor_rates.get(custom_key)
+                    custom_matches = [
+                        item for item in data
+                        if (
+                            custom_key.lower().replace("labor", "") in item.get("SKU", "").lower()
+                            or custom_key.lower().replace("labor", "") in item.get("Description", "").lower()
+                            or custom_key.lower().replace("labor", "") in item.get("Folder", "").lower()
+                        )
+                    ]
+
+                    # ✅ Insert this here
+                    if custom_matches:
+                        custom_item = custom_matches[0]
+                        custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
+                        qty = custom_item.get("TotalQty", 0)
+                    else:
+                        custom_sku = f"UNKNOWN_{custom_key.upper()}"
+                        qty = 0  # ⛔ Ensures clean fallback
+                    custom_item = custom_matches[0] if custom_matches else {}
+                    custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
+                    qty = custom_item.get("TotalQty", 0)
+
+
+
+                    custom_label = custom_key.replace("labor", " Labor").title()
+
+# ✅ Inject into correct cells
+                    sheet.range(f"K{row_index}").value = custom_label
+                    sheet.range(f"N{row_index}").value = custom_rate
+                    sheet.range(f"A{row_index}").value = custom_sku
+                    sheet.range(f"L{row_index}").value = qty
+
+                    print(f"✅ Injected custom labor '{custom_key}' as '{custom_label}' → SKU: {custom_sku}, Qty: {qty}, Rate: {custom_rate}")
+                    injected = True
+                    break
+
+                if not injected:
+                    print(f"🛑 No valid unmapped labor key found with value > 0 for row {row_index}")
+
+                
+
+            else:
+                print(f"⏭️ Skipped row {row_index} — no match or already filled.")
 
     # Use next available unmapped SKU
                 sku = potential_labor[0]
@@ -285,14 +377,25 @@ def inject():
 
                
 
-            folder_name = (data[0].get("Folder", "") or metadata.get("elevation", "")).strip().lower()
+
             qty = 0
             matching_item = next(
-                (item for item in data
-                if item.get("SKU", "").strip().lower() == sku.lower()
-                and item.get("Folder", "").strip().lower() == folder_name),
+                (
+                    item for item in data
+                    if item.get("SKU", "").strip().lower() == sku.lower()
+                    and item.get("Folder", "").strip().lower() == folder_name
+                ),
                 None
             )
+
+
+            if matching_item:
+                qty = matching_item.get("TotalQty", 0)
+            else:
+                qty = 0
+                print(f"⚠️ No matching item found for SKU '{sku}' and folder '{folder_name}'. Injecting 0 qty.")
+
+
             if matching_item:
                 qty = matching_item.get("TotalQty", 0)
                 print(f"✅ Injected '{labor_desc}' → SKU: {sku} → Qty: {qty} into L{row_index}")
@@ -303,10 +406,6 @@ def inject():
 
             sheet.range(f"L{row_index}").value = qty
             print(f"✅ Injected '{labor_desc}' → SKU: {sku} → Qty: {qty} into L{row_index}")
-
-
-
-
 
         # === Material Breakout Sheet Injection ===
         if data_type == "combined" or data_type.startswith("material_breakout"):

@@ -7,7 +7,7 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "https://c275-174-108-187-19.ngrok-free.app";
+const baseServer = "https://63f9-174-108-187-19.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -592,10 +592,16 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
-    metadata.paintlabor = parseLaborRate(metadata.paintlabor); // ✅ Sanitize paintlabor
+metadata.paintlabor = parseLaborRate(
+  document.querySelector('input[name="paintLabor"]')?.value ||
+        document.querySelector('input[name="paintlabor"]')?.value
 
-    const laborRates = getLaborRates(); // ✅ All values will be numeric
+);
 
+    const laborRates = getLaborRates(); // ✅ collect all labor rates
+ // 🔍 Add this debug log here
+    console.log("🧠 Final laborRates:", laborRates);
+    console.log("📦 Sending payload:", { metadata, laborRates, folderName });
     const payload = {
       data: elevationData,
       breakout: breakoutData,
@@ -846,26 +852,27 @@ function getLaborRates() {
     }
   });
 
-  // 🔍 Handle additional custom inputs under otherLabor (based on how your UI builds them)
-  const otherLaborWrapper = document.querySelector('.labor-field input[name="otherLabor"]');
-  if (otherLaborWrapper) {
-    const raw = otherLaborWrapper.value?.trim();
-    if (raw) {
-      const parsed = parseLaborRate(raw);
-      if (parsed !== null) {
-        laborRates["otherLabor"] = parsed;
-      }
+// ✅ Directly get the otherLabor input
+const otherLaborInput = document.querySelector('input[name="otherLabor"]');
+if (otherLaborInput) {
+  const raw = otherLaborInput.value?.trim();
+  if (raw) {
+    const parsed = parseLaborRate(raw);
+    if (parsed !== null) {
+      laborRates["otherLabor"] = parsed;
     }
   }
+}
 
-  // 🔁 BONUS: handle dynamically added inputs with a special class
-  document.querySelectorAll('.labor-field input[data-custom-labor="true"]').forEach(input => {
-    const name = input.name;
-    const parsed = parseLaborRate(input.value);
-    if (parsed !== null && name) {
-      laborRates[name] = parsed;
-    }
-  });
+// ✅ Dynamically added custom labor inputs
+document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
+  const name = input.name;
+  const parsed = parseLaborRate(input.value);
+  if (parsed !== null && name) {
+    laborRates[name] = parsed;
+  }
+});
+
 
   return laborRates;
 }

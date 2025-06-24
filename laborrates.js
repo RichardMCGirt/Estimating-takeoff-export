@@ -41,51 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-async function fetchDynamicLaborFieldMap() {
-  const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
-  const baseId = 'appTxtZtAlIdKQ7Wt';
-  const tableId = 'tblGJfNIqlT0dCkUX';
-  const viewId = 'viwwL0F87E2IQuaw0';
-
-  let allRecords = [];
-  let offset = null;
-
-  try {
-    do {
-      const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}` +
-                  (offset ? `&offset=${offset}` : '');
-
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${apiKey}` }
-      });
-
-      const data = await res.json();
-      allRecords = allRecords.concat(data.records);
-      offset = data.offset;
-    } while (offset);
-
-    const seen = new Set();
-    const map = {};
-
-    allRecords.forEach(record => {
-      const desc = record.fields.Description?.trim();
-      if (desc && !seen.has(desc)) {
-        seen.add(desc);
-        const key = desc.replace(/[^a-zA-Z]/g, '').toLowerCase() + 'Labor';
-        map[key] = desc;
-      }
-    });
-
-    console.log("🧩 Full dynamic fieldMap keys:", Object.keys(map));
-    return map;
-
-  } catch (err) {
-    console.error("❌ Error fetching dynamic field map:", err);
-    return {};
-  }
-}
-
-
 async function fetchLaborRatesFromAirtable() {
   const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
   const baseId = 'appTxtZtAlIdKQ7Wt';
@@ -100,10 +55,92 @@ async function fetchLaborRatesFromAirtable() {
   console.log("🔍 Requested Branch:", branch);
   console.log("🧪 Project Type:", projectType);
 
-  if (!sidingStyle || !branch || !projectType) {
-    console.warn("⚠️ Missing siding style, branch, or project type for labor rate lookup.");
+  if (!sidingStyle && !branch && !projectType) {
+    console.warn("⚠️ All filters are missing. Cannot search labor rates.");
     return {};
   }
+
+  const filterParts = [];
+  if (sidingStyle) filterParts.push(`{Siding Style}="${sidingStyle}"`);
+  if (branch) filterParts.push(`{Vanir Offices}="${branch}"`);
+  if (projectType) filterParts.push(`FIND(" ${projectType} ", " " & {Type} & " ")`);
+
+  const relaxedFormula = `OR(${filterParts.join(",")})`;
+  const encodedFormula = encodeURIComponent(relaxedFormula);
+  const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
+
+  console.log("🔗 Airtable URL:", url);
+  console.log("🧪 Relaxed filter formula:", relaxedFormula);
+
+  try {
+    const [fieldMap, res] = await Promise.all([
+      fetchDynamicLaborFieldMap(),
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${apiKey}`
+        }
+      })
+    ]);
+
+    const data = await res.json();
+    console.log("📦 Raw Airtable response:", data);
+
+    if (!data.records || data.records.length === 0) {
+      showToast(`❌ No labor rates found for provided filters.`);
+      return {};
+    }
+
+    // Score each match
+    const scored = data.records.map(rec => {
+      const f = rec.fields;
+      let score = 0;
+      if (f["Siding Style"] === sidingStyle) score++;
+      if (f["Vanir Offices"] === branch) score++;
+      if ((f["Type"] || '').includes(projectType)) score++;
+      return { record: rec, score };
+    });
+
+    // Sort by best match (score descending)
+    scored.sort((a, b) => b.score - a.score);
+    const bestMatch = scored[0];
+
+    if (bestMatch.score < 2) {
+      showToast(`⚠️ Only partial match found. Showing closest available labor rate.`);
+    }
+
+    return bestMatch.record.fields;
+
+  } catch (error) {
+    console.error("❌ Error fetching labor rates:", error);
+    showToast("Error fetching labor rates. Please try again later.");
+    return {};
+  }
+}
+
+
+
+async function fetchLaborRatesFromAirtable() {
+  const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
+  const baseId = 'appTxtZtAlIdKQ7Wt';
+  const tableId = 'tblGJfNIqlT0dCkUX';
+  const viewId = 'viwwL0F87E2IQuaw0';
+
+  const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
+  const branch = document.getElementById('branchSelect')?.value?.trim();
+  const projectType = document.getElementById('ProjectSelect')?.value?.trim();
+const filledFields = [sidingStyle, branch, projectType].filter(Boolean);
+
+  console.log("🔍 Requested Siding Style:", sidingStyle);
+  console.log("🔍 Requested Branch:", branch);
+  console.log("🧪 Project Type:", projectType);
+
+
+if (filledFields.length < 2) {
+  console.warn("⚠️ At least two of siding style, branch, or project type must be provided.");
+  showToast("⚠️ Please select at least two filters to look up labor rates.");
+  return {};
+}
+
 
 const filterFormula = `AND(
   FIND(" ${projectType} ", " " & {Type} & " "),
@@ -117,14 +154,10 @@ const filterFormula = `AND(
   console.log("🧪 Raw filter formula (before encoding):", filterFormula);
 
   try {
-    const [fieldMap, res] = await Promise.all([
-      fetchDynamicLaborFieldMap(),
-      fetch(url, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`
-        }
-      })
-    ]);
+ const res = await fetch(url, {
+  headers: { Authorization: `Bearer ${apiKey}` }
+});
+
 
     const data = await res.json();
     console.log("📦 Raw Airtable response:", data);
