@@ -287,7 +287,7 @@ function displayMergedTable(data) {
     const sortedNonLabor = [...nonLabor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
     const sortedLabor = [...labor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
 
-    const tableId = `copyTable_${index}`;
+const tableId = `copyTable_${folder.replace(/\W+/g, '_')}_${index}_${Date.now()}`;
     let tsvContent = "";
 
     const buildRow = row => `
@@ -337,15 +337,20 @@ function displayMergedTable(data) {
     const button = document.createElement("button");
     button.classList.add("copy-button");
     button.textContent = `Copy ${folder} to Clipboard`;
-    button.onclick = () => copyToClipboard(tableId);
+button.addEventListener('click', () => {
+  console.log("🔘 Copy button clicked:", tableId);
+  copyToClipboard(tableId);
+});
     section.appendChild(button);
 
     // Create and insert textarea with TSV
     const textarea = document.createElement("textarea");
-    textarea.id = tableId;
-    textarea.style.display = "none";
-    textarea.textContent = tsvContent.trim();
-    section.appendChild(textarea);
+textarea.id = tableId;
+textarea.style.display = "none";
+textarea.value = tsvContent.trim(); // ✅ USE .value NOT .textContent
+section.appendChild(textarea);
+
+console.log(`📝 Created textarea ${tableId} with content:`, textarea.value);
 
     // Create and insert table
     const tableHTML = `
@@ -357,7 +362,9 @@ function displayMergedTable(data) {
           ${sortedLabor.map(buildRow).join("")}
         </tbody>
       </table><br/>`;
-    section.innerHTML += tableHTML;
+const tableContainer = document.createElement("div");
+tableContainer.innerHTML = tableHTML;
+section.appendChild(tableContainer);
 
     // Append the section to container
     container.appendChild(section);
@@ -794,35 +801,82 @@ const merged = Object.values(result).map(item => {
 }
 
 function copyToClipboard(textareaId) {
-  const textarea = document.getElementById(textareaId);
-  const lines = textarea.value.trim().split("\n");
-  const trimmedLines = lines.slice(1);
-  const modifiedLines = trimmedLines
-  
-    .map(line => {
-      const cols = line.split("\t");
+  const sourceTextarea = document.getElementById(textareaId);
+  if (!sourceTextarea) {
+    console.warn(`❌ Textarea with ID "${textareaId}" not found.`);
+    return;
+  }
 
-      const sku = cols[0]?.toLowerCase();
-      if (sku.includes("labor")) return null;
+  const originalContent = sourceTextarea.value.trim();
+  console.log("📋 Original content:", originalContent);
 
-      while (cols.length < 6) {
-        cols.push("");
-      }
-      cols[1] = "";
-      cols[3] = "";
-      return cols.join("\t");
-    })
-    .filter(Boolean); 
+  const lines = originalContent.split("\n");
+const trimmedLines = lines; // Don't skip anything
+  const modifiedLines = trimmedLines.map((line, index) => {
+    const cols = line.split("\t");
+    const sku = cols[0]?.toLowerCase();
+    if (sku.includes("labor")) {
+      console.log(`⏭️ Skipping labor line ${index + 2}:`, line);
+      return null;
+    }
 
-  const modifiedText = modifiedLines.join("\n");
-  const tempTextarea = document.createElement("textarea");
-  tempTextarea.value = modifiedText;
-  document.body.appendChild(tempTextarea);
-  tempTextarea.select();
-  document.execCommand("copy");
-  document.body.removeChild(tempTextarea);
-  showToast("📋 Copied to clipboard (non-labor only)");
+    while (cols.length < 6) cols.push("");
+    cols[1] = ""; // Blank description
+    cols[3] = ""; // Blank UOM
+    const modified = cols.join("\t");
+    console.log(`✅ Modified line ${index + 2}:`, modified);
+    return modified;
+  }).filter(Boolean);
+
+  const finalText = modifiedLines.join("\n");
+
+  console.log("📋 Final text to be copied:\n", finalText);
+
+  // ✅ Use a temporary <textarea> for reliable copying
+  const temp = document.createElement("textarea");
+  temp.value = finalText;
+  temp.style.position = "absolute";
+  temp.style.left = "-9999px";
+  temp.setAttribute("readonly", "");
+  document.body.appendChild(temp);
+  temp.select();
+
+  try {
+    const success = document.execCommand("copy");
+    if (success) {
+      console.log("✅ Copy to clipboard succeeded");
+    } else {
+      console.error("❌ Copy to clipboard failed (execCommand returned false)");
+    }
+  } catch (err) {
+    console.error("❌ Copy to clipboard error:", err);
+  }
+
+  document.body.removeChild(temp);
 }
+
+
+
+
+  function fallbackCopy(text) {
+    const temp = document.createElement("textarea");
+    temp.value = text;
+    temp.style.position = "fixed";
+    temp.style.opacity = "0";
+    document.body.appendChild(temp);
+    temp.select();
+    try {
+      document.execCommand("copy");
+    } catch (err) {
+      console.error("❌ Fallback copy failed:", err);
+    }
+    document.body.removeChild(temp);
+  }
+
+
+
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
