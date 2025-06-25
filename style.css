@@ -340,3 +340,27 @@ input[type="number"] {
     #toast {
     border: 2px dashed lime !important;
   }
+
+  /* 🌙 Folder checkbox container background */
+.folder-checkbox {
+  accent-color: #4caf50; /* green check if supported */
+  background-color: #333; /* or any other color you want in dark mode */
+  border-radius: 4px;
+}
+
+/* Optional label styling for folder checkboxes */
+#folderCheckboxRow label {
+  background-color: #f0f0f0;
+}
+
+body.dark #folderCheckboxRow label {
+  background-color: #222;
+  color: #fff;
+}
+
+/* 🚫 Reset form checkboxes (avoid dark background in form) */
+form input[type="checkbox"],
+#laborRatesForm input[type="checkbox"] {
+  background-color: transparent !important;
+  accent-color: initial !important;
+}

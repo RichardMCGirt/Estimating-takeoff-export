@@ -20,7 +20,6 @@ body {
 body.dark {
   --color-bg: #1a1a1a;
   --color-text: #e0e0e0;
-  --color-border: #444;
   --color-accent: #4dabf7;
   --color-accent-dark: #339af0;
   --color-white: #2a2a2a;
@@ -340,10 +339,42 @@ body.dark button:hover {
   background-color: var(--color-accent-dark);
 }
 
-body.dark label {
-  color: var(--color-text);
-  background-color: black !important;
+#folderCheckboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px !important ; /* or any value like 12px, 20px etc */
+  margin-bottom: 12px;
 }
+#folderCheckboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px; /* spacing between each label */
+}
+
+.folder-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+
+/* Only apply black background to folder checkbox labels */
+body.dark #folderCheckboxRow label {
+  background-color: black !important;
+  color: var(--color-text);
+}
+
+/* All other labels (like in forms) just inherit color with no forced background */
+body.dark label {
+  background-color: transparent !important;
+  color: var(--color-text);
+}
+
 body.dark input[type="file"] {
   background-color: var(--color-white);
   color: var(--color-text);
@@ -493,28 +524,28 @@ body.dark button:hover {
   background-color: var(--color-accent-dark);
 }
 /* Dark Mode Styles */
-body.dark-mode #elevationSection {
+body.dark #elevationSection {
   background-color: #1e1e1e;
   color: #ffffff;
   padding: 16px;
   border-radius: 8px;
 }
 
-body.dark-mode #elevationSection h2 {
+body.dark #elevationSection h2 {
   color: #ffffff;
   border-bottom: 1px solid #444;
   padding-bottom: 4px;
 }
 
-body.dark-mode #elevationSection #folderButtons {
+body.dark #elevationSection #folderButtons {
   margin-top: 12px;
 }
 
-body.dark-mode #elevationSection hr {
+body.dark #elevationSection hr {
   border-color: #444;
 }
 /* Dark mode dropdown styles */
-body.dark-mode select {
+body.dark select {
   background-color: #2b2b2b;
   color: #ffffff;
   border: 1px solid #555;
@@ -523,22 +554,22 @@ body.dark-mode select {
   appearance: none;
 }
 
-body.dark-mode select:focus {
+body.dark select:focus {
   outline: none;
   border-color: #888;
   box-shadow: 0 0 0 2px rgba(100, 149, 237, 0.4);
 }
 
-body.dark-mode option {
+body.dark option {
   background-color: #2b2b2b;
   color: #ffffff;
 }
-body.dark-mode label select#ProjectSelect {
+body.dark label select#ProjectSelect {
   background-color: #2b2b2b !important;
   color: #fff !important;
 }
 /* Dark mode select dropdown */
-body.dark-mode select {
+body.dark select {
   background-color: #2b2b2b !important;
   color: #ffffff !important;
   border: 1px solid #555;
@@ -547,10 +578,10 @@ body.dark-mode select {
 }
 
 /* Dark mode input fields */
-body.dark-mode input[type="text"],
-body.dark-mode input[type="date"],
-body.dark-mode input[type="number"],
-body.dark-mode input[type="email"] {
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark input[type="number"],
+body.dark input[type="email"] {
   background-color: #2b2b2b !important;
   color: #ffffff !important;
   border: 1px solid #555;
@@ -559,22 +590,22 @@ body.dark-mode input[type="email"] {
 }
 
 /* Optional: Focus states */
-body.dark-mode select:focus,
-body.dark-mode input:focus {
+body.dark select:focus,
+body.dark input:focus {
   border-color: #00bfff;
   box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
   outline: none;
 }
 /* Base styling for checkboxes */
-body.dark-mode input[type="checkbox"] {
+body.dark input[type="checkbox"] {
   accent-color: #00bfff; /* Light blue or your brand color */
   background-color: #2b2b2b;
   border: 1px solid #555;
 }
 
 /* If using custom styled containers around the checkbox */
-body.dark-mode .checkbox-label,
-body.dark-mode .folder-box {
+body.dark .checkbox-label,
+body.dark .folder-box {
   background-color: #2b2b2b;
   color: #fff;
   border: 1px solid #555;
@@ -583,9 +614,56 @@ body.dark-mode .folder-box {
 }
 
 /* Checked state (if styled manually) */
-body.dark-mode input[type="checkbox"]:checked + label,
-body.dark-mode .folder-box.selected {
+body.dark input[type="checkbox"]:checked + label,
+body.dark .folder-box.selected {
   background-color: #005f8a;
   border-color: #00bfff;
   color: #fff;
+}
+#darkModeToggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 10000;
+  padding: 12px 20px;
+  font-size: 16px;
+  border-radius: 12px;
+  background-color: #222;
+  color: white;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+#darkModeToggle:hover {
+  background-color: #444;
+}
+.copy-button {
+  padding: 10px 18px;
+  font-size: 15px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  color: #111;
+  border: none;
+  cursor: pointer;
+  margin: 10px 0;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.copy-button:hover {
+  background-color: #e0e0e0;
+}
+
+body.dark .copy-button {
+  background-color: #333;
+  color: #fff;
+}
+
+body.dark .copy-button:hover {
+  background-color: #444;
+}
+body.dark #estimateForm {
+  background-color: transparent !important;
 }

@@ -273,9 +273,9 @@ function displayMergedTable(data) {
 
   wrapper.style.display = "block";
   wrapper.classList.add("has-data");
+  container.innerHTML = ""; // clear old content
 
   const folders = [...new Set(data.map(d => d.Folder))];
-  let allHTML = "";
 
   folders.forEach((folder, index) => {
     const rows = data.filter(d => d.Folder === folder);
@@ -325,10 +325,30 @@ function displayMergedTable(data) {
         <th>Color Group</th>
       </tr>`;
 
-    let tableHTML = `
-      <h3>${folder}</h3>
-      <button onclick="copyToClipboard('${tableId}')">Copy ${folder} to Clipboard</button>
-      <textarea id="${tableId}" style="display:none;">${tsvContent.trim()}</textarea>
+    // Create section container
+    const section = document.createElement("section");
+
+    // Create and insert heading
+    const heading = document.createElement("h3");
+    heading.textContent = folder;
+    section.appendChild(heading);
+
+    // Create and insert button
+    const button = document.createElement("button");
+    button.classList.add("copy-button");
+    button.textContent = `Copy ${folder} to Clipboard`;
+    button.onclick = () => copyToClipboard(tableId);
+    section.appendChild(button);
+
+    // Create and insert textarea with TSV
+    const textarea = document.createElement("textarea");
+    textarea.id = tableId;
+    textarea.style.display = "none";
+    textarea.textContent = tsvContent.trim();
+    section.appendChild(textarea);
+
+    // Create and insert table
+    const tableHTML = `
       <table style="width:100%; text-align:center; border-collapse: collapse;">
         <thead>${headerRow}</thead>
         <tbody>
@@ -337,11 +357,11 @@ function displayMergedTable(data) {
           ${sortedLabor.map(buildRow).join("")}
         </tbody>
       </table><br/>`;
+    section.innerHTML += tableHTML;
 
-    allHTML += tableHTML;
+    // Append the section to container
+    container.appendChild(section);
   });
-
-  container.innerHTML = allHTML;
 }
 
 function normalizeRawRow(row) {
@@ -408,9 +428,10 @@ function renderFolderButtons() {
   container.appendChild(selectAllBtn);
   const checkboxRow = document.createElement('div');
   checkboxRow.id = 'folderCheckboxRow';
-  checkboxRow.style.display = 'flex';
-  checkboxRow.style.flexWrap = 'wrap';
-  checkboxRow.style.gap = '18px';
+checkboxRow.classList.add('folder-checkbox-row');
+const label = document.createElement('label');
+label.classList.add('folder-label');
+
   checkboxRow.style.marginBottom = '12px';
   container.appendChild(checkboxRow);
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
