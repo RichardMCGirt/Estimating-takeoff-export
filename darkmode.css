@@ -245,6 +245,8 @@ body.dark #toast {
   display: none;
   z-index: 10000;
   font-size: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.6);
+
 }
 
 /* 📂 Folder Buttons */
@@ -300,7 +302,7 @@ body.dark #mergedTableWrapper td {
   padding: 8px;
   text-align: center;
   color: var(--color-text);
-  background-color: var(--color-white);
+  background-color: transparent !important;
 }
 
 /* 📐 Elevation Section */
@@ -327,4 +329,263 @@ body.dark #elevationSection hr {
   margin-top: 20px;
   border: none;
   border-top: 1px solid var(--color-border);
+}
+body.dark button {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+}
+
+body.dark button:hover {
+  background-color: var(--color-accent-dark);
+}
+
+body.dark label {
+  color: var(--color-text);
+  background-color: black !important;
+}
+body.dark input[type="file"] {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+body.dark hr {
+  border-top: 1px solid var(--color-border);
+}
+body.dark input:disabled,
+body.dark select:disabled {
+  background-color: #2b2b2b;
+  color: #888;
+  border-color: #444;
+}
+body.dark ::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+body.dark ::-webkit-scrollbar {
+  width: 10px;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+body.dark ::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+/* Light & Dark shared base */
+.folder-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 8px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.folder-checkbox:checked {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent-dark);
+}
+
+.folder-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Dark mode */
+body.dark .folder-checkbox {
+  border-color: #666;
+  background-color: var(--color-white);
+}
+
+body.dark .folder-checkbox:checked {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent-dark);
+}
+body.dark .folder-label {
+  background-color: #2b2b2b; /* ⬅️ Replaces default white */
+  border: 1px solid #555;
+  color: #f0f0f0;
+}
+
+body.dark .folder-label:hover {
+  background-color: #3a3a3a;
+}
+
+body.dark .folder-checkbox {
+  accent-color: var(--color-accent);
+}
+
+body.dark #mergedTableContainer table {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+body.dark #mergedTableContainer th,
+body.dark #mergedTableContainer td {
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+body.dark table tr,
+body.dark table td {
+  color: var(--color-text);
+  background-color: var(--color-white);
+}
+body.dark #toast {
+  background: #222;
+  color: #fff;
+  border: 1px solid var(--color-border);
+}
+body.dark #materialBreakoutButtons button {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+}
+
+body.dark #materialBreakoutButtons button:hover {
+  background-color: var(--color-accent-dark);
+}
+body.dark #drop-zone.dragover {
+  background-color: #333;
+  border-color: var(--color-accent);
+}
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark input[type="number"] {
+  background: var(--color-white);
+  color: var(--color-text);
+}
+body.dark button {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+}
+
+body.dark button:hover {
+  background-color: var(--color-accent-dark);
+}
+/* Dark Mode Styles */
+body.dark-mode #elevationSection {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+body.dark-mode #elevationSection h2 {
+  color: #ffffff;
+  border-bottom: 1px solid #444;
+  padding-bottom: 4px;
+}
+
+body.dark-mode #elevationSection #folderButtons {
+  margin-top: 12px;
+}
+
+body.dark-mode #elevationSection hr {
+  border-color: #444;
+}
+/* Dark mode dropdown styles */
+body.dark-mode select {
+  background-color: #2b2b2b;
+  color: #ffffff;
+  border: 1px solid #555;
+  padding: 6px 10px;
+  border-radius: 4px;
+  appearance: none;
+}
+
+body.dark-mode select:focus {
+  outline: none;
+  border-color: #888;
+  box-shadow: 0 0 0 2px rgba(100, 149, 237, 0.4);
+}
+
+body.dark-mode option {
+  background-color: #2b2b2b;
+  color: #ffffff;
+}
+body.dark-mode label select#ProjectSelect {
+  background-color: #2b2b2b !important;
+  color: #fff !important;
+}
+/* Dark mode select dropdown */
+body.dark-mode select {
+  background-color: #2b2b2b !important;
+  color: #ffffff !important;
+  border: 1px solid #555;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* Dark mode input fields */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="date"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="email"] {
+  background-color: #2b2b2b !important;
+  color: #ffffff !important;
+  border: 1px solid #555;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* Optional: Focus states */
+body.dark-mode select:focus,
+body.dark-mode input:focus {
+  border-color: #00bfff;
+  box-shadow: 0 0 0 2px rgba(0, 191, 255, 0.3);
+  outline: none;
+}
+/* Base styling for checkboxes */
+body.dark-mode input[type="checkbox"] {
+  accent-color: #00bfff; /* Light blue or your brand color */
+  background-color: #2b2b2b;
+  border: 1px solid #555;
+}
+
+/* If using custom styled containers around the checkbox */
+body.dark-mode .checkbox-label,
+body.dark-mode .folder-box {
+  background-color: #2b2b2b;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+/* Checked state (if styled manually) */
+body.dark-mode input[type="checkbox"]:checked + label,
+body.dark-mode .folder-box.selected {
+  background-color: #005f8a;
+  border-color: #00bfff;
+  color: #fff;
 }
