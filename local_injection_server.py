@@ -324,28 +324,17 @@ def inject():
 
     # ✅ Case 2: Use empty 'Other Labor' rows for unmapped labor
             elif "other labor" in labor_desc and not rate_cell.value:
-                injected = False
-                for i in range(len(unmapped_labor_keys)):
-                    if not unmapped_labor_keys:
-                        break
-                    candidate_key = unmapped_labor_keys[0]
+                while unmapped_labor_keys and row_pointer <= max_labor_row:
+                    custom_key = unmapped_labor_keys.pop(0)
                     try:
-                        rate_val = float(labor_rates.get(candidate_key, 0))
+                        rate_val = float(labor_rates.get(custom_key, 0))
                         if rate_val <= 0:
-                            print(f"⏩ Skipping custom labor '{candidate_key}' due to 0 or invalid rate.")
-                            unmapped_labor_keys.pop(0)  # Remove invalid zero-rate key
+                            print(f"⏩ Skipping custom labor '{custom_key}' due to 0 or invalid rate.")
                             continue
                     except (TypeError, ValueError):
-                        print(f"⚠️ Invalid value for custom labor '{candidate_key}', skipping.")
-                        if unmapped_labor_keys:
-                            unmapped_labor_keys.pop(0)
-
+                        print(f"⚠️ Invalid value for custom labor '{custom_key}', skipping.")
                         continue
 
-                           # ✅ Valid key found
-                    custom_key = unmapped_labor_keys.pop(0)
-
-                    custom_rate = labor_rates.get(custom_key)
                     custom_matches = [
                         item for item in data
                         if (
@@ -353,26 +342,32 @@ def inject():
                             or custom_key.lower().replace("labor", "") in item.get("Description", "").lower()
                             or custom_key.lower().replace("labor", "") in item.get("Folder", "").lower()
                         )
-                    ]
+                    ]   
 
-                    # ✅ Insert this here
                     if not custom_matches:
-                        print(f"⚠️ No match found for custom key '{custom_key}', skipping.")
-                        continue  # ⛔ Skip this key entirely
-
-                    custom_item = custom_matches[0]
-                    custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
-                    qty = custom_item.get("TotalQty", 0)
-
-                    custom_item = custom_matches[0] if custom_matches else {}
-                    custom_sku = custom_item.get("SKU", f"UNKNOWN_{custom_key.upper()}")
-                    qty = custom_item.get("TotalQty", 0)
-
-
+                        print(f"⚠️ No match found for custom key '{custom_key}', using fallback SKU.")
+                        fallback_sku = f"zLABOR{custom_key.replace('Labor', '').upper()}"
+                        qty = 0
+                    else:
+                        custom_item = custom_matches[0]
+                        fallback_sku = custom_item.get("SKU", f"zLABOR{custom_key.replace('Labor', '').upper()}")
+                        qty = custom_item.get("TotalQty", 0)
 
                     custom_label = custom_key.replace("labor", " Labor").title()
 
-                        # === Handle any remaining custom labor fields not already injected ===
+                    sheet.range(f"K{row_pointer}").value = custom_label
+                    sheet.range(f"A{row_pointer}").value = fallback_sku
+                    sheet.range(f"L{row_pointer}").value = qty
+                    sheet.range(f"N{row_pointer}").value = rate_val
+
+                    print(f"✅ Injected custom labor '{custom_label}' → SKU: {fallback_sku} → Qty: {qty} into L{row_pointer}")
+
+                    row_pointer += 1
+
+                    if row_pointer > max_labor_row:
+                        print("⚠️ Reached max custom labor row limit.")
+                        break
+
                     
 
 
@@ -410,8 +405,6 @@ def inject():
             print(f"✅ Injected custom labor '{label_clean}' → SKU: {sku} → Qty: {qty} into L{row_pointer}")
 
             row_pointer += 1
-
-            break
 
             if not injected:
                     print(f"🛑 No valid unmapped labor key found with value > 0 for row {row_index}")
