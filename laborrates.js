@@ -134,6 +134,8 @@ function renderLaborInputs(laborRates) {
 
     const wrapper = document.createElement("div");
     wrapper.classList.add("labor-field");
+    wrapper.style.display = "flex";
+    wrapper.style.flexDirection = "column";
 
     const labelEl = document.createElement("label");
     labelEl.innerHTML = `${label}<br>`;
