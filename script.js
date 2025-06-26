@@ -148,25 +148,20 @@ function injectMaterialBreakout() {
   sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
 }
 
-function showToast(message = "Success!", durationMs = 4000) {
+function showToast(message = "Success!", duration = 3000) {
   const toast = document.getElementById("toast");
-  if (!toast) {
-    console.warn("⚠️ Toast element not found.");
-    return;
-  }
+  if (!toast) return;
 
   toast.textContent = message;
   toast.style.visibility = "visible";
   toast.style.opacity = "1";
-  toast.style.bottom = "50%"; 
 
   setTimeout(() => {
     toast.style.opacity = "0";
-    toast.style.bottom = "30px";
     setTimeout(() => {
       toast.style.visibility = "hidden";
     }, 300);
-  }, durationMs);
+  }, duration);
 }
 
   function mergeBySKU(data) {
@@ -178,7 +173,10 @@ function showToast(message = "Success!", durationMs = 4000) {
       const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
       normalizedHeaders[keyLower] = key;
     });
-  
+  document.addEventListener("DOMContentLoaded", () => {
+  showToast("✅ DOM loaded, toast safe to use.");
+});
+
  function getHeaderMatch(possibleNames, normalizedHeaders) {
   const normalizedKeys = Object.keys(normalizedHeaders);
 
@@ -218,8 +216,8 @@ function showToast(message = "Success!", durationMs = 4000) {
     return;
   }
 
-const normalizedFolder = folder.trim().toLowerCase();  // ensures exact folder match
-const normalizedSKU = sku.trim().toUpperCase();        // optional: normalize SKU too
+const normalizedFolder = folder.trim().toLowerCase();  
+const normalizedSKU = sku.trim().toUpperCase();        
 const key = `${normalizedSKU}___${normalizedFolder}`;
 
   const qtyRaw = row[colMap.qty];
@@ -231,7 +229,7 @@ const key = `${normalizedSKU}___${normalizedFolder}`;
 Description: row[colMap.description] ?? null,
   Description2: row[colMap.description2] || "",
 UOM: row[colMap.uom] ?? null,
-  Folder: folder,  // keep original case for display
+  Folder: folder,  
   ColorGroup: row[colMap.colorgroup] || "",
   Vendor: row[colMap.vendor] || "",
   UnitCost: parseFloat(row[colMap.unitcost]) || 0,
@@ -347,10 +345,8 @@ button.addEventListener('click', () => {
     const textarea = document.createElement("textarea");
 textarea.id = tableId;
 textarea.style.display = "none";
-textarea.value = tsvContent.trim(); // ✅ USE .value NOT .textContent
+textarea.value = tsvContent.trim(); 
 section.appendChild(textarea);
-
-console.log(`📝 Created textarea ${tableId} with content:`, textarea.value);
 
     // Create and insert table
     const tableHTML = `
@@ -522,9 +518,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (localStorage.getItem("darkMode") === "true") {
       body.classList.add("dark");
-      console.log("🌙 Dark mode enabled from saved state.");
     } else {
-      console.log("☀️ Light mode enabled from saved state.");
     }
 
     updateButtonText();
@@ -628,9 +622,6 @@ function getLaborRates() {
   return laborRates;
 }
 
-
-
-
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
   const MAX_RETRIES = 5;
   const RETRY_DELAY = 3000 * attempt;
@@ -640,12 +631,9 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 metadata.paintlabor = parseLaborRate(
   document.querySelector('input[name="paintLabor"]')?.value ||
         document.querySelector('input[name="paintlabor"]')?.value
-
 );
-
     const laborRates = getLaborRates(); // ✅ collect all labor rates
- // 🔍 Add this debug log here
-   // ✅ Collect all custom labor inputs before finalizing payload
+
 const customLaborInputs = document.querySelectorAll("input[data-custom-labor='true']");
 customLaborInputs.forEach(input => {
   const key = input.name;
@@ -681,7 +669,7 @@ const payload = {
             enqueueRequest(() =>
               sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
             );
-            resolve(); // resolve here so it doesn't hang the queue
+            resolve();
           }, RETRY_DELAY);
         } else {
           showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
@@ -711,7 +699,6 @@ const payload = {
     });
   });
 }
-
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
@@ -804,6 +791,7 @@ function copyToClipboard(textareaId) {
   const sourceTextarea = document.getElementById(textareaId);
   if (!sourceTextarea) {
     console.warn(`❌ Textarea with ID "${textareaId}" not found.`);
+    showToast(`❌ Text area "${textareaId}" not found`);
     return;
   }
 
@@ -811,12 +799,11 @@ function copyToClipboard(textareaId) {
   console.log("📋 Original content:", originalContent);
 
   const lines = originalContent.split("\n");
-const trimmedLines = lines; // Don't skip anything
+  const trimmedLines = lines; // Don't skip anything
   const modifiedLines = trimmedLines.map((line, index) => {
     const cols = line.split("\t");
     const sku = cols[0]?.toLowerCase();
     if (sku.includes("labor")) {
-      console.log(`⏭️ Skipping labor line ${index + 2}:`, line);
       return null;
     }
 
@@ -829,8 +816,6 @@ const trimmedLines = lines; // Don't skip anything
   }).filter(Boolean);
 
   const finalText = modifiedLines.join("\n");
-
-  console.log("📋 Final text to be copied:\n", finalText);
 
   // ✅ Use a temporary <textarea> for reliable copying
   const temp = document.createElement("textarea");
@@ -845,38 +830,18 @@ const trimmedLines = lines; // Don't skip anything
     const success = document.execCommand("copy");
     if (success) {
       console.log("✅ Copy to clipboard succeeded");
+      showToast("📋 Copied to clipboard!");
     } else {
       console.error("❌ Copy to clipboard failed (execCommand returned false)");
+      showToast("❌ Copy failed. Please try manually.");
     }
   } catch (err) {
     console.error("❌ Copy to clipboard error:", err);
+    showToast("❌ Error copying to clipboard.");
   }
 
   document.body.removeChild(temp);
 }
-
-
-
-
-  function fallbackCopy(text) {
-    const temp = document.createElement("textarea");
-    temp.value = text;
-    temp.style.position = "fixed";
-    temp.style.opacity = "0";
-    document.body.appendChild(temp);
-    temp.select();
-    try {
-      document.execCommand("copy");
-    } catch (err) {
-      console.error("❌ Fallback copy failed:", err);
-    }
-    document.body.removeChild(temp);
-  }
-
-
-
-
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
@@ -977,8 +942,6 @@ document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
     laborRates[name] = parsed;
   }
 });
-
-
   return laborRates;
 }
 
@@ -1039,7 +1002,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 }); 
-
 
 function areRequiredFieldsFilled() {
   const sidingStyle = document.querySelector('input[name="materialType"]')?.value?.trim();

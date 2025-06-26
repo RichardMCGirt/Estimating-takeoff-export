@@ -236,16 +236,21 @@ td:first-child {
 /* ────────────── Toast Notification ────────────── */
 #toast {
   position: fixed;
-  bottom: var(--space-lg);
-  right: var(--space-lg);
-  background: var(--color-toast-bg);
-  color: var(--color-white);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-  display: none;
-  z-index: 10000;
-  font-size: var(--font-size-base);
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  z-index: 9999;
+  font-size: 16px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease;
 }
+
+
 
 /* ────────────── Buttons ────────────── */
 #folderButtons button {

@@ -138,11 +138,22 @@ if (filledFields.length < 2) {
   return {};
 }
 
-const filterFormula = `AND(
-  FIND(" ${projectType} ", " " & {Type} & " "),
-  {Siding Style}="${sidingStyle}",
-  {Vanir Offices}="${branch}"
-)`;
+let filterFormula = "";
+
+if (sidingStyle === "Universal") {
+  filterFormula = `AND(
+    {Siding Style}="Universal",
+    {Vanir Offices}="${branch}"
+  )`;
+} else {
+  filterFormula = `AND(
+    FIND(" ${projectType} ", " " & {Type} & " "),
+    {Siding Style}="${sidingStyle}",
+    {Vanir Offices}="${branch}"
+  )`;
+}
+
+
   const encodedFormula = encodeURIComponent(filterFormula);
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
 
@@ -381,46 +392,16 @@ function areRequiredFieldsFilled() {
   const branch = document.getElementById('branchSelect')?.value?.trim();
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
 
+  // Project type is not required if siding style is Universal
+  if (sidingStyle === "Universal") {
+    return sidingStyle && branch;
+  }
+
   return sidingStyle && branch && projectType;
 }
-function showToast(message, duration = 3000) {
-  // Remove existing toast if present
-  const existing = document.getElementById("toast");
-  if (existing) existing.remove();
 
-  const toast = document.createElement("div");
-  toast.id = "toast";
-  toast.textContent = message;
 
-  // Style the toast
-  Object.assign(toast.style, {
-    position: "fixed",
-top: "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    backgroundColor: "#d9534f", 
-    color: "white",
-    padding: "12px 24px",
-    borderRadius: "8px",
-    fontSize: "14px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
-    zIndex: 9999,
-    opacity: 1,
-    transition: "opacity 0.5s ease"
-  });
 
-  document.body.appendChild(toast);
-
-  // Auto-hide after `duration` ms
- setTimeout(() => {
-  console.log("👋 Fading out toast");
-  toast.style.opacity = "0";
-  setTimeout(() => {
-    console.log("🧹 Removing toast from DOM");
-    toast.remove();
-  }, 500);
-}, duration);
-}
 
 function getLaborRates() {
   const laborRates = {};
