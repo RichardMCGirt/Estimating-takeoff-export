@@ -1,3 +1,5 @@
+let filterFormula = "";
+
 const predefinedLaborFields = [
   { name: "beamWrapLabor", label: "Beam Wrap Labor rate", airtableName: "Beam Wrap" },
   { name: "bbLabor", label: "B&B Labor rate", airtableName: "Board & Batten" },
@@ -13,31 +15,33 @@ const predefinedLaborFields = [
   { name: "tngCeilingLabor", label: "T&G Ceiling Labor rate", airtableName: "T&G Ceiling" },
 ];
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
-  // Setup change event listeners
-  document.getElementById("branchSelect").addEventListener("change", () => {
-    if (areRequiredFieldsFilled()) applyLaborRatesToForm();
+  const fieldsToWatch = [
+    "#branchSelect",
+    "#ProjectSelect",
+    'select[name="materialType"]'
+  ];
+
+  fieldsToWatch.forEach(selector => {
+    const el = document.querySelector(selector);
+    if (!el) return;
+
+    el.addEventListener("change", () => {
+      if (areRequiredFieldsFilled()) applyLaborRatesToForm();
+    });
   });
 
-  document.getElementById("ProjectSelect").addEventListener("change", () => {
-    if (areRequiredFieldsFilled()) applyLaborRatesToForm();
-  });
-
-  document.querySelector('select[name="materialType"]')
-?.addEventListener("change", () => {
-    if (areRequiredFieldsFilled()) applyLaborRatesToForm();
-  });
-
-  // Optional: log material changes
+  // Optional: log material type changes
   const materialInput = document.querySelector('select[name="materialType"]');
-  materialInput?.addEventListener('input', () => {
-    console.log('✏️ Material type changed:', materialInput.value);
-  });
-  materialInput?.addEventListener('change', () => {
-    console.log('✅ Material type final:', materialInput.value);
-  });
+  if (materialInput) {
+    materialInput.addEventListener("input", () => {
+      console.log("✏️ Material type changed:", materialInput.value);
+    });
+
+    materialInput.addEventListener("change", () => {
+      console.log("✅ Material type final:", materialInput.value);
+    });
+  }
 });
 
 async function fetchLaborRatesFromAirtable() {
@@ -45,100 +49,15 @@ async function fetchLaborRatesFromAirtable() {
   const baseId = 'appTxtZtAlIdKQ7Wt';
   const tableId = 'tblGJfNIqlT0dCkUX';
   const viewId = 'viwwL0F87E2IQuaw0';
-
-  const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
-  const branch = document.getElementById('branchSelect')?.value?.trim();
-  const projectType = document.getElementById('ProjectSelect')?.value?.trim();
-
-  console.log("🔍 Requested Siding Style:", sidingStyle);
-  console.log("🔍 Requested Branch:", branch);
-  console.log("🧪 Project Type:", projectType);
-
-  if (!sidingStyle && !branch && !projectType) {
-    console.warn("⚠️ All filters are missing. Cannot search labor rates.");
-    return {};
-  }
-
-  const filterParts = [];
-  if (sidingStyle) filterParts.push(`{Siding Style}="${sidingStyle}"`);
-  if (branch) filterParts.push(`{Vanir Offices}="${branch}"`);
-  if (projectType) filterParts.push(`FIND(" ${projectType} ", " " & {Type} & " ")`);
-
-  const relaxedFormula = `OR(${filterParts.join(",")})`;
-  const encodedFormula = encodeURIComponent(relaxedFormula);
-  const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
-
-  console.log("🔗 Airtable URL:", url);
-  console.log("🧪 Relaxed filter formula:", relaxedFormula);
-
-  try {
-    const [fieldMap, res] = await Promise.all([
-      fetchDynamicLaborFieldMap(),
-      fetch(url, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`
-        }
-      })
-    ]);
-
-    const data = await res.json();
-    console.log("📦 Raw Airtable response:", data);
-
-    if (!data.records || data.records.length === 0) {
-      showToast(`❌ No labor rates found for provided filters.`);
-      return {};
-    }
-
-    // Score each match
-    const scored = data.records.map(rec => {
-      const f = rec.fields;
-      let score = 0;
-      if (f["Siding Style"] === sidingStyle) score++;
-      if (f["Vanir Offices"] === branch) score++;
-      if ((f["Type"] || '').includes(projectType)) score++;
-      return { record: rec, score };
-    });
-
-    // Sort by best match (score descending)
-    scored.sort((a, b) => b.score - a.score);
-    const bestMatch = scored[0];
-
-    if (bestMatch.score < 2) {
-      showToast(`⚠️ Only partial match found. Showing closest available labor rate.`);
-    }
-
-    return bestMatch.record.fields;
-
-  } catch (error) {
-    console.error("❌ Error fetching labor rates:", error);
-    showToast("Error fetching labor rates. Please try again later.");
-    return {};
-  }
-}
-
-async function fetchLaborRatesFromAirtable() {
-  const apiKey = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
-  const baseId = 'appTxtZtAlIdKQ7Wt';
-  const tableId = 'tblGJfNIqlT0dCkUX';
-  const viewId = 'viwwL0F87E2IQuaw0';
-
   const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
   const branch = document.getElementById('branchSelect')?.value?.trim();
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
 const filledFields = [sidingStyle, branch, projectType].filter(Boolean);
 
-  console.log("🔍 Requested Siding Style:", sidingStyle);
-  console.log("🔍 Requested Branch:", branch);
-  console.log("🧪 Project Type:", projectType);
-
-
-if (filledFields.length < 2) {
-  console.warn("⚠️ At least two of siding style, branch, or project type must be provided.");
-  showToast("⚠️ Please select at least two filters to look up labor rates.");
+if (!sidingStyle || !branch) {
+  showToast("⚠️ Please select both office and siding style to look up labor rates.");
   return {};
 }
-
-let filterFormula = "";
 
 if (sidingStyle === "Universal") {
   filterFormula = `AND(
@@ -153,7 +72,6 @@ if (sidingStyle === "Universal") {
   )`;
 }
 
-
   const encodedFormula = encodeURIComponent(filterFormula);
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
 
@@ -164,7 +82,6 @@ if (sidingStyle === "Universal") {
  const res = await fetch(url, {
   headers: { Authorization: `Bearer ${apiKey}` }
 });
-
 
     const data = await res.json();
     console.log("📦 Raw Airtable response:", data);
@@ -200,7 +117,6 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
   }
 }
 
-
 function renderLaborInputs(laborRates) {
   const container = document.getElementById("laborRatesForm");
   container.innerHTML = "";
@@ -231,7 +147,6 @@ function renderLaborInputs(laborRates) {
     if (name === "otherLabor") {
   manualInput.style.display = "none";
 }
-
 
     // If only one value, set it directly in the input
     if (value.length === 1) {
@@ -337,14 +252,11 @@ if (name === "otherLabor") {
   wrapper.appendChild(button);
 }
 
-
     container.appendChild(wrapper);
   });
 
   console.log("✅ Finished rendering all labor rate fields");
 }
-
-
 
 async function applyLaborRatesToForm() {
   const rates = await fetchLaborRatesFromAirtable();
@@ -387,6 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('✅ Material type final:', materialInput.value);
   });
 });
+
 function areRequiredFieldsFilled() {
   const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
   const branch = document.getElementById('branchSelect')?.value?.trim();
@@ -399,9 +312,6 @@ function areRequiredFieldsFilled() {
 
   return sidingStyle && branch && projectType;
 }
-
-
-
 
 function getLaborRates() {
   const laborRates = {};
@@ -419,7 +329,6 @@ function getLaborRates() {
   document.querySelectorAll(".custom-labor-entry").forEach(wrapper => {
     const labelInput = wrapper.querySelector(".custom-labor-label");
     const rateInput = wrapper.querySelector(".custom-labor-rate");
-
     const label = labelInput?.value?.trim();
     const rate = parseLaborRate(rateInput?.value);
 
@@ -432,10 +341,8 @@ function getLaborRates() {
   return laborRates;
 }
 
-
 function addCustomLaborField(label = "", rate = "") {
   const container = document.getElementById("customLaborFields");
-
   const wrapper = document.createElement("div");
   wrapper.className = "custom-labor-entry";
   wrapper.style.display = "flex";
