@@ -31,15 +31,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Optional: log material type changes
+  // Log material type changes (optional)
   const materialInput = document.querySelector('select[name="materialType"]');
   if (materialInput) {
     materialInput.addEventListener("input", () => {
-      console.log("✏️ Material type changed:", materialInput.value);
     });
 
     materialInput.addEventListener("change", () => {
-      console.log("✅ Material type final:", materialInput.value);
     });
   }
 });
@@ -52,12 +50,6 @@ async function fetchLaborRatesFromAirtable() {
   const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
   const branch = document.getElementById('branchSelect')?.value?.trim();
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
-const filledFields = [sidingStyle, branch, projectType].filter(Boolean);
-
-if (!sidingStyle || !branch) {
-  showToast("⚠️ Please select both office and siding style to look up labor rates.");
-  return {};
-}
 
 if (sidingStyle === "Universal") {
   filterFormula = `AND(
@@ -75,16 +67,12 @@ if (sidingStyle === "Universal") {
   const encodedFormula = encodeURIComponent(filterFormula);
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
 
-  console.log("🔗 Airtable URL:", url);
-  console.log("🧪 Raw filter formula (before encoding):", filterFormula);
-
   try {
  const res = await fetch(url, {
   headers: { Authorization: `Bearer ${apiKey}` }
 });
 
     const data = await res.json();
-    console.log("📦 Raw Airtable response:", data);
 
    if (!data.records || data.records.length === 0) {
   const msg = `❌ No matching record found for Siding Style: "${sidingStyle}", Branch: "${branch}", and Project Type: "${projectType}".`;
@@ -120,9 +108,6 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
 function renderLaborInputs(laborRates) {
   const container = document.getElementById("laborRatesForm");
   container.innerHTML = "";
-
-  console.log("🛠 Rendering predefined inputs...");
-  console.log("📊 LaborRates received:", laborRates);
 
   // Ensure otherLabor is always an array
   if (!Array.isArray(laborRates.otherLabor)) {
@@ -245,42 +230,35 @@ if (name === "otherLabor") {
     // Clear input fields
     labelInput.value = "";
     rateInput.value = "";
-
-    console.log(`✅ Added custom labor "${label}" at $${rate}`);
   });
 
   wrapper.appendChild(labelInput);
   wrapper.appendChild(rateInput);
   wrapper.appendChild(button);
 }
-
     container.appendChild(wrapper);
   });
-
-  console.log("✅ Finished rendering all labor rate fields");
 }
 
 async function applyLaborRatesToForm() {
   const rates = await fetchLaborRatesFromAirtable();
-  console.log("📊 Rates returned:", rates);
-Object.entries(rates).forEach(([inputName, value]) => {
-  const input = document.querySelector(`[name="${inputName}"]`);
 
-  // ✅ If it's an array, grab the first rate
-  let finalRate = Array.isArray(value) ? value[0]?.rate : value;
+  Object.entries(rates).forEach(([inputName, value]) => {
+    const input = document.querySelector(`[name="${inputName}"]`);
+    if (!input) return;
 
- if (input && !isNaN(finalRate)) {
-  const currentValue = input.value?.trim();
-  const formattedRate = `$${parseFloat(finalRate).toFixed(2)}`;
+    const finalRate = Array.isArray(value) ? value[0]?.rate : value;
+    if (isNaN(finalRate)) return;
 
-  if (!currentValue || currentValue === "" || currentValue === formattedRate) {
-    input.value = formattedRate;
-    console.log(`💰 Set value for ${inputName}: ${formattedRate}`);
-  } else {
-    console.log(`✏️ Skipped overwriting ${inputName}; user entered: ${currentValue}`);
-  }
-}
-});
+    const formattedRate = `$${parseFloat(finalRate).toFixed(2)}`;
+    const currentValue = input.value?.trim();
+
+    // Only set the value if it's empty or matches the formatted rate
+    if (!currentValue || currentValue === "" || currentValue === formattedRate) {
+      input.value = formattedRate;
+    } else {
+    }
+  });
 }
 
 // Auto-apply when branch changes
@@ -291,16 +269,7 @@ document.querySelector("form")?.addEventListener("submit", function (e) {
   e.preventDefault();
 });
 
-// Log material type input
-document.addEventListener("DOMContentLoaded", () => {
-  const materialInput = document.querySelector('select[name="materialType"]');
-  materialInput?.addEventListener('input', () => {
-    console.log('✏️ Material type changed:', materialInput.value);
-  });
-  materialInput?.addEventListener('change', () => {
-    console.log('✅ Material type final:', materialInput.value);
-  });
-});
+
 
 function areRequiredFieldsFilled() {
   const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();

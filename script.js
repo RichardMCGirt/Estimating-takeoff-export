@@ -14,27 +14,103 @@ const serverURL = savedServer || defaultServer;
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Restore saved form fields or default to today's date
-  fields.forEach(field => {
-    const input = document.querySelector(`[name="${field}"]`);
-    const savedValue = localStorage.getItem(field);
-    if (input && savedValue !== null) {
-      input.value = savedValue;
-    }
+  // === 1. Attach Input Listeners for Labor Rates Form ===
+  attachLaborRateInputListeners();
 
-    // Default to today's date if field is "date" and empty
-  if (field === "date" && input) {
-  const today = new Date().toISOString().split("T")[0];
-  input.value = today;
-  localStorage.setItem("date", today); // optional: update localStorage too
-}
+  const estimateForm = document.getElementById("estimateForm");
+  if (estimateForm) {
+    estimateForm.querySelectorAll("input[name]").forEach(input => {
+      input.addEventListener("input", () => {
+        // Optional: live formatting or validation
+      });
 
-  });
+      input.addEventListener("focus", () => {
+        input.value = input.value.replace(/^\$/, '');
+      });
 
-  // Attach file input listener
+      input.addEventListener("blur", () => {
+        const raw = input.value.replace(/[^\d.\-]/g, '');
+        const val = parseFloat(raw);
+        input.value = !isNaN(val) ? `$${val.toFixed(2)}` : '';
+      });
+    });
+  }
+
+  // === 2. Restore Saved Fields or Set Today's Date ===
+  if (typeof fields !== "undefined" && Array.isArray(fields)) {
+    fields.forEach(field => {
+      const input = document.querySelector(`[name="${field}"]`);
+      const savedValue = localStorage.getItem(field);
+
+      if (input && savedValue !== null) {
+        input.value = savedValue;
+      }
+
+      if (field === "date" && input && !input.value) {
+        const today = new Date().toISOString().split("T")[0];
+        input.value = today;
+        localStorage.setItem("date", today);
+      }
+    });
+  }
+
+  // === 3. Handle Source File Upload ===
   const fileInput = document.getElementById('sourceFile');
   if (fileInput) {
     fileInput.addEventListener('change', handleSourceUpload);
+  }
+
+  // === 4. Input Logging for Labor Rates ===
+  const laborForm = document.getElementById("laborRatesForm");
+  if (laborForm) {
+    laborForm.querySelectorAll("input[name]").forEach(input => {
+      input.addEventListener("input", () => {
+        console.log(`📝 ${input.name} updated → ${input.value}`);
+      });
+    });
+  } else {
+    console.warn("⚠️ laborRatesForm not found.");
+  }
+
+  // === 5. Restore Session from localStorage ===
+  const storedData = localStorage.getItem("mergedData");
+  if (storedData) {
+    try {
+      mergedData = JSON.parse(storedData);
+      displayMergedTable(mergedData);
+      renderFolderButtons();
+      renderMaterialBreakoutButtons();
+      showToast(`📦 Restored previous session with ${mergedData.length} items`);
+    } catch (err) {
+      console.error("❌ Failed to parse stored mergedData:", err);
+      localStorage.removeItem("mergedData");
+    }
+  }
+
+  // === 6. Dark Mode Toggle Setup ===
+ const toggleButton = document.getElementById("darkModeToggle");
+  const body = document.body;
+
+  // Set initial theme based on localStorage
+  const darkModeEnabled = localStorage.getItem("darkMode") === "true";
+  if (darkModeEnabled) body.classList.add("dark");
+  else body.classList.remove("dark");
+
+  updateButtonText();
+
+  if (toggleButton) {
+    toggleButton.addEventListener("click", () => {
+      const isNowDark = body.classList.toggle("dark");
+      localStorage.setItem("darkMode", isNowDark);
+      updateButtonText();
+      console.log(`🌓 Toggled dark mode: ${isNowDark}`);
+    });
+  }
+
+  function updateButtonText() {
+    if (!toggleButton) return;
+    const isDark = body.classList.contains("dark");
+    toggleButton.textContent = isDark ? "Switch to Light Mode" : "Switch to Dark Mode";
   }
 });
 
@@ -83,7 +159,7 @@ function handleSourceUpload(event) {
     displayMergedTable(mergedData);
     renderFolderButtons();
     renderMaterialBreakoutButtons();
-showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
+    showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
     const elevationInput = document.querySelector('input[name="elevation"]');
@@ -174,9 +250,6 @@ function showToast(message = "Success!", duration = 3000) {
       const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
       normalizedHeaders[keyLower] = key;
     });
-  document.addEventListener("DOMContentLoaded", () => {
-  showToast("✅ DOM loaded, toast safe to use.");
-});
 
  function getHeaderMatch(possibleNames, normalizedHeaders) {
   const normalizedKeys = Object.keys(normalizedHeaders);
@@ -227,9 +300,9 @@ const key = `${normalizedSKU}___${normalizedFolder}`;
   if (!result[key]) {
    result[key] = {
   SKU: sku,
-Description: row[colMap.description] ?? null,
+  Description: row[colMap.description] ?? null,
   Description2: row[colMap.description2] || "",
-UOM: row[colMap.uom] ?? null,
+  UOM: row[colMap.uom] ?? null,
   Folder: folder,  
   ColorGroup: row[colMap.colorgroup] || "",
   Vendor: row[colMap.vendor] || "",
@@ -458,7 +531,6 @@ checkboxRow.classList.add('folder-checkbox-row');
   checkboxRow.appendChild(label);
 });
 
-
   // ✅ Inject button
   const injectBtn = document.createElement('button');
   injectBtn.textContent = "Export Selected Folders";
@@ -471,48 +543,6 @@ checkboxRow.classList.add('folder-checkbox-row');
 
   container.appendChild(injectBtn);
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  const storedData = localStorage.getItem("mergedData");
-  if (storedData) {
-    try {
-      mergedData = JSON.parse(storedData);
-      displayMergedTable(mergedData);
-      renderFolderButtons();
-      renderMaterialBreakoutButtons();
-      showToast(`📦 Restored previous session with ${mergedData.length} items`);
-    } catch (err) {
-      console.error("❌ Failed to parse stored mergedData:", err);
-      localStorage.removeItem("mergedData");
-    }
-  }
-  const toggleButton = document.getElementById("darkModeToggle");
-  const body = document.body;
-
-  function updateButtonText() {
-    if (!toggleButton) return;
-    toggleButton.textContent = body.classList.contains("dark")
-      ? "Switch to Light Mode"
-      : "Switch to Dark Mode";
-  }
-
-  if (toggleButton) {
-    toggleButton.addEventListener("click", () => {
-      body.classList.toggle("dark");
-      localStorage.setItem("darkMode", body.classList.contains("dark"));
-      console.log("🌓 Toggled dark mode:", body.classList.contains("dark"));
-      updateButtonText();
-    });
-
-    if (localStorage.getItem("darkMode") === "true") {
-      body.classList.add("dark");
-    } else {
-    }
-
-    updateButtonText();
-  }
-});
 
 function injectMultipleFolders(folders) {
   disableAllFolderButtons(true, "Injecting...");
@@ -625,7 +655,6 @@ function getLaborRates() {
   return laborRates;
 }
 
-
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
   const MAX_RETRIES = 5;
   const RETRY_DELAY = 3000 * attempt;
@@ -648,9 +677,6 @@ customLaborInputs.forEach(input => {
   }
 });
 
-console.log("🧠 Final laborRates:", laborRates);
-console.log("📦 Sending payload:", { metadata, laborRates, folderName });
-
 const payload = {
   data: elevationData,
   breakout: breakoutData,
@@ -658,7 +684,6 @@ const payload = {
   metadata,
   laborRates
 };
-
 
     fetch(serverURL, {
       method: "POST",
@@ -753,7 +778,7 @@ button.addEventListener('click', () => {
 
   // ✅ Continue with injection
   sendToInjectionServer(breakoutMerged, folder, "material_breakout");
-showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
+  showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
 });
    container.appendChild(button);
   });
@@ -907,34 +932,6 @@ function processQueue() {
   });
 }
   
-function updateButtonText() {
-  const body = document.body;
-  toggleButton.textContent = body.classList.contains('dark')
-    ? 'Switch to Light Mode'
-    : 'Switch to Dark Mode';
-}
-
-
-
-
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("laborRatesForm");
-  if (!form) {
-    console.warn("⚠️ laborRatesForm not found.");
-    return;
-  }
-
-  const inputs = form.querySelectorAll("input[name]");
-
-  inputs.forEach(input => {
-    input.addEventListener("input", () => {
-      console.log(`📝 ${input.name} updated → ${input.value}`);
-    });
-  });
-});
-
 function attachLaborRateInputListeners() {
   const form = document.getElementById("laborRatesForm");
   if (!form) return;
@@ -946,35 +943,6 @@ function attachLaborRateInputListeners() {
     });
   });
 }
-
-// Attach listeners once the DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-  attachLaborRateInputListeners();
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  const estimateForm = document.getElementById("estimateForm");
-  if (estimateForm) {
-    estimateForm.querySelectorAll("input[name]").forEach(input => {
-      input.addEventListener("input", () => {
-      });
-
-      input.addEventListener("focus", () => {
-        input.value = input.value.replace(/^\$/, '');
-      });
-
-      input.addEventListener("blur", () => {
-        const raw = input.value.replace(/[^\d.\-]/g, '');
-        const val = parseFloat(raw);
-        if (!isNaN(val)) {
-          input.value = `$${val.toFixed(2)}`;
-        } else {
-          input.value = '';
-        }
-      });
-    });
-  }
-}); 
 
 function areRequiredFieldsFilled() {
   const sidingStyle = document.querySelector('input[name="materialType"]')?.value?.trim();
