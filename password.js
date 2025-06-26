@@ -1,25 +1,69 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const correctPassword = "VanirEstimate4U";
+  (function () {
+    const correctPassword = "VanirEstimate4U";
 
-  // Check if password was already saved in localStorage
-  if (localStorage.getItem("vanirAuthorized") === "true") {
-    return; // already authenticated
-  }
+    // Check if already authenticated
+    if (localStorage.getItem("vanirAuthorized") === "true") return;
 
-  const userPassword = prompt("Please enter the password to access this page:");
-
-  if (userPassword === correctPassword) {
-    // Save success to localStorage
-    localStorage.setItem("vanirAuthorized", "true");
-  } else {
-    // Deny access
+    // Immediately hide page
+    document.body.style.margin = "0";
     document.body.innerHTML = "";
-    document.body.style.backgroundColor = "black";
-    document.body.style.color = "white";
-    document.body.style.display = "flex";
-    document.body.style.alignItems = "center";
-    document.body.style.justifyContent = "center";
-    document.body.style.height = "100vh";
-    document.body.innerHTML = "<h2>❌ Access Denied</h2>";
-  }
-});
+
+    // Create full-page black overlay
+    const overlay = document.createElement("div");
+    overlay.style.position = "fixed";
+    overlay.style.inset = "0";
+    overlay.style.backgroundColor = "black";
+    overlay.style.color = "white";
+    overlay.style.display = "flex";
+    overlay.style.flexDirection = "column";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.zIndex = "9999";
+    overlay.style.fontFamily = "sans-serif";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "Please enter the password";
+
+    const input = document.createElement("input");
+    input.type = "password";
+    input.placeholder = "Enter Password";
+    input.style.padding = "12px";
+    input.style.fontSize = "18px";
+    input.style.borderRadius = "6px";
+    input.style.border = "1px solid #ccc";
+    input.style.marginTop = "10px";
+
+    const button = document.createElement("button");
+    button.textContent = "Submit";
+    button.style.marginTop = "10px";
+    button.style.padding = "10px 20px";
+    button.style.fontSize = "16px";
+    button.style.borderRadius = "6px";
+    button.style.cursor = "pointer";
+
+    const error = document.createElement("p");
+    error.textContent = "Incorrect password";
+    error.style.color = "red";
+    error.style.marginTop = "10px";
+    error.style.display = "none";
+
+    button.onclick = () => {
+      if (input.value.trim() === correctPassword) {
+        localStorage.setItem("vanirAuthorized", "true");
+        overlay.remove(); // allow page to show
+        location.reload(); // refresh to show actual page
+      } else {
+        error.style.display = "block";
+      }
+    };
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") button.click();
+    });
+
+    overlay.appendChild(heading);
+    overlay.appendChild(input);
+    overlay.appendChild(button);
+    overlay.appendChild(error);
+    document.body.appendChild(overlay);
+  })();
