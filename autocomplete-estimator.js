@@ -96,14 +96,14 @@ item.textContent = match === "Heath Kornegay" ? "Nice Guy" : match;
         item.style.backgroundColor = '';
       });
 
-    item.addEventListener('mousedown', () => {
+  item.addEventListener('click', (e) => {
+  e.preventDefault();
   const finalValue = match === "Heath Kornegay" ? "Heath Kornegay" : match;
   input.value = finalValue;
   dropdown.innerHTML = '';
   dropdown.style.display = 'none';
   localStorage.setItem("estimator", finalValue);
 });
-
 
       dropdown.appendChild(item);
     });

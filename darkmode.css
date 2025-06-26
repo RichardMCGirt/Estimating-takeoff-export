@@ -350,7 +350,7 @@ body.dark button:hover {
 
 /* Only apply black background to folder checkbox labels */
 body.dark #folderCheckboxRow label {
-  background-color: black !important;
+  background-color: black ;
   color: var(--color-text);
 }
 
@@ -446,7 +446,7 @@ body.dark .folder-checkbox:checked {
   border-color: var(--color-accent-dark);
 }
 body.dark .folder-label {
-  background-color: #2b2b2b; /* ⬅️ Replaces default white */
+  background-color: #2b2b2b; 
   border: 1px solid #555;
   color: #f0f0f0;
 }

@@ -64,7 +64,7 @@ function setupBuilderDropdown() {
     const item = document.createElement('div');
     item.textContent = match;
     item.className = 'autocomplete-item';
-    item.addEventListener('mousedown', () => {
+item.addEventListener('click', () => {
       input.value = match;
       dropdown.style.display = 'none';
       localStorage.setItem("builder", match);
@@ -98,9 +98,12 @@ input.addEventListener('keydown', (e) => {
   }
 });
 
-  input.addEventListener('blur', () => {
-    setTimeout(() => (dropdown.style.display = 'none'), 200);
-  });
+ setTimeout(() => {
+  if (!dropdown.contains(document.activeElement)) {
+    dropdown.style.display = 'none';
+  }
+}, 150);
+
 
     const saved = localStorage.getItem("builder");
   if (saved) input.value = saved;
@@ -116,6 +119,6 @@ input.addEventListener('keydown', (e) => {
     });
   }
 
-} // <-- ✅ This closes setupBuilderDropdown()
+} 
 
 document.addEventListener('DOMContentLoaded', setupBuilderDropdown);

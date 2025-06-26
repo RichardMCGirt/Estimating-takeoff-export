@@ -432,8 +432,6 @@ function renderFolderButtons() {
   const checkboxRow = document.createElement('div');
   checkboxRow.id = 'folderCheckboxRow';
 checkboxRow.classList.add('folder-checkbox-row');
-const label = document.createElement('label');
-label.classList.add('folder-label');
 
   checkboxRow.style.marginBottom = '12px';
   container.appendChild(checkboxRow);
@@ -446,29 +444,19 @@ label.classList.add('folder-label');
   section.style.display = "block";
 
   uniqueFolders.forEach(folder => {
-    const label = document.createElement('label');
-    label.style.display = 'inline-flex';
-    label.style.alignItems = 'center';
-    label.style.padding = '6px 12px';
-    label.style.border = '1px solid #ccc';
-    label.style.borderRadius = '6px';
-    label.style.background = '#f9f9f9';
-    label.style.cursor = 'pointer';
-    label.style.fontSize = '24px'; 
+  const label = document.createElement('label');
+  label.classList.add('folder-label'); // ✅ use class, not inline styles
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = folder;
-    checkbox.classList.add('folder-checkbox');
-    checkbox.style.marginRight = '8px';
-    checkbox.style.transform = 'scale(2)'; 
-    checkbox.style.marginRight = '10px';
-    checkbox.style.cursor = 'pointer';
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.value = folder;
+  checkbox.classList.add('folder-checkbox'); // ✅ styling handled by CSS
 
-    label.appendChild(checkbox);
-    label.append(folder);
-    checkboxRow.appendChild(label);
-  });
+  label.appendChild(checkbox);
+  label.append(folder);
+  checkboxRow.appendChild(label);
+});
+
 
   // ✅ Inject button
   const injectBtn = document.createElement('button');
