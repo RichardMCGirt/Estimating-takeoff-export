@@ -347,11 +347,9 @@ input[type="number"] {
   }
 
   /* 🌙 Folder checkbox container background */
-/* 🌞 Light mode: use native look (no background override) */
 .folder-checkbox {
   accent-color: #4caf50;
   border-radius: 4px;
-  /* ✅ Remove background-color here */
 }
 
 /* 🌙 Dark mode override */

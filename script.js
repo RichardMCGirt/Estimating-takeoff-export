@@ -12,6 +12,7 @@ const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
+
 document.addEventListener("DOMContentLoaded", () => {
   // Restore saved form fields or default to today's date
   fields.forEach(field => {

@@ -16,146 +16,77 @@
   <div class="main-wrapper">
 
     <!-- 🔘 Dark Mode Toggle Button -->
- <button id="darkModeToggle">Switch to Dark Mode</button>
+    <button id="darkModeToggle">Switch to Dark Mode</button>
 
-<div id="toast" style="
-  visibility: hidden;
-  opacity: 0;
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #333;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  z-index: 99999;
-  font-size: 16px;
-  transition: opacity 0.3s ease;
-"></div>
+    <!-- 🔔 Toast Notification -->
+    <div id="toast"></div>
 
+    <!-- ✍️ Step 1: Complete This Table -->
+    <h2>Step 1: Complete this table</h2>
+    <form id="estimateForm" class="form-grid">
+      <div class="form-section">
+        <label>Builder:
+          <input type="text" name="builder" id="builderInput" autocomplete="off" />
+          <div id="builderDropdown" class="autocomplete-dropdown"></div>
+        </label>
 
-    <!-- ✍️ Step 2: Complete This Table -->
-<h2>Step 1: Complete this table</h2>
-<form id="estimateForm" class="form-grid">
-  <!-- General Info -->
-  <div class="form-section">
-    <label>Builder:
-      <input type="text" name="builder" id="builderInput" autocomplete="off" />
-      <div id="builderDropdown" class="autocomplete-dropdown"></div>
-    </label>
+        <label>Plan Name:
+          <input type="text" name="planName" />
+        </label>
 
-    <label>Plan Name:
-      <input type="text" name="planName" />
-    </label>
-
-   <label for="materialType">Material Type:
-  <select name="materialType" id="materialType">
-    <option value="">-- Select Material Type --</option>
-    <option value="Universal">Universal</option>
-    <option value="Hard Siding">Hard Siding</option>
-    <option value="Vinyl">Vinyl</option>
-  </select>
-</label>
+       <label>Material Type:
+          <select name="materialType" id="materialType"></select>
+        </label>
 
 
-    <label>Project Type:
-<select id="ProjectSelect">
-    <option value="">-- Select a Project Type --</option>
-    <option value="Single Family">Single Family</option>
-        <option value="Townhome">Townhome</option>
-    <option value="2 Story Townhomes">2 Story Townhomes</option>
-    <option value="3 Story Townhomes">3 Story Townhomes</option>
-  </select>   
- </label>
+        <label>Project Type:
+          <select id="ProjectSelect"></select>
+        </label>
 
-    <label>Date:
-      <input type="date" name="date" id="dateInput" />
-    </label>
+        <label>Date:
+          <input type="date" name="date" id="dateInput" />
+        </label>
 
-    <label>Estimator:
-      <input type="text" name="estimator" id="estimatorInput" autocomplete="off" />
-      <div id="estimatorDropdown" class="autocomplete-dropdown"></div>
-    </label>
+        <label>Estimator:
+          <input type="text" name="estimator" id="estimatorInput" autocomplete="off" />
+          <div id="estimatorDropdown" class="autocomplete-dropdown"></div>
+        </label>
 
-    
-  </div>
-<div style="margin-bottom: 16px;">
-  <label for="branchSelect">Select Branch:</label>
-  <select id="branchSelect">
-    <option value="">-- Select a Branch --</option>
-    <option value="Charleston">Charleston</option>
-    <option value="Charlotte">Charlotte</option>
-    <option value="Columbia">Columbia</option>
-    <option value="Greensboro">Greensboro</option>
-    <option value="Greenville SC">Greenville</option>
-    <option value="Myrtle Beach">Myrtle Beach</option>
-    <option value="Raleigh">Raleigh</option>
-    <option value="Wilmington">Wilmington</option>
-  </select>
-</div>
+        <label>Select Branch:
+          <select id="branchSelect"></select>
+        </label>
+      </div>
 
+      <div id="laborRatesForm" class="form-section"></div>
+    </form>
 
-
-<!-- Labor Rates -->
-<div id="laborRatesForm" class="form-section">
-  <label>Beam Wrap Labor rate<br><input type="text" name="beamWrapLabor" /></label>
-  <label>B&amp;B Labor rate<br><input type="text" name="bbLabor" /></label>
-  <label>Bracket Labor rate<br><input type="text" name="bracketLabor" /></label>
-  <label>Ceiling Labor rate<br><input type="text" name="ceilingLabor" /></label>
-  <label>Column Labor rate<br><input type="text" name="columnLabor" /></label>
-  <label>Lap Labor rate<br><input type="text" name="lapLabor" /></label>
-  <label>Louver Labor rate<br><input type="text" name="louverLabor" /></label>
-<label style="display: none;">Other Labor rate<br>
-  <input type="text" name="otherLabor" />
-</label>
-  <label>Paint Labor rate<br><input type="text" name="paintLabor" /></label>
-  <label>Shake Labor<br><input type="text" name="shakeLabor" /></label>
-  <label>Shutter Labor rate<br><input type="text" name="shutterLabor" /></label>
-  <label>T&amp;G Ceiling Labor rate<br><input type="text" name="tngCeilingLabor" /></label>
-</div>
-
-</form>
-
-    <!-- 📁 Step 1: Upload Source File -->
     <h2>Step 2: Upload Source File</h2>
     <div id="drop-zone">
-      <p>
-        Drag & drop your Excel file here, or 
-        <span class="click-browse">click</span> to browse
-      </p>
+      <p>Drag & drop your Excel file here, or <span class="click-browse">click</span> to browse</p>
       <input type="file" id="sourceFile" accept=".xlsx" />
     </div>
     <div id="file-name"></div>
 
-    <hr>
-
-    <hr>
-
-    <!-- ⏳ Loading Overlay -->
     <div id="loadingOverlay">
       <div id="loadingMessage">Loading...</div>
       <div class="loader"></div>
     </div>
 
-    <!-- 🏡 Step 3: Select Elevation -->
     <div id="elevationSection">
       <h2>Step 3: Select Elevation</h2>
       <div id="folderButtons"></div>
       <hr>
     </div>
 
-    <!-- 📊 Merged Table Output -->
     <div id="mergedTableWrapper">
       <div id="mergedTableContainer"></div>
     </div>
-
-    <!-- 🔔 Toast Notification -->
-
+  </div>
 
   <!-- 📜 Scripts -->
-  <script src="script.js"></script> 
-    <script src="laborrates.js"></script>
+  <script src="script.js"></script>
+  <script src="form-init.js"></script>
+  <script src="laborrates.js"></script>
   <script src="autocomplete-estimator.js"></script>
   <script src="autocomplete-builder.js"></script>
 </body>
