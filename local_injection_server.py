@@ -221,7 +221,8 @@ def inject():
 
 
             # ✅ Inject Paint Labor value into cell L48
-        paint_labor_raw = (metadata.get("paintlabor") or "").strip()
+        paint_labor_raw = str(metadata.get("paintlabor") or "").strip()
+
 
 
             # Strip $ or any non-numeric characters
@@ -254,7 +255,8 @@ def inject():
 
                 is_labor = "labor" in sku.lower()
                 skip_rounding = is_labor or uom == "SQ"
-                total_qty = qty_raw if skip_rounding else math.ceil(abs(qty_raw))
+                total_qty = qty_raw if skip_rounding else math.ceil(qty_raw)
+
 
                 sheet.range(f"A{i}").value = sku
                 sheet.range(f"C{i}").value = desc2

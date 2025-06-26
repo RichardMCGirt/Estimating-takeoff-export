@@ -590,26 +590,41 @@ function parseLaborRate(value) {
 function getLaborRates() {
   const laborRates = {};
 
-  // 1. Standard fields from predefinedLaborFields
-  predefinedLaborFields.forEach(({ name }) => {
-    const input = document.querySelector(`input[name="${name}"]`);
-    if (input) {
-      const parsed = parseLaborRate(input.value);
-      if (parsed !== null) laborRates[name] = parsed;
-    }
-  });
+  // 1. Predefined labor fields
+  if (typeof predefinedLaborFields !== "undefined") {
+    predefinedLaborFields.forEach(({ name }) => {
+      const input = document.querySelector(`input[name="${name}"]`);
+      if (input) {
+        const parsed = parseLaborRate(input.value);
+        if (parsed !== null) laborRates[name] = parsed;
+      }
+    });
+  }
 
-  // 2. Custom fields added under "otherLabor"
+  // 2. Static field: otherLabor
+  const otherLaborInput = document.querySelector('input[name="otherLabor"]');
+  if (otherLaborInput) {
+    const raw = otherLaborInput.value?.trim();
+    if (raw) {
+      const parsed = parseLaborRate(raw);
+      if (parsed !== null) {
+        laborRates["otherLabor"] = parsed;
+      }
+    }
+  }
+
+  // 3. Custom fields added dynamically (with data-custom-labor="true")
   document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
     const name = input.name;
     const parsed = parseLaborRate(input.value);
-    if (name && parsed !== null) {
+    if (parsed !== null && name) {
       laborRates[name] = parsed;
     }
   });
 
   return laborRates;
 }
+
 
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
   const MAX_RETRIES = 5;
@@ -899,40 +914,9 @@ function updateButtonText() {
     : 'Switch to Dark Mode';
 }
 
-function getLaborRates() {
-  const laborRates = {};
 
-  // Handle all predefined fields (like lapLabor, ceilingLabor, etc.)
-  predefinedLaborFields.forEach(({ name }) => {
-    const input = document.querySelector(`input[name="${name}"]`);
-    if (input) {
-      const parsed = parseLaborRate(input.value);
-      if (parsed !== null) laborRates[name] = parsed;
-    }
-  });
 
-// ✅ Directly get the otherLabor input
-const otherLaborInput = document.querySelector('input[name="otherLabor"]');
-if (otherLaborInput) {
-  const raw = otherLaborInput.value?.trim();
-  if (raw) {
-    const parsed = parseLaborRate(raw);
-    if (parsed !== null) {
-      laborRates["otherLabor"] = parsed;
-    }
-  }
-}
 
-// ✅ Dynamically added custom labor inputs
-document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
-  const name = input.name;
-  const parsed = parseLaborRate(input.value);
-  if (parsed !== null && name) {
-    laborRates[name] = parsed;
-  }
-});
-  return laborRates;
-}
 
 
 document.addEventListener("DOMContentLoaded", () => {
