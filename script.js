@@ -7,7 +7,7 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "https://5e25-174-108-187-19.ngrok-free.app";
+const baseServer = "http://10.0.0.4:5000";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
