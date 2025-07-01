@@ -9,7 +9,9 @@ import threading
 injection_lock = threading.Lock()
 
 app = Flask(__name__)
-CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
+app.config['DEBUG'] = True  # This will enable debugging
+CORS(app)
+
 
 def sort_by_description(data, key="Description"):
     return sorted(data, key=lambda x: (x.get(key) == "", (x.get(key) or "").lower()))
@@ -21,17 +23,12 @@ def split_labor(data):
         [row for row in data if "labor" in row.get("SKU", "").lower()]
     )
 
-@app.after_request
-def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    return response
+
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
-        return '', 204
+        return '', 200
   # 🔐 Attempt to acquire lock
     if not injection_lock.acquire(blocking=False):
         return jsonify({'error': 'Another injection is currently running. Please wait.'}), 429
@@ -507,4 +504,4 @@ def inject():
         injection_lock.release()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001, debug=True)

@@ -1,0 +1,144 @@
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.0.0.4:5000
+Press CTRL+C to quit
+127.0.0.1 - - [30/Jun/2025 19:29:41] "GET /test HTTP/1.1" 404 -
+127.0.0.1 - - [30/Jun/2025 19:29:55] "GET /inject HTTP/1.1" 405 -
+127.0.0.1 - - [30/Jun/2025 19:30:00] "GET /post HTTP/1.1" 404 -
+127.0.0.1 - - [30/Jun/2025 19:30:12] "GET /test HTTP/1.1" 404 -
+127.0.0.1 - - [30/Jun/2025 19:33:23] "OPTIONS /inject HTTP/1.1" 204 -
+[2025-06-30 19:33:51,772] ERROR in app: Exception on /inject [POST]
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 42, in inject
+    payload = request.get_json()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 504, in inject
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [30/Jun/2025 19:33:51] "POST /inject HTTP/1.1" 500 -
+195.184.76.98 - - [30/Jun/2025 19:49:07] code 400, message Bad request version ('À#À¬À®À+À')
+195.184.76.98 - - [30/Jun/2025 19:49:07] "\x16\x03\x03\x01¨\x01\x00\x01¤\x03\x03uþ*ý»\x06(I-/À5\x0d\x0e×ùï\x09j=ño?ÒÚÓ\x0bcÝ<¾> \x0ci\x8a\x1e\x97±m³ã\x1dÂr\x06\x8fØ°\x96L\x13;C:r£L¦\x14qìÓà1\x00\x8a\x00\x16\x003\x00gÀ\x9eÀ¢\x00\x9e\x009\x00kÀ\x9fÀ£\x00\x9f\x00E\x00¾\x00\x88\x00Ä\x00\x9aÀ\x08À\x09À#À¬À®À+À" 400 -
+195.184.76.120 - - [30/Jun/2025 19:49:11] "GET / HTTP/1.1" 404 -
+167.94.138.118 - - [30/Jun/2025 19:54:58] "GET / HTTP/1.1" 404 -
+167.94.138.118 - - [30/Jun/2025 19:55:02] code 505, message Invalid HTTP version (2.0)
+167.94.138.118 - - [30/Jun/2025 19:55:02] "PRI * HTTP/2.0" 505 -
+167.94.138.118 - - [30/Jun/2025 19:55:20] "GET /favicon.ico HTTP/1.1" 404 -
+167.94.138.118 - - [30/Jun/2025 19:55:21] code 505, message Invalid HTTP version (2.0)
+167.94.138.118 - - [30/Jun/2025 19:55:21] "PRI * HTTP/2.0" 505 -
+167.94.138.118 - - [30/Jun/2025 19:55:29] code 400, message Bad request version ('À\x14À')
+167.94.138.118 - - [30/Jun/2025 19:55:29] "\x16\x03\x01\x00î\x01\x00\x00ê\x03\x031\x1aoìÒ\x7fSEË\x87Å\x85n9YÍï\x05Éá³|\x81Ýø|r»õ+0Ü Ó&r­óüq|\x05&á\x01¬£å]Ý¥\x1c\x14Éß\x12Q\x11z.\x84\x10\x8aþ\x1a\x00&Ì¨Ì©À/À0À+À,À\x13À\x09À\x14À" 400 -
+167.94.138.118 - - [30/Jun/2025 19:55:32] "GET /login HTTP/1.1" 404 -
+195.184.76.237 - - [30/Jun/2025 20:02:15] "GET /favicon.ico HTTP/1.1" 404 -
+205.210.31.159 - - [30/Jun/2025 20:59:16] "GET / HTTP/1.1" 404 -
+91.196.152.28 - - [30/Jun/2025 21:22:09] code 400, message Bad request version ('ædüì\x10\x02Lïl2')
+91.196.152.28 - - [30/Jun/2025 21:22:09] "\x16\x03\x03\x01¨\x01\x00\x01¤\x03\x03Àz:×\x1f)Ò=&Ç2}·Gs¬(#®\x9eó$Ä3"BI/6sêÙ .\x1eædüì\x10\x02Lïl2" 400 -
+91.196.152.114 - - [30/Jun/2025 21:22:17] "GET / HTTP/1.1" 404 -
+91.231.89.210 - - [30/Jun/2025 21:31:19] "GET /favicon.ico HTTP/1.1" 404 -
+4.155.171.170 - - [30/Jun/2025 23:33:43] "GET / HTTP/1.0" 404 -
+66.175.213.4 - - [30/Jun/2025 23:38:59] code 400, message Bad request syntax ('\x16\x03\x01\x01')
+66.175.213.4 - - [30/Jun/2025 23:38:59] "\x16\x03\x01\x01" 400 -
+66.175.213.4 - - [30/Jun/2025 23:38:59] code 400, message Bad request syntax ('\x16\x03\x01\x01')
+66.175.213.4 - - [30/Jun/2025 23:38:59] "\x16\x03\x01\x01" 400 -
+172.105.147.116 - - [01/Jul/2025 00:04:34] "GET / HTTP/1.1" 404 -
+172.105.147.196 - - [01/Jul/2025 00:26:32] "GET / HTTP/1.0" 404 -
+178.128.127.68 - - [01/Jul/2025 01:02:14] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00u\x01\x00\x00q\x03\x03JÀwõÏ²d+0[\x99<a1×ËÔÂÐÂ\x82ïF`¹vÛJóþJÅ\x00\x00\x1aÀ/À+À\x11À\x07À\x13À')
+178.128.127.68 - - [01/Jul/2025 01:02:14] "\x16\x03\x01\x00u\x01\x00\x00q\x03\x03JÀwõÏ²d+0[\x99<a1×ËÔÂÐÂ\x82ïF`¹vÛJóþJÅ\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À" 400 -
+178.128.127.68 - - [01/Jul/2025 01:02:14] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00u\x01\x00\x00q\x03\x03jûÄ\x98¢ÛQ,iýýè<ÎuÙ%>ëà\x86ç°\x9afÆ¥Ví&©\x13\x00\x00\x1aÀ/À+À\x11À\x07À\x13À')
+178.128.127.68 - - [01/Jul/2025 01:02:14] "\x16\x03\x01\x00u\x01\x00\x00q\x03\x03jûÄ\x98¢ÛQ,iýýè<ÎuÙ%>ëà\x86ç°\x9afÆ¥Ví&©\x13\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À" 400 -
+178.128.127.68 - - [01/Jul/2025 01:02:15] code 400, message Bad request version ('À\x14À')
+178.128.127.68 - - [01/Jul/2025 01:02:15] "\x16\x03\x01\x00u\x01\x00\x00q\x03\x03wæÃ´ã\x9aH\x04\x10éU%\x07\x9b<é¦\x80ò3@sQ.ï\x89Þ\x1eFNé?\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À" 400 -
+198.235.24.246 - - [01/Jul/2025 01:29:58] "GET / HTTP/1.0" 404 -
+167.94.145.96 - - [01/Jul/2025 02:46:17] code 400, message Bad request syntax ('\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03ÅÎñW¦¼o')
+167.94.145.96 - - [01/Jul/2025 02:46:17] "\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03ÅÎñW¦¼o" 400 -
+167.94.145.96 - - [01/Jul/2025 02:47:04] code 400, message Bad request syntax ('ZG\x00\x00\x00\x05\x00+\x0e\x01\x00')
+167.94.145.96 - - [01/Jul/2025 02:47:04] "ZG\x00\x00\x00\x05\x00+\x0e\x01\x00" 400 -
+172.236.228.220 - - [01/Jul/2025 03:10:06] "GET / HTTP/1.1" 404 -
+138.68.182.150 - - [01/Jul/2025 03:25:13] "GET / HTTP/1.1" 404 -
+138.68.182.150 - - [01/Jul/2025 03:25:13] "GET /favicon.ico HTTP/1.1" 404 -
+205.210.31.13 - - [01/Jul/2025 04:33:04] "GET / HTTP/1.1" 404 -
+167.94.145.103 - - [01/Jul/2025 04:49:50] code 400, message Bad request version ('À\x14À')
+167.94.145.103 - - [01/Jul/2025 04:49:50] "\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03\x9båÙ£òþÖÍ\x1e»/÷çÚéÕmñ\x82a fïi\x92ºÿU#\x93dÙ \x0dfÄ-Báeâõ»e!Þ\x05_\x1c¡J·1\x92N Q¼Rñ\x19­V0³\x00&Ì¨Ì©À/À0À+À,À\x13À\x09À\x14À" 400 -
+167.94.145.103 - - [01/Jul/2025 04:49:54] "GET / HTTP/1.1" 404 -
+167.94.145.103 - - [01/Jul/2025 04:49:57] "GET / HTTP/1.1" 404 -
+167.94.145.103 - - [01/Jul/2025 04:49:58] code 505, message Invalid HTTP version (2.0)
+167.94.145.103 - - [01/Jul/2025 04:49:58] "PRI * HTTP/2.0" 505 -
+167.94.145.103 - - [01/Jul/2025 04:50:01] "GET /favicon.ico HTTP/1.1" 404 -
+167.94.145.103 - - [01/Jul/2025 04:50:02] code 505, message Invalid HTTP version (2.0)
+167.94.145.103 - - [01/Jul/2025 04:50:02] "PRI * HTTP/2.0" 505 -
+167.94.145.103 - - [01/Jul/2025 04:50:08] code 400, message Bad request version ('À\x14À')
+167.94.145.103 - - [01/Jul/2025 04:50:08] "\x16\x03\x01\x00î\x01\x00\x00ê\x03\x03åÔmZ«\x19Y¾\x05À\x06Lk\x97lÁ¿ö\x08+(\x9eS=Do\x96Cç´<\x1c ñË\x0cH\x90\x80w\x0b:[s×\x10\x96\x94\x7fJ\x19}\x1f*ýnÛ?c$\x89¼î!u\x00&Ì¨Ì©À/À0À+À,À\x13À\x09À\x14À" 400 -
+167.94.145.103 - - [01/Jul/2025 04:50:09] "GET /sitemap.xml HTTP/1.1" 404 -
+64.62.197.107 - - [01/Jul/2025 05:30:48] "GET / HTTP/1.1" 404 -
+64.62.197.110 - - [01/Jul/2025 05:31:06] "GET /favicon.ico HTTP/1.1" 404 -
+96.126.104.20 - - [01/Jul/2025 06:22:56] code 400, message Bad request version ('À\x13À')
+96.126.104.20 - - [01/Jul/2025 06:22:56] "\x16\x03\x01\x00ò\x01\x00\x00î\x03\x03&-Ùþ\x98¾\x11R&\x08.\x87é\x8b\x05ÿkw´R8\x8fÁÏøÏÿI¿[ÉE 6Çþ\x87\x88k\x92\x8f¶1ÇrÏ\x9e¢öm=Ê\x9cÜjÜ¢EI\x96\x1cjÓT\x83\x00&À+À/À,À0Ì©Ì¨À\x09À\x13À" 400 -
+96.126.104.20 - - [01/Jul/2025 06:22:56] "GET /signin HTTP/1.1" 404 -
+172.184.115.161 - - [01/Jul/2025 07:04:47] "GET / HTTP/1.1" 404 -
+172.184.115.161 - - [01/Jul/2025 07:04:47] "GET / HTTP/1.1" 404 -
+172.184.115.161 - - [01/Jul/2025 07:04:47] code 400, message Bad request version ("÷¨ÓM=ª#{<3\x05h·5ôü%\x04¶OýË\x99O«´öc\x96÷_\x16\x00>\x13\x02\x13\x03\x13\x01À,À0\x00\x9fÌ©Ì¨ÌªÀ+À/\x00\x9eÀ$À(\x00kÀ#À'\x00gÀ")
+172.184.115.161 - - [01/Jul/2025 07:04:47] "\x16\x03\x01\x01/\x01\x00\x01+\x03\x03xêâCU\x14Æ\x8bRGÚ­\x81\x0dö¯0\x8erºÝÉÁ\x85±U\x04ª\x99êYu ÷¨ÓM=ª#{<3\x05h·5ôü%\x04¶OýË\x99O«´öc\x96÷_\x16\x00>\x13\x02\x13\x03\x13\x01À,À0\x00\x9fÌ©Ì¨ÌªÀ+À/\x00\x9eÀ$À(\x00kÀ#À'\x00gÀ" 400 -
+198.235.24.6 - - [01/Jul/2025 09:13:20] "GET / HTTP/1.0" 404 -
+96.126.104.20 - - [01/Jul/2025 10:11:37] code 400, message Bad request syntax ('\x16\x03\x01\x00ò\x01\x00\x00î\x03\x03§àU\x18÷×s\x90~P\x07')
+96.126.104.20 - - [01/Jul/2025 10:11:37] "\x16\x03\x01\x00ò\x01\x00\x00î\x03\x03§àU\x18÷×s\x90~P\x07" 400 -
+96.126.104.20 - - [01/Jul/2025 10:11:37] "GET /signin HTTP/1.1" 404 -
+35.226.27.221 - - [01/Jul/2025 10:53:10] code 400, message Bad request version ('À\x13À')
+35.226.27.221 - - [01/Jul/2025 10:53:10] "\x16\x03\x01\x00þ\x01\x00\x00ú\x03\x03ÊÊ¡ô¹»\x15t\x07PÈ+ÄýLUR\x9dÆ\x80jÛø\x0bÏÒ\x13NgBçk \x97èÝ]ýjº\x0f¬\x10$+Ø½¤©#P¦>\x04\x17\x93Ý|Íj6 ':\x8b\x002À+À/À,À0Ì©Ì¨À\x09À\x13À" 400 -
+35.226.27.221 - - [01/Jul/2025 10:53:11] "GET / HTTP/1.1" 404 -
+81.29.134.51 - - [01/Jul/2025 11:22:57] code 400, message Bad request version ('À\x13À')
+81.29.134.51 - - [01/Jul/2025 11:22:57] "\x16\x03\x01\x00þ\x01\x00\x00ú\x03\x03\x12\x9e\x1avtÒ'aù\x93I\x07®\x9bzî|¢7&\x16\x89\x05c\x97Ç\x16æív&\x14 Zi8èÚÃ=uÂÓ húH5Vq\x0b\x91¹C§PÈç\x93s.l$\x9dk\x002À+À/À,À0Ì©Ì¨À\x09À\x13À" 400 -
+81.29.134.51 - - [01/Jul/2025 11:22:57] "GET / HTTP/1.1" 404 -
+81.29.134.51 - - [01/Jul/2025 11:22:57] "GET / HTTP/1.1" 404 -
+81.29.134.51 - - [01/Jul/2025 11:22:58] "GET /favicon.ico HTTP/1.1" 404 -
+10.0.0.4 - - [01/Jul/2025 12:44:11] "OPTIONS /inject HTTP/1.1" 204 -
+[2025-07-01 12:44:11,190] ERROR in app: Exception on /inject [POST]
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 42, in inject
+    payload = request.get_json()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 504, in inject
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+10.0.0.4 - - [01/Jul/2025 12:44:11] "POST /inject HTTP/1.1" 500 -

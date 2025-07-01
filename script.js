@@ -7,7 +7,7 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "http://10.0.0.4:5000";
+const baseServer = "http://127.0.0.1:5001";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -222,8 +222,15 @@ function injectMaterialBreakout() {
     alert("No merged data found.");
     return;
   }
+  
+  // Check if breakout data exists
+  if (mergedData.breakout && mergedData.breakout.length === 0) {
+    console.warn("⚠️ No non-labor breakout data for this folder, sending only elevation data.");
+  }
+
   sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
 }
+
 
 function showToast(message = "Success!", duration = 3000) {
   const toast = document.getElementById("toast");
@@ -661,29 +668,21 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
-metadata.paintlabor = parseLaborRate(
-  document.querySelector('input[name="paintLabor"]')?.value ||
-        document.querySelector('input[name="paintlabor"]')?.value
-);
+    metadata.paintlabor = parseLaborRate(
+      document.querySelector('input[name="paintLabor"]')?.value ||
+      document.querySelector('input[name="paintlabor"]')?.value
+    );
     const laborRates = getLaborRates(); // ✅ collect all labor rates
 
-const customLaborInputs = document.querySelectorAll("input[data-custom-labor='true']");
-customLaborInputs.forEach(input => {
-  const key = input.name;
-  const raw = input.value.replace(/\$/g, "").trim();
-  const value = parseFloat(raw);
-  if (!isNaN(value)) {
-    laborRates[key] = value;
-  }
-});
+    const payload = {
+      data: elevationData,
+      breakout: breakoutData,
+      type: "combined",
+      metadata,
+      laborRates
+    };
 
-const payload = {
-  data: elevationData,
-  breakout: breakoutData,
-  type: "combined",
-  metadata,
-  laborRates
-};
+    console.log("Sending data to server:", JSON.stringify(payload, null, 2));
 
     fetch(serverURL, {
       method: "POST",
@@ -712,9 +711,14 @@ const payload = {
     })
     .then(blob => {
       if (!blob) return;
+      
+      // Fix file name with folder name and timestamp
+      const safeFolderName = folderName.replace(/[^a-zA-Z0-9-_]/g, '_');
+      const outputFilename = `${safeFolderName}_Takeoff_${new Date().toISOString().split("T")[0]}.xlsb`;
+
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
+      a.download = outputFilename;  // Use the properly formatted file name
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -728,6 +732,7 @@ const payload = {
     });
   });
 }
+
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
