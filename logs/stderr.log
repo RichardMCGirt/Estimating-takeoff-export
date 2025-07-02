@@ -150,3 +150,1542 @@ Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:01:02] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:05:27] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:05:27] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:14:58] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:14:58] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 12:17:02] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:17:02] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 12:21:03] "OPTIONS /inject HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+172.191.142.120 - - [02/Jul/2025 12:24:08] "GET /inject HTTP/1.1" 405 -
+172.191.142.120 - - [02/Jul/2025 12:24:46] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+174.108.187.19 - - [02/Jul/2025 12:28:29] "OPTIONS /inject HTTP/1.1" 200 -
+174.108.187.19 - - [02/Jul/2025 12:28:29] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 47, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 509, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+172.191.142.120 - - [02/Jul/2025 12:32:45] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 47, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 509, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:36:21] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:36:21] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 57, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2, ensure_ascii=False))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 184, in inject
+    print(f"\u274c Error in /inject: {str(e)}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:38:13] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:38:13] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 47, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 509, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 12:38:26] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:38:26] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 47, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 509, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:40:46] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:40:46] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 47, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 509, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 45
+    if not injection_lock.acquire(blocking=False):
+                                                  ^
+IndentationError: unindent does not match any outer indentation level
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 12:59:17] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 12:59:17] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 50, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 512, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 513
+    response.headers.add('Access-Control-Allow-Origin', '*')
+IndentationError: unexpected indent
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 513
+    response.headers.add('Access-Control-Allow-Origin', '*')
+IndentationError: unexpected indent
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 513
+    response.headers.add('Access-Control-Allow-Origin', '*')
+IndentationError: unexpected indent
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 13:04:50] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:04:50] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 50, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 512, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 13:05:08] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:05:08] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 50, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 512, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 48, in <module>
+    app.run(host='0.0.0.0', port=5001, debug=True)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1083, in run_simple
+    application = DebuggedApplication(application, evalex=use_evalex)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\debug\__init__.py", line 291, in __init__
+    self._failed_pin_auth = Value("B")
+                            ~~~~~^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\context.py", line 135, in Value
+    return Value(typecode_or_type, *args, lock=lock,
+                 ctx=self.get_context())
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\sharedctypes.py", line 79, in Value
+    lock = ctx.RLock()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\context.py", line 72, in RLock
+    from .synchronize import RLock
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\synchronize.py", line 46, in <module>
+    class SemLock(object):
+    ...<77 lines>...
+                              next(SemLock._rand))
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\synchronize.py", line 46, in SemLock
+    class SemLock(object):
+    
+KeyboardInterrupt
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 13:07:10] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:07:10] "POST /inject HTTP/1.1" 200 -
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 14
+    .environ.get('FLASK_ENV') == 'production':
+    ^
+SyntaxError: invalid syntax
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 13:24:43] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:24:43] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 46, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 508, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 13:33:09] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:33:09] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 46, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 508, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 13:33:09] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 46, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 508, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+127.0.0.1 - - [02/Jul/2025 13:34:51] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:34:51] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 46, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+                                ^^^^
+NameError: name 'json' is not defined. Did you forget to import 'json'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 508, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+127.0.0.1 - - [02/Jul/2025 13:36:23] "OPTIONS /inject HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2025 13:36:23] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 39, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 501, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+144.86.173.108 - - [02/Jul/2025 13:40:48] "GET / HTTP/1.1" 404 -
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.4:5001
+Press CTRL+C to quit
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://10.0.0.4:5002
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket

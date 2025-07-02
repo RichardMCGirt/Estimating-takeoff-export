@@ -7,7 +7,7 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "http://127.0.0.1:5001";
+const baseServer = "http://172.191.142.120:5002";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -956,4 +956,3 @@ function areRequiredFieldsFilled() {
 
   return sidingStyle && branch && projectType;
 }
-

@@ -2,3 +2,50 @@
  * Debug mode: off
  * Serving Flask app 'local_injection_server'
  * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+Payload received: {'data': [{'SKU': '10109PVCNS', 'Description': '10x10x9 PVC SQ Column Wrap (w/Cap and Base)', 'Description2': '', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': '', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 2}, {'SKU': '34JS', 'Description': 'Alside 3/4in J Channel 1in Face Standard Colors', 'Description2': 'Front Porch Freize', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': 'Lap Main Body', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 2}, {'SKU': 'BKT18X24X4', 'Description': 'BRACKET 18X24X3-1/2 SMOOTH', 'Description2': '', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': 'N/A', 'Vendor': '', 'UnitCost': 0, 'TotalQty': -2}, {'SKU': 'JHP48SP', 'Description': 'James Hardie Panel Siding 4x8 Smooth Primed', 'Description2': '', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': 'Porch Ceilings', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 1}, {'SKU': 'POLYSMCOIL', 'Description': 'Poly Smooth Coil', 'Description2': 'Beam Wrap', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': 'N/A', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 1}, {'SKU': 'zLABORCEIL', 'Description': 'Labor - Ceilings Installation', 'Description2': '', 'UOM': 'SQ', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': '', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 0.1}, {'SKU': 'zLABORSTCOL', 'Description': 'Labor - Std Column Installation', 'Description2': '', 'UOM': 'EA', 'Folder': 'Opt. Alt Porch A & C Vinyl', 'ColorGroup': '', 'Vendor': '', 'UnitCost': 0, 'TotalQty': 2}], 'breakout': [], 'type': 'combined', 'metadata': {'builder': '', 'planName': '', 'elevation': '', 'materialType': '', 'date': '2025-06-30', 'estimator': '', 'paintlabor': None}, 'laborRates': {}}
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: off
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: off
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: off
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
