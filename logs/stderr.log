@@ -2399,3 +2399,171 @@ Press CTRL+C to quit
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+172.191.142.120 - - [02/Jul/2025 15:25:53] "OPTIONS /inject HTTP/1.1" 200 -
+172.191.142.120 - - [02/Jul/2025 15:25:53] "POST /inject HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 42, in inject
+    print("\U0001f50d Full payload:\n", json.dumps(payload, indent=2))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f50d' in position 0: character maps to <undefined>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1536, in __call__
+    return self.wsgi_app(environ, start_response)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1514, in wsgi_app
+    response = self.handle_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ~^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 504, in inject
+    print("\u274c Error in /inject:", str(e))
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+Exception in thread Thread-1 (serve_forever):
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 819, in serve_forever
+    super().serve_forever(poll_interval=poll_interval)
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\socketserver.py", line 235, in serve_forever
+    ready = selector.select(poll_interval)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 314, in select
+    r, w, _ = self._select(self._readers, self._writers, [], timeout)
+              ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\selectors.py", line 305, in _select
+    r, w, x = select.select(r, w, w, timeout)
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+OSError: [WinError 10038] An operation was attempted on something that is not a socket
+ * Restarting with stat
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 511
+    )
+    ^
+SyntaxError: unmatched ')'

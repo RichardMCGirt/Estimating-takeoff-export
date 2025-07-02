@@ -111,3 +111,5 @@ Payload received: {'data': [{'SKU': '10109PVCNS', 'Description': '10x10x9 PVC SQ
  * Debug mode: on
  * Serving Flask app 'local_injection_server'
  * Debug mode: on
+ * Serving Flask app 'local_injection_server'
+ * Debug mode: on
