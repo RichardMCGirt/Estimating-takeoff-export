@@ -1689,3 +1689,713 @@ Traceback (most recent call last):
     r, w, x = select.select(r, w, w, timeout)
               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
 OSError: [WinError 10038] An operation was attempted on something that is not a socket
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://10.0.0.4:5002
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+ * Detected change in 'C:\\Users\\vmadmin\\Desktop\\Estimating-takeoff-export\\local_injection_server.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 507, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Desktop\Estimating-takeoff-export\local_injection_server.py", line 510, in <module>
+    app.run(host="0.0.0.0", port=5002, ssl_context=('cert.pem', 'key.pem'))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 801, in __init__
+    ssl_context = load_ssl_context(*ssl_context)
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\site-packages\werkzeug\serving.py", line 644, in load_ssl_context
+    ctx.load_cert_chain(cert_file, pkey_file)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:5002
+ * Running on https://10.0.0.4:5002
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 553-568-069

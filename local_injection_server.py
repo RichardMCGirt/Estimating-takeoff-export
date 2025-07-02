@@ -23,6 +23,9 @@ def split_labor(data):
         [row for row in data if "labor" in row.get("SKU", "").lower()]
     )
 
+@app.route('/')
+def home():
+    return "Flask server is running!"
 
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
@@ -504,4 +507,5 @@ def inject():
         injection_lock.release()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5002, debug=True)
+    app.run(host="0.0.0.0", port=5003)
+
