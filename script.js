@@ -7,7 +7,11 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "https://estimatingtool.vanirinstalledsales.info";
+const isLocal = false;  // set to false when testing via public IP
+const baseServer = isLocal
+  ? "http://127.0.0.1:5003"
+  : "http://52.149.156.63:5003";  // Your Azure VM public IP and port
+
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -88,7 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === 6. Dark Mode Toggle Setup ===
- const toggleButton = document.getElementById("darkModeToggle");
   const body = document.body;
 
   // Set initial theme based on localStorage
@@ -782,7 +785,10 @@ container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wr
 button.addEventListener('click', () => {
 
   // ✅ Continue with injection
-  sendToInjectionServer(breakoutMerged, folder, "material_breakout");
+const data = mergedData.filter(d => d.Folder === folder);
+const nonLaborRows = data.filter(d => !/labor/i.test(d.SKU));
+const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+sendToInjectionServer(breakoutMerged, folder, "material_breakout");
   showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
 });
    container.appendChild(button);

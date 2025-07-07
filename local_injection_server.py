@@ -10,7 +10,7 @@ injection_lock = threading.Lock()
 
 app = Flask(__name__)
 app.config['DEBUG'] = True  # This will enable debugging
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, supports_credentials=True)
 
 
 def sort_by_description(data, key="Description"):
@@ -31,7 +31,13 @@ def home():
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
-        return '', 200
+        response = app.make_response('')
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        return response, 200
+
+  
   # 🔐 Attempt to acquire lock
     if not injection_lock.acquire(blocking=False):
         return jsonify({'error': 'Another injection is currently running. Please wait.'}), 429
@@ -507,6 +513,7 @@ def inject():
         injection_lock.release()
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5003, debug=True)
+    app.run(host="0.0.0.0", port=5003, debug=True)
+
 
 
