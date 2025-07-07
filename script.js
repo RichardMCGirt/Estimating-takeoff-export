@@ -7,10 +7,11 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const isLocal = true;  // Set to true when testing on localhost
+const isLocal = false;  // ✅ make sure this is false when deployed
 const baseServer = isLocal
   ? "http://127.0.0.1:5004"
-  : "http://52.149.156.63:5004";  // Azure VM
+  : "http://52.149.156.63:5004";
+
 
 
 const defaultServer = `${baseServer}/inject`;
