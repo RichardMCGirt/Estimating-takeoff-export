@@ -7,10 +7,11 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const isLocal = false;  // set to false when testing via public IP
+const isLocal = true;  // Set to true when testing on localhost
 const baseServer = isLocal
-  ? "http://127.0.0.1:5003"
-  : "http://52.149.156.63:5003";  // Your Azure VM public IP and port
+  ? "http://127.0.0.1:5004"
+  : "http://52.149.156.63:5004";  // Azure VM
+
 
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
@@ -687,33 +688,49 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 
     console.log("Sending data to server:", JSON.stringify(payload, null, 2));
 
-    fetch(serverURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-    .then(response => {
-      if (response.status === 429) {
-        if (attempt < MAX_RETRIES) {
-          showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-          setTimeout(() => {
-            enqueueRequest(() =>
-              sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
-            );
-            resolve();
-          }, RETRY_DELAY);
-        } else {
-          showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-          reject(new Error("Max retries reached"));
-        }
-        return;
-      }
+console.log(`Sending POST request to ${serverURL} with payload:`, payload);
 
-      if (!response.ok) throw new Error(`Server returned ${response.status}`);
-      return response.blob();
-    })
-    .then(blob => {
-      if (!blob) return;
+fetch(serverURL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+})
+.then(response => {
+  console.log(`Received response with status: ${response.status}`);
+
+  if (response.status === 429) {
+    console.warn(`Server busy (429) for folder "${folderName}", attempt ${attempt}`);
+
+    if (attempt < MAX_RETRIES) {
+      showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+      setTimeout(() => {
+        enqueueRequest(() =>
+          sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
+        );
+        resolve();
+      }, RETRY_DELAY);
+    } else {
+      showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+      reject(new Error("Max retries reached"));
+    }
+    return;
+  }
+
+  if (!response.ok) {
+    console.error(`Server returned an error status: ${response.status} ${response.statusText}`);
+    throw new Error(`Server returned ${response.status}`);
+  }
+
+  return response.blob();
+})
+.then(blob => {
+  if (!blob) {
+    console.warn("No blob returned from server.");
+    return;
+  }
+  console.log("Received blob response:", blob);
+  // Continue processing blob if needed here...
+
       
       // Fix file name with folder name and timestamp
       const safeFolderName = folderName.replace(/[^a-zA-Z0-9-_]/g, '_');
