@@ -1,3 +1,4 @@
+
 let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = [];
@@ -7,16 +8,13 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const isLocal = false;  // ✅ make sure this is false when deployed
-const baseServer = isLocal
-  ? "http://127.0.0.1:5004"
-  : "http://52.149.156.63:5004";
 
-
+const baseServer = "https://a9e40294f25a.ngrok-free.app "
 
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
+
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
 document.addEventListener("DOMContentLoaded", () => {

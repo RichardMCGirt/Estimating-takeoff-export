@@ -10,7 +10,7 @@ injection_lock = threading.Lock()
 
 app = Flask(__name__)
 app.config['DEBUG'] = True  # This will enable debugging
-CORS(app, supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://estimatingtool.vanirinstalledsales.info"}}, supports_credentials=True)
 
 
 def sort_by_description(data, key="Description"):
@@ -513,7 +513,6 @@ def inject():
         injection_lock.release()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5004, debug=True)
-
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
