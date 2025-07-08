@@ -9,9 +9,7 @@ import threading
 injection_lock = threading.Lock()
 
 app = Flask(__name__)
-app.config['DEBUG'] = True  # This will enable debugging
-CORS(app, resources={r"/*": {"origins": "https://estimatingtool.vanirinstalledsales.info"}}, supports_credentials=True)
-
+CORS(app, origins="*", methods=["POST", "OPTIONS"], allow_headers="*")
 
 def sort_by_description(data, key="Description"):
     return sorted(data, key=lambda x: (x.get(key) == "", (x.get(key) or "").lower()))
@@ -23,21 +21,23 @@ def split_labor(data):
         [row for row in data if "labor" in row.get("SKU", "").lower()]
     )
 
-@app.route('/')
-def home():
-    return "Flask server is running!"
-
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    return response
 
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
         response = app.make_response('')
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
-        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
-        return response, 200
+        response.status_code = 204
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+        return response
 
-  
   # 🔐 Attempt to acquire lock
     if not injection_lock.acquire(blocking=False):
         return jsonify({'error': 'Another injection is currently running. Please wait.'}), 429
@@ -512,7 +512,5 @@ def inject():
     finally:
         injection_lock.release()
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
-
+if __name__ == '__main__':
+    app.run(port=5000)

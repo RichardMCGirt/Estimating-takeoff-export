@@ -1,4 +1,3 @@
-
 let mergedData = [];
 let mappedWorkbook = null;
 let rawSheetData = [];
@@ -8,13 +7,10 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-
-const baseServer = "https://a9e40294f25a.ngrok-free.app "
-
+const baseServer = "https://7003b4146e20.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
-
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -92,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === 6. Dark Mode Toggle Setup ===
+ const toggleButton = document.getElementById("darkModeToggle");
   const body = document.body;
 
   // Set initial theme based on localStorage
@@ -225,15 +222,8 @@ function injectMaterialBreakout() {
     alert("No merged data found.");
     return;
   }
-  
-  // Check if breakout data exists
-  if (mergedData.breakout && mergedData.breakout.length === 0) {
-    console.warn("⚠️ No non-labor breakout data for this folder, sending only elevation data.");
-  }
-
   sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
 }
-
 
 function showToast(message = "Success!", duration = 3000) {
   const toast = document.getElementById("toast");
@@ -671,73 +661,60 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
-    metadata.paintlabor = parseLaborRate(
-      document.querySelector('input[name="paintLabor"]')?.value ||
-      document.querySelector('input[name="paintlabor"]')?.value
-    );
+metadata.paintlabor = parseLaborRate(
+  document.querySelector('input[name="paintLabor"]')?.value ||
+        document.querySelector('input[name="paintlabor"]')?.value
+);
     const laborRates = getLaborRates(); // ✅ collect all labor rates
 
-    const payload = {
-      data: elevationData,
-      breakout: breakoutData,
-      type: "combined",
-      metadata,
-      laborRates
-    };
-
-    console.log("Sending data to server:", JSON.stringify(payload, null, 2));
-
-console.log(`Sending POST request to ${serverURL} with payload:`, payload);
-
-fetch(serverURL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-})
-.then(response => {
-  console.log(`Received response with status: ${response.status}`);
-
-  if (response.status === 429) {
-    console.warn(`Server busy (429) for folder "${folderName}", attempt ${attempt}`);
-
-    if (attempt < MAX_RETRIES) {
-      showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-      setTimeout(() => {
-        enqueueRequest(() =>
-          sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
-        );
-        resolve();
-      }, RETRY_DELAY);
-    } else {
-      showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-      reject(new Error("Max retries reached"));
-    }
-    return;
+const customLaborInputs = document.querySelectorAll("input[data-custom-labor='true']");
+customLaborInputs.forEach(input => {
+  const key = input.name;
+  const raw = input.value.replace(/\$/g, "").trim();
+  const value = parseFloat(raw);
+  if (!isNaN(value)) {
+    laborRates[key] = value;
   }
+});
 
-  if (!response.ok) {
-    console.error(`Server returned an error status: ${response.status} ${response.statusText}`);
-    throw new Error(`Server returned ${response.status}`);
-  }
+const payload = {
+  data: elevationData,
+  breakout: breakoutData,
+  type: "combined",
+  metadata,
+  laborRates
+};
 
-  return response.blob();
-})
-.then(blob => {
-  if (!blob) {
-    console.warn("No blob returned from server.");
-    return;
-  }
-  console.log("Received blob response:", blob);
-  // Continue processing blob if needed here...
+    fetch(serverURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(response => {
+      if (response.status === 429) {
+        if (attempt < MAX_RETRIES) {
+          showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+          setTimeout(() => {
+            enqueueRequest(() =>
+              sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
+            );
+            resolve();
+          }, RETRY_DELAY);
+        } else {
+          showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+          reject(new Error("Max retries reached"));
+        }
+        return;
+      }
 
-      
-      // Fix file name with folder name and timestamp
-      const safeFolderName = folderName.replace(/[^a-zA-Z0-9-_]/g, '_');
-      const outputFilename = `${safeFolderName}_Takeoff_${new Date().toISOString().split("T")[0]}.xlsb`;
-
+      if (!response.ok) throw new Error(`Server returned ${response.status}`);
+      return response.blob();
+    })
+    .then(blob => {
+      if (!blob) return;
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = outputFilename;  // Use the properly formatted file name
+      a.download = `${folderName}.xlsb`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -751,7 +728,6 @@ fetch(serverURL, {
     });
   });
 }
-
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
@@ -801,10 +777,7 @@ container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wr
 button.addEventListener('click', () => {
 
   // ✅ Continue with injection
-const data = mergedData.filter(d => d.Folder === folder);
-const nonLaborRows = data.filter(d => !/labor/i.test(d.SKU));
-const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
-sendToInjectionServer(breakoutMerged, folder, "material_breakout");
+  sendToInjectionServer(breakoutMerged, folder, "material_breakout");
   showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
 });
    container.appendChild(button);
