@@ -545,35 +545,51 @@ checkboxRow.classList.add('folder-checkbox-row');
 }
 
 function injectMultipleFolders(folders) {
+  if (!folders.length) return;
+
+  showLoadingOverlay(true, `Exporting ${folders.length} folder(s)...`); // SHOW OVERLAY
+
   disableAllFolderButtons(true, "Injecting...");
 
-  folders.forEach(folder => {
+  let completed = 0;
+  let failed = 0;
+
+  // Track all promises for all exports
+  const exportPromises = folders.map(folder => {
     const elevationData = mergedData.filter(d => d.Folder === folder);
     const rawRows = rawSheetData.filter(d => d.Folder === folder);
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
     const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
 
-   if (!elevationData.length) {
-  showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
-  return;
-}
+    if (!elevationData.length) {
+      showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
+      return Promise.resolve();
+    }
 
-if (!breakoutMerged.length) {
-  console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
-}
-    enqueueRequest(() => {
-  const hasZLaborWR = elevationData.some(d => d.SKU === "zLABORWR");
-  if (hasZLaborWR) {
-    console.log(`🚀 Folder "${folder}" contains zLABORWR with qty:`,
-      elevationData.find(d => d.SKU === "zLABORWR")?.TotalQty);
-  }
-  return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder);
-});
+    // Info log, not blocking
+    if (!breakoutMerged.length) {
+      console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
+    }
 
+    return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder)
+      .then(() => { completed++; })
+      .catch(() => { failed++; });
   });
+
+  // When all done: hide the overlay and re-enable buttons
+  Promise.allSettled(exportPromises).then(() => {
+    showLoadingOverlay(false); // HIDE OVERLAY
+    disableAllFolderButtons(false);
+
+    if (completed && !failed) showToast(`✅ All ${completed} folders exported!`);
+    else if (completed && failed) showToast(`⚠️ ${completed} exported, ${failed} failed`);
+    else showToast(`❌ All exports failed`);
+  });
+
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
+
 
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
