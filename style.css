@@ -369,6 +369,7 @@ body.dark #folderCheckboxRow label {
   color: #fff;
 }
 
+
 /* 🚫 Reset form checkboxes (avoid dark background in form) */
 form input[type="checkbox"],
 #laborRatesForm input[type="checkbox"] {
