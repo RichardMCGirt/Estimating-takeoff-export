@@ -159,6 +159,10 @@ function getFormMetadata() {
 function handleSourceUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
+const fileNameElement = document.getElementById("uploadedFileName");
+if (fileNameElement) {
+  fileNameElement.textContent = `📄 Uploaded File: ${file.name}`;
+}
 
   // Process file
   const reader = new FileReader();
