@@ -1,6 +1,7 @@
+
 # 🚧 Vanir Estimating Tool — Live Branch: usage2
 
-A browser-based estimating tool for **Vanir Installed Sales**. Enter project info, upload Excel files, merge SKUs, select elevations, and inject data into a macro-enabled workbook using a local **Flask** server with **xlwings**.
+A browser-based estimating tool for **Vanir Installed Sales**. Enter project info, upload Excel file, merge SKUs, select elevations, and inject data into a macro-enabled workbook using a **Flask** server with **xlwings**, running on an **Azure VM** for secure, always-on access.
 
 ---
 
@@ -22,7 +23,7 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
   Select one or more elevations/folders to process.
 
 - **📤 Data Injection**  
-  Processed data is sent via POST to your local server (`/inject`).
+  Processed data is sent via POST to your remote Flask server (`/inject`).
 
 - **📊 xlwings Integration**  
   The server copies `plan.xlsb` and injects metadata, quantities, labor, and breakout sheets.
@@ -37,7 +38,7 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
 
 ## 🗂️ Project Structure
 
-```
+\`\`\`
 📁 project-folder/
 ├── index.html                 # Main frontend UI
 ├── style.css                  # Light mode styles
@@ -48,21 +49,22 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
 ├── autocomplete-estimator.js  # Estimator autocomplete
 ├── password.js                # (Optional) Auth overlay
 ├── plan.xlsb                  # Macro-enabled Excel template
-├── local_injection_server.py  # Flask + xlwings server
+├── local_injection_server.py  # Flask + xlwings server (runs on Azure VM)
 └── README.md                  # This file
-```
+\`\`\`
 
 ---
 
 ## ⚙️ Requirements
 
 - ✅ Python 3.x  
-- ✅ Local install of Excel (required by xlwings)  
+- ✅ Local install of Excel on the VM (required by xlwings)  
 - ✅ Python packages:
-  ```
+  \`\`\`bash
   pip install flask flask-cors xlwings
-  ```
-- ✅ Optional: [ngrok](https://ngrok.com/) for tunneling if you want remote access
+  \`\`\`
+- ✅ Hosted on an **Azure VM** for 24/7 server availability  
+- ✅ Optional: [ngrok](https://ngrok.com/) for local testing/tunneling if needed
 
 ---
 
@@ -74,19 +76,19 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
 2. Upload a `.xlsx` source file — parsed in-browser with `xlsx.js`.
 3. Merged data appears by elevation/folder.
 4. Select folders and click **Export**.
-5. Data POSTs to `http://localhost:5000/inject` (or your ngrok tunnel).
+5. Data POSTs to your remote Flask server (`http://<your-azure-vm>:5000/inject`).
 
-### ✅ Backend (`local_injection_server.py`)
+### ✅ Backend (`local_injection_server.py` on Azure VM)
 
-1. Runs a `Flask` server with `flask-cors` for cross-origin requests.
+1. Runs a **Flask** server with `flask-cors` for cross-origin requests.
 2. Locks injection requests to prevent conflicts.
 3. Copies `plan.xlsb` and injects:
    - Metadata (Builder, Plan, Elevation, etc.)
    - Non-labor rows to **TakeOff Template**
    - Labor rates to mapped rows
    - Material Break Out sheet if needed
-4. Saves output to your `Downloads` folder with a timestamp.
-5. Returns the workbook as a file download.
+4. Saves output to the VM and triggers a secure download to the user.
+5. Always-on VM ensures availability without manual starts.
 
 ---
 
@@ -96,7 +98,7 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
 
 **Payload example:**
 
-```json
+\`\`\`json
 {
   "data": [...],
   "breakout": [...],
@@ -111,7 +113,7 @@ A browser-based estimating tool for **Vanir Installed Sales**. Enter project inf
   },
   "type": "combined"
 }
-```
+\`\`\`
 
 ---
 
@@ -126,13 +128,14 @@ This tool uses **Airtable** for dynamic autocompletion.
   - **Builders** (from Client Name field)
   - **Estimators** (from Full Name field, optionally filtered by Title)
 - ✅ **Supports keyboard navigation** (ArrowUp, ArrowDown, Enter).
-- ✅ **Stores selected values** in `localStorage` for persistence.
+- ✅ **Stores selected values** in \`localStorage\` for persistence.
 
+---
 
 ## 🏁 Usage Tips
 
-- Run `local_injection_server.py` locally to handle injection.
-- Use ngrok or a VM if you need remote access.
+- Run \`local_injection_server.py\` on your Azure VM to handle injection.
+- Use ngrok for local testing if needed, but the VM is recommended for production.
 - Keep your Airtable API keys secure and out of version control.
 
 ---
