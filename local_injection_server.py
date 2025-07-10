@@ -512,5 +512,10 @@ def inject():
     finally:
         injection_lock.release()
 
+        
+@app.route("/")
+def home():
+    return "✅ Your server is running and responding!"
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
