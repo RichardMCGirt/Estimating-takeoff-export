@@ -28,6 +28,12 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
+@app.route("/health")
+def health():
+    print("✅ /health was hit!")
+    return "Healthy!"
+
+
 @app.route('/inject', methods=['POST', 'OPTIONS'])
 def inject():
     if request.method == 'OPTIONS':
@@ -517,5 +523,9 @@ def inject():
 def home():
     return "✅ Your server is running and responding!"
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+print("✅ Getting ready to run Waitress...")
+
+if __name__ == "__main__":
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=5000)
+
