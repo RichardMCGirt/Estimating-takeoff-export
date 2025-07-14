@@ -1,0 +1,209 @@
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002c30 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003518 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x0000282c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00001abc (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x000013cc (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003348 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x0000329c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 10, in <module>
+    print(f"\u2705 sys.prefix: {sys.prefix}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 535, in <module>
+    print("\u2705 Getting ready to run Waitress...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+Traceback (most recent call last):
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 529, in <module>
+    print("\u2705 Getting ready to run Waitress...")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\vmadmin\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2705' in position 0: character maps to <undefined>
+Could not find platform independent libraries <prefix>
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 220
+    except ValueError:
+    ^^^^^^
+IndentationError: expected an indented block after 'except' statement on line 219
+Could not find platform independent libraries <prefix>
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 220
+    except ValueError:
+    ^^^^^^
+IndentationError: expected an indented block after 'except' statement on line 219
+Could not find platform independent libraries <prefix>
+  File "C:\Users\vmadmin\Estimating-takeoff-export\local_injection_server.py", line 219
+    except ValueError:
+    ^^^^^^
+IndentationError: expected an indented block after 'except' statement on line 218
+Could not find platform independent libraries <prefix>

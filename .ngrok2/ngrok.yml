@@ -1,0 +1,9 @@
+version: "3"
+agent:
+  authtoken: 2q1toyvCjg62VheYiMWpRxbnT8w_mrftAuEfZgUTudjh3YM8
+
+tunnels:
+  myinjector:
+    proto: http
+    addr: 5000
+    inspect: false
