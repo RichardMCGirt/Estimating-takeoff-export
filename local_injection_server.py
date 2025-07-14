@@ -67,8 +67,14 @@ def inject():
         output_filename = f"Vanir_Takeoff_{timestamp}.xlsb"
         downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
         output_path = os.path.join(downloads_path, output_filename)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-        shutil.copy("plan.xlsb", output_path)
+# Always resolve plan.xlsb relative to the script location
+        source_xlsb = os.path.join(BASE_DIR, "plan.xlsb")
+        print(f"✅ BASE_DIR: {BASE_DIR}")
+        print(f"✅ Copying XLSB from: {source_xlsb} → {output_path}")
+        shutil.copy(source_xlsb, output_path)
+
 
         app_xl = xw.App(visible=False, add_book=False)
         wb = app_xl.books.open(output_path)
