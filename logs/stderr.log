@@ -2567,3 +2567,4 @@ SyntaxError: unmatched ')'
     )
     ^
 SyntaxError: unmatched ')'
+Could not find platform independent libraries <prefix>

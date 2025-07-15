@@ -247,3 +247,171 @@ The system cannot find the path specified.
 The system cannot find the path specified.
 The system cannot find the path specified.
 The system cannot find the path specified.
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002cc4 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x0000328c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00001f18 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x000033a8 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003c3c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003614 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003968 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002f94 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002264 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002bf0 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002524 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003e6c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x000011f0 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x000036fc (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003eb4 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002f58 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003e08 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003b10 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x000017f8 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00000064 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00001264 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x0000390c (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00003eb0 (most recent call first):
+  <no Python frame>
+Could not find platform independent libraries <prefix>
+Fatal Python error: Failed to import encodings module
+Python runtime state: core initialized
+ModuleNotFoundError: No module named 'encodings'
+
+Current thread 0x00002148 (most recent call first):
+  <no Python frame>
