@@ -7,30 +7,11 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
-const baseServer = "https://58a0bee6cc7e.ngrok-free.app";
+const baseServer = "https://0e96e65f7e1c.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
-
-// const fetch = require('node-fetch');
-// const fs = require('fs');
-
-async function updateBaseServer() {
-  const res = await fetch('http://127.0.0.1:4040/api/tunnels');
-  const data = await res.json();
-  if (data.tunnels.length > 0) {
-    const url = data.tunnels[0].public_url;
-    const content = `const baseServer = "${url}";\n`;
-    fs.writeFileSync('./path/to/baseServer.js', content);
-    console.log('Updated baseServer URL to:', url);
-  } else {
-    console.log('No tunnels found');
-  }
-}
-
-// updateBaseServer();
-
 
 document.addEventListener("DOMContentLoaded", () => {
   // === 1. Attach Input Listeners for Labor Rates Form ===
