@@ -171,8 +171,8 @@ def inject():
                     rate_key = key + "Labor"
                     rate = labor_rates.get(rate_key, "")
 
-                    sheet.range(f"K{current_row}").value = label
-                    sheet.range(f"A{current_row}").value = sku
+                    sheet.range(f"K{current_row}").value = sku
+                    sheet.range(f"A{current_row}").value = ""
                     sheet.range(f"L{current_row}").value = qty
                     sheet.range(f"N{current_row}").value = rate
 
