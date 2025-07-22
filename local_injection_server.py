@@ -161,7 +161,13 @@ def inject():
 
                     label = key.title().replace("Tng", "T&G") + " Labor"
                     sku = "zLABOR" + key.upper()
-                    qty = labor_items_from_data.get(sku, {}).get("TotalQty", "")
+                    qty_raw = labor_items_from_data.get(sku.upper(), {}).get("TotalQty")
+                    try:
+                        qty = float(qty_raw) if qty_raw not in [None, ""] else 0
+
+                    except ValueError:
+                        qty = ""
+
                     rate_key = key + "Labor"
                     rate = labor_rates.get(rate_key, "")
 
