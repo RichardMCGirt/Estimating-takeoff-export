@@ -561,6 +561,11 @@ function injectMultipleFolders(folders) {
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
     const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
+console.log("📋 rawRows:", rawRows);
+console.log("📋 normalizedRows:", normalizedRows);
+console.log("📋 nonLaborRows:", nonLaborRows);
+console.log("📦 breakoutMerged:", breakoutMerged);
 
     if (!elevationData.length) {
       showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
@@ -877,6 +882,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('sourceFile');
   const clickableText = document.querySelector('.click-browse');
+const storedRaw = localStorage.getItem("rawSheetData");
+if (storedRaw) {
+  rawSheetData = JSON.parse(storedRaw);
+}
 
   if (clickableText && fileInput) {
     clickableText.addEventListener('click', (e) => {
@@ -884,6 +893,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fileInput.click();
     });
   }
+console.log("📁 rawSheetData folders:", [...new Set(rawSheetData.map(r => r.Folder))]);
 
   if (dropZone && fileInput) {
     dropZone.addEventListener('click', () => {

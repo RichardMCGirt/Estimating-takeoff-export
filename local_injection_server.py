@@ -182,6 +182,38 @@ def inject():
             except Exception as e:
                 print(f"❌ Error injecting labor: {e}")
                 return jsonify({'error': str(e)}), 500
+            # ✅ Inject Material Breakout Sheet (if breakout_data exists)
+        if breakout_data:
+            print("📄 Injecting Material Breakout Sheet")
+            try:
+                sheet = wb.sheets["Material Break Out"]
+
+
+                # Clear the previous content
+                sheet.range("A9:F100").clear_contents()
+
+                breakout_data = sort_by_description(breakout_data)
+
+                for i, row in enumerate(breakout_data, start=9):
+                    sku = row.get("SKU", "")
+                    desc2 = row.get("Description2", "")
+                    qty_raw = row.get("TotalQty", 0)
+                    color_group = row.get("ColorGroup", "")
+                    uom = (row.get("UOM") or "").strip().upper()
+
+                    is_labor = "labor" in sku.lower()
+                    skip_rounding = is_labor or uom == "SQ"
+                    total_qty = qty_raw if skip_rounding else math.ceil(abs(qty_raw))
+
+                    sheet.range(f"A{i}").value = sku
+                    sheet.range(f"C{i}").value = desc2
+                    sheet.range(f"E{i}").value = total_qty
+                    sheet.range(f"F{i}").value = color_group
+
+                print(f"✅ Injected {len(breakout_data)} rows into 'Material Breakout'")
+
+            except Exception as e:
+                print(f"❌ Failed to inject Material Breakout: {e}")
 
         wb.save()
         wb.close()
@@ -191,6 +223,8 @@ def inject():
     except Exception as e:
         print(f"❌ Server error: {e}")
         return jsonify({'error': str(e)}), 500
+
+        
 
     finally:
         injection_lock.release()
