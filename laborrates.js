@@ -190,47 +190,53 @@ if (name === "otherLabor") {
   button.type = "button";
 
   button.addEventListener("click", () => {
-    const label = labelInput.value.trim();
-    const rate = parseFloat(rateInput.value.trim());
+  const label = labelInput.value.trim();
+  const rate = parseFloat(rateInput.value.trim());
 
-    if (!label || isNaN(rate)) {
-      alert("Please provide a valid label and numeric rate.");
-      return;
-    }
+  if (!label || isNaN(rate)) {
+    alert("Please provide a valid label and numeric rate.");
+    console.warn("❌ Invalid custom labor input: label or rate missing or not a number");
+    return;
+  }
 
-    const key = label.replace(/\s+/g, "").toLowerCase() + "Labor";
+  const key = label.replace(/\s+/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase() + "Labor";
 
-    // ✅ Prevent duplicates
-    if (laborRates.hasOwnProperty(key)) {
-      alert(`Custom labor "${label}" already exists.`);
-      return;
-    }
+  if (document.querySelector(`input[name="${key}"]`)) {
+    alert(`Custom labor "${label}" already exists.`);
+    console.warn(`⚠️ Duplicate labor key blocked: ${key}`);
+    return;
+  }
 
-    // ✅ Add to laborRates
-    laborRates[key] = rate;
+  console.log(`➕ Added custom labor: "${label}" → key: "${key}", rate: $${rate.toFixed(2)}`);
 
-    // Create custom input field
-    const customWrapper = document.createElement("div");
-    customWrapper.classList.add("labor-field");
+  const customWrapper = document.createElement("div");
+  customWrapper.classList.add("labor-field", "custom-labor-entry");
 
-    const labelEl = document.createElement("label");
-    labelEl.textContent = `${label} Labor:`;
-    customWrapper.appendChild(labelEl);
+  const labelInputEl = document.createElement("input");
+  labelInputEl.classList.add("custom-labor-label");
+  labelInputEl.type = "text";
+  labelInputEl.value = label;
 
-    const input = document.createElement("input");
-    input.name = key;
-    input.setAttribute("data-custom-labor", "true");
-    input.placeholder = "$rate";
-    input.value = `$${rate.toFixed(2)}`;
-    customWrapper.appendChild(input);
+  const rateInputEl = document.createElement("input");
+  rateInputEl.classList.add("custom-labor-rate");
+  rateInputEl.type = "number";
+  rateInputEl.value = rate;
 
-    wrapper.appendChild(document.createElement("br"));
-    wrapper.appendChild(customWrapper);
+  // ✅ Add this line here:
+  rateInputEl.setAttribute("data-custom-labor", "true");
 
-    // Clear input fields
-    labelInput.value = "";
-    rateInput.value = "";
-  });
+  customWrapper.appendChild(labelInputEl);
+  customWrapper.appendChild(rateInputEl);
+  wrapper.appendChild(customWrapper);
+
+  labelInput.value = "";
+  rateInput.value = "";
+
+  console.log("📦 Custom labor entry DOM added to form.");
+});
+
+
+
 
   wrapper.appendChild(labelInput);
   wrapper.appendChild(rateInput);
@@ -312,29 +318,28 @@ function getLaborRates() {
   return laborRates;
 }
 
-function addCustomLaborField(label = "", rate = "") {
-  const container = document.getElementById("customLaborFields");
+function addCustomLaborInput(labelText, fieldName, defaultValue = "") {
+  const container = document.getElementById("laborRatesForm");
+  if (!container) return;
+
   const wrapper = document.createElement("div");
-  wrapper.className = "custom-labor-entry";
-  wrapper.style.display = "flex";
-  wrapper.style.gap = "8px";
-  wrapper.style.marginBottom = "6px";
+  wrapper.classList.add("labor-input-row");
 
-  // Label input
-  const labelInput = document.createElement("input");
-  labelInput.type = "text";
-  labelInput.placeholder = "Labor Label (e.g. Framing)";
-  labelInput.className = "custom-labor-label";
-  labelInput.value = label;
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  label.setAttribute("for", fieldName);
 
-  // Rate input
-  const rateInput = document.createElement("input");
-  rateInput.type = "number";
-  rateInput.placeholder = "Rate";
-  rateInput.className = "custom-labor-rate";
-  rateInput.value = rate;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = fieldName; // required
+  input.setAttribute("data-custom-labor", "true"); // required
+  input.value = defaultValue;
 
-  wrapper.appendChild(labelInput);
-  wrapper.appendChild(rateInput);
+  input.addEventListener("input", () => {
+    console.log(`📝 ${fieldName} updated → ${input.value}`);
+  });
+
+  wrapper.appendChild(label);
+  wrapper.appendChild(input);
   container.appendChild(wrapper);
 }
