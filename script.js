@@ -40,16 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof fields !== "undefined" && Array.isArray(fields)) {
     fields.forEach(field => {
       const input = document.querySelector(`[name="${field}"]`);
-      const savedValue = localStorage.getItem(field);
-
-      if (input && savedValue !== null) {
-        input.value = savedValue;
-      }
-
+const dateInput = document.querySelector('input[name="date"]');
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.value = today;
+  }
       if (field === "date" && input && !input.value) {
         const today = new Date().toISOString().split("T")[0];
         input.value = today;
-        localStorage.setItem("date", today);
       }
     });
   }
