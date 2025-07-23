@@ -235,9 +235,6 @@ if (name === "otherLabor") {
   console.log("📦 Custom labor entry DOM added to form.");
 });
 
-
-
-
   wrapper.appendChild(labelInput);
   wrapper.appendChild(rateInput);
   wrapper.appendChild(button);
@@ -274,8 +271,6 @@ document.getElementById("branchSelect").addEventListener("change", applyLaborRat
 document.querySelector("form")?.addEventListener("submit", function (e) {
   e.preventDefault();
 });
-
-
 
 function areRequiredFieldsFilled() {
   const sidingStyle = document.querySelector('select[name="materialType"]')?.value?.trim();
