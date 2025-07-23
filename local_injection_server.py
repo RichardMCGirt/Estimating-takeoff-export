@@ -169,7 +169,10 @@ def inject():
                         qty = ""
 
                     rate_key = key + "Labor"
-                    rate = labor_rates.get(rate_key, "")
+                    # Normalize all laborRates keys once
+                    normalized_labor_rates = {k.lower(): v for k, v in labor_rates.items()}
+                    rate = normalized_labor_rates.get(rate_key.lower(), "")
+
 
                     sheet.range(f"K{current_row}").value = sku
                     sheet.range(f"A{current_row}").value = ""
