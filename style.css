@@ -42,8 +42,7 @@ body {
 }
 
 input[type="text"],
-input[type="date"],
-input[type="number"] {
+input[type="date"] {
   width: 300px;
   max-width: 100%;
   padding: var(--space-xs) var(--space-sm);
@@ -87,19 +86,6 @@ h2 {
   width: 100%;
   max-width: 700px;
   border-collapse: collapse;
-}
-
-#estimateForm td {
-  padding: var(--space-sm);
-  border: 1px solid var(--color-border);
-  vertical-align: top;
-  max-width: 350px;
-}
-
-#estimateForm .label-cell {
-  white-space: nowrap;
-  width: 1%;
-  font-weight: bold;
 }
 
 /* ────────────── Tables ────────────── */
@@ -160,10 +146,6 @@ td:first-child {
   transition: background-color 0.3s;
 }
 
-#drop-zone:hover {
-  background-color: #f0f8ff;
-}
-
 .click-browse {
   color: var(--color-accent);
   cursor: pointer;
@@ -187,15 +169,6 @@ td:first-child {
   width: 100%;
   display: none;
   border-radius: var(--radius-sm);
-}
-
-.autocomplete-dropdown div {
-  padding: var(--space-sm);
-  cursor: pointer;
-}
-
-.autocomplete-dropdown div:hover {
-  background-color: var(--color-hover);
 }
 
 /* ────────────── Loading Overlay ────────────── */
@@ -249,8 +222,6 @@ td:first-child {
   visibility: hidden;
   transition: opacity 0.3s ease;
 }
-
-
 
 /* ────────────── Buttons ────────────── */
 #folderButtons button {
@@ -308,8 +279,7 @@ td:first-child {
 }
 
 input[type="text"],
-input[type="date"],
-input[type="number"] {
+input[type="date"]{
   padding: 8px;
   font-size: 14px;
   border: 1px solid var(--color-border);
@@ -324,9 +294,7 @@ input[type="number"] {
   font-size: 14px;
   gap: 4px;
 }
-.autocomplete-item.active {
-  background-color: #e0e0e0;
-}
+
 #branchSelect {
     width: fit-content;
     padding: 8px;
@@ -336,15 +304,9 @@ input[type="number"] {
     border: 1px solid #ccc;
   }
 
-  label[for="branchSelect"] {
-    display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
-  }
-
-    #toast {
+#toast {
     border: 2px dashed lime !important;
-  }
+}
 
   /* 🌙 Folder checkbox container background */
 .folder-checkbox {
@@ -358,7 +320,6 @@ body.dark .folder-checkbox {
   accent-color: #4caf50;
 }
 
-
 /* Optional label styling for folder checkboxes */
 #folderCheckboxRow label {
   background-color: #f0f0f0;
@@ -368,7 +329,6 @@ body.dark #folderCheckboxRow label {
   background-color: #222;
   color: #fff;
 }
-
 
 /* 🚫 Reset form checkboxes (avoid dark background in form) */
 form input[type="checkbox"],
