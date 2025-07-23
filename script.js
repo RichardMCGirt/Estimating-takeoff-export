@@ -40,14 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof fields !== "undefined" && Array.isArray(fields)) {
     fields.forEach(field => {
       const input = document.querySelector(`[name="${field}"]`);
-const dateInput = document.querySelector('input[name="date"]');
-  if (dateInput) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.value = today;
-  }
+
+  
       if (field === "date" && input && !input.value) {
         const today = new Date().toISOString().split("T")[0];
         input.value = today;
+        localStorage.setItem("date", today);
       }
     });
   }
@@ -559,6 +557,11 @@ function injectMultipleFolders(folders) {
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
     const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
+console.log("📋 rawRows:", rawRows);
+console.log("📋 normalizedRows:", normalizedRows);
+console.log("📋 nonLaborRows:", nonLaborRows);
+console.log("📦 breakoutMerged:", breakoutMerged);
 
     if (!elevationData.length) {
       showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
@@ -567,7 +570,7 @@ function injectMultipleFolders(folders) {
 
     // Info log, not blocking
     if (!breakoutMerged.length) {
-      console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
+     // console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
     }
 
     return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder)
@@ -631,36 +634,22 @@ function parseLaborRate(value) {
   return isNaN(num) ? null : num;
 }
 
-function getLaborRates() {
+ function getLaborRates() {
   const laborRates = {};
 
-  // 1. Predefined labor fields
-  if (typeof predefinedLaborFields !== "undefined") {
-    predefinedLaborFields.forEach(({ name }) => {
-      const input = document.querySelector(`input[name="${name}"]`);
-      if (input) {
-        const parsed = parseLaborRate(input.value);
-        if (parsed !== null) laborRates[name] = parsed;
-      }
-    });
-  }
-
-  // 2. Static field: otherLabor
-  const otherLaborInput = document.querySelector('input[name="otherLabor"]');
-  if (otherLaborInput) {
-    const raw = otherLaborInput.value?.trim();
-    if (raw) {
-      const parsed = parseLaborRate(raw);
-      if (parsed !== null) {
-        laborRates["otherLabor"] = parsed;
-      }
+  // Built-in fields like paintLabor, etc.
+  document.querySelectorAll('input[name][data-labor]').forEach(input => {
+    const name = input.name;
+    const parsed = parseLaborRate(input.value || "");
+    if (parsed !== null && name) {
+      laborRates[name] = parsed;
     }
-  }
+  });
 
-  // 3. Custom fields added dynamically (with data-custom-labor="true")
+  // Custom labor fields like zLABORBB
   document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
     const name = input.name;
-    const parsed = parseLaborRate(input.value);
+    const parsed = parseLaborRate(input.value || "");
     if (parsed !== null && name) {
       laborRates[name] = parsed;
     }
@@ -669,79 +658,78 @@ function getLaborRates() {
   return laborRates;
 }
 
+
 function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
   const MAX_RETRIES = 5;
   const RETRY_DELAY = 3000 * attempt;
 
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
-metadata.paintlabor = parseLaborRate(
-  document.querySelector('input[name="paintLabor"]')?.value ||
-        document.querySelector('input[name="paintlabor"]')?.value
-);
-    const laborRates = getLaborRates(); // ✅ collect all labor rates
 
-const customLaborInputs = document.querySelectorAll("input[data-custom-labor='true']");
-customLaborInputs.forEach(input => {
-  const key = input.name;
-  const raw = input.value.replace(/\$/g, "").trim();
-  const value = parseFloat(raw);
-  if (!isNaN(value)) {
-    laborRates[key] = value;
-  }
-});
+    // ✅ Parse paint labor from field if available
+    const paintInput =
+      document.querySelector('input[name="paintLabor"]') ||
+      document.querySelector('input[name="paintlabor"]');
+    metadata.paintlabor = parseLaborRate(paintInput?.value || "");
 
-const payload = {
-  data: elevationData,
-  breakout: breakoutData,
-  type: "combined",
-  metadata,
-  laborRates
-};
+    // ✅ Collect all labor rates
+    const laborRates = getLaborRates();
+
+    // ✅ Construct full payload
+    const payload = {
+      data: elevationData,
+      breakout: breakoutData,
+      type: "combined",
+      metadata,
+      laborRates
+    };
+
+    console.log("🚀 Sending payload", payload);
 
     fetch(serverURL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     })
-    .then(response => {
-      if (response.status === 429) {
-        if (attempt < MAX_RETRIES) {
-          showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-          setTimeout(() => {
-            enqueueRequest(() =>
-              sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
-            );
-            resolve();
-          }, RETRY_DELAY);
-        } else {
-          showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-          reject(new Error("Max retries reached"));
+      .then(response => {
+        if (response.status === 429) {
+          if (attempt < MAX_RETRIES) {
+            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+            setTimeout(() => {
+              enqueueRequest(() =>
+                sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
+              );
+              resolve();
+            }, RETRY_DELAY);
+          } else {
+            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+            reject(new Error("Max retries reached"));
+          }
+          return;
         }
-        return;
-      }
 
-      if (!response.ok) throw new Error(`Server returned ${response.status}`);
-      return response.blob();
-    })
-    .then(blob => {
-      if (!blob) return;
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${folderName}.xlsb`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+        return response.blob();
+      })
+      .then(blob => {
+        if (!blob) return;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `${folderName}.xlsb`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
 
-      showToast(`✅ "${folderName}" workbook downloaded.`);
-      resolve();
-    })
-    .catch(error => {
-      showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
-      reject(error);
-    });
+        showToast(`✅ "${folderName}" workbook downloaded.`);
+        resolve();
+      })
+      .catch(error => {
+        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
+        reject(error);
+      });
   });
 }
+
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
@@ -890,6 +878,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('sourceFile');
   const clickableText = document.querySelector('.click-browse');
+const storedRaw = localStorage.getItem("rawSheetData");
+if (storedRaw) {
+  rawSheetData = JSON.parse(storedRaw);
+}
 
   if (clickableText && fileInput) {
     clickableText.addEventListener('click', (e) => {
@@ -897,6 +889,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fileInput.click();
     });
   }
+console.log("📁 rawSheetData folders:", [...new Set(rawSheetData.map(r => r.Folder))]);
 
   if (dropZone && fileInput) {
     dropZone.addEventListener('click', () => {
