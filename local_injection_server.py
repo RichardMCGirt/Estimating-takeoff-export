@@ -199,16 +199,22 @@ def inject():
 
                 for i, row in enumerate(breakout_data, start=9):
                     sku = row.get("SKU", "")
+                    desc = row.get("Description", "")
                     desc2 = row.get("Description2", "")
                     qty_raw = row.get("TotalQty", 0)
                     color_group = row.get("ColorGroup", "")
                     uom = (row.get("UOM") or "").strip().upper()
+
+
 
                     is_labor = "labor" in sku.lower()
                     skip_rounding = is_labor or uom == "SQ"
                     total_qty = qty_raw if skip_rounding else math.ceil(abs(qty_raw))
 
                     sheet.range(f"A{i}").value = sku
+                    sheet.range(f"B{i}").value = row.get("Description", "")
+                    sheet.range(f"D{i}").value = uom
+
                     sheet.range(f"C{i}").value = desc2
                     sheet.range(f"E{i}").value = total_qty
                     sheet.range(f"F{i}").value = color_group
