@@ -1,4 +1,0 @@
-Flask==3.0.3
-flask-cors==4.0.0
-xlwings==0.30.14
-pywin32==306
