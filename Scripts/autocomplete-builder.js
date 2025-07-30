@@ -1,3 +1,5 @@
+(function () {
+
 const airtableApiKe = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
 const baseId2 = 'appX1Saz7wMYh4hhm';
 const tableName2 = 'tblo2Z23S7fYrHhlk';
@@ -151,3 +153,4 @@ function setupBuilderDropdown() {
 
 // Init
 document.addEventListener('DOMContentLoaded', setupBuilderDropdown);
+})();
