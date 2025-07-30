@@ -336,3 +336,29 @@ form input[type="checkbox"],
   background-color: transparent !important;
   accent-color: initial !important;
 }
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.autocomplete-item {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.autocomplete-item.active {
+  background-color: #181717;
+  color: wheat;
+}
+
+.autocomplete-item.no-results {
+  color: #888;
+  cursor: default;
+}

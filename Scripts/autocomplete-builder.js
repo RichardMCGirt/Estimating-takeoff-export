@@ -4,121 +4,150 @@ const tableName2 = 'tblo2Z23S7fYrHhlk';
 const builderFieldName = 'Client Name';
 const viewId2 = 'viwov2znF05JU5xFm';
 
+// === Fetch Builders from Airtable ===
 async function fetchBuilders(offset = '') {
   let allBuilders = [];
   let nextOffset = offset;
 
-  do {
-    const url = `https://api.airtable.com/v0/${baseId2}/${tableName2}?fields[]=${encodeURIComponent(builderFieldName)}&view=${viewId2}${nextOffset ? `&offset=${nextOffset}` : ''}`;
+  try {
+    do {
+      const url = `https://api.airtable.com/v0/${baseId2}/${tableName2}?fields[]=${encodeURIComponent(builderFieldName)}&view=${viewId2}&pageSize=100${nextOffset ? `&offset=${nextOffset}` : ''}`;
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${airtableApiKe}`,
-      },
-    });
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${airtableApiKe}` },
+      });
 
-    if (!response.ok) {
-      console.error(`❌ Failed to fetch builders: ${response.status} ${response.statusText}`);
-      return [];
-    }
+      if (!response.ok) {
+        console.error(`❌ Failed to fetch builders: ${response.status} ${response.statusText}`);
+        return [];
+      }
 
-    const data = await response.json();
-    const names = data.records.map(r => r.fields[builderFieldName]).filter(Boolean);
-    allBuilders.push(...names);
-    nextOffset = data.offset;
-  } while (nextOffset);
+      const data = await response.json();
+      allBuilders.push(
+        ...data.records.map(r => r.fields[builderFieldName]).filter(Boolean)
+      );
+      nextOffset = data.offset;
+    } while (nextOffset);
 
-  return [...new Set(allBuilders)]; 
+    return [...new Set(allBuilders)]; // Deduplicate
+  } catch (err) {
+    console.error("❌ Error fetching builders:", err);
+    return [];
+  }
 }
 
+// === Setup Builder Dropdown ===
 function setupBuilderDropdown() {
   const input = document.getElementById('builderInput');
   const dropdown = document.getElementById('builderDropdown');
   const container = input.parentElement;
-
   container.style.position = 'relative';
 
   let builders = [];
   let currentIndex = -1;
 
-  fetchBuilders().then(data => (builders = data));
+  // Load from cache or Airtable
+  const cached = localStorage.getItem("buildersCache");
+  const cacheTime = localStorage.getItem("buildersCacheTime");
+  const now = Date.now();
 
- input.addEventListener('input', () => {
-  const value = input.value.toLowerCase();
-  dropdown.innerHTML = '';
-  currentIndex = -1; // 🔄 Reset navigation
-
-  if (!value) {
-    dropdown.style.display = 'none';
-    return;
-  }
-
-  const matches = builders.filter(name => name.toLowerCase().includes(value));
-  if (matches.length === 0) {
-    dropdown.style.display = 'none';
-    return;
-  }
-
-  dropdown.style.display = 'block';
-  matches.forEach((match) => {
-    const item = document.createElement('div');
-    item.textContent = match;
-    item.className = 'autocomplete-item';
-item.addEventListener('click', () => {
-      input.value = match;
-      dropdown.style.display = 'none';
-      localStorage.setItem("builder", match);
-    });
-    dropdown.appendChild(item);
-  });
-});
-
-input.addEventListener('keydown', (e) => {
-  const items = dropdown.querySelectorAll('.autocomplete-item');
-
-  if (dropdown.style.display === 'none' || items.length === 0) {
-    console.log("⚠️ No visible items to navigate.");
-    return;
-  }
-
-  if (e.key === 'ArrowDown') {
-    currentIndex = (currentIndex + 1) % items.length;
-    console.log(`⬇️ ArrowDown: currentIndex = ${currentIndex}`);
-    highlight(items, currentIndex);
-    e.preventDefault();
-  } else if (e.key === 'ArrowUp') {
-    currentIndex = (currentIndex - 1 + items.length) % items.length;
-    console.log(`⬆️ ArrowUp: currentIndex = ${currentIndex}`);
-    highlight(items, currentIndex);
-    e.preventDefault();
-  } else if (e.key === 'Enter' && currentIndex >= 0) {
-    console.log(`⏎ Enter: Selecting "${items[currentIndex].textContent}"`);
-    items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
-    e.preventDefault();
-  }
-});
-
- setTimeout(() => {
-  if (!dropdown.contains(document.activeElement)) {
-    dropdown.style.display = 'none';
-  }
-}, 150);
-
-
+  if (cached && cacheTime && now - parseInt(cacheTime, 10) < 86400000) {
+    builders = JSON.parse(cached);
     const saved = localStorage.getItem("builder");
-  if (saved) input.value = saved;
+    if (saved && builders.includes(saved)) input.value = saved;
+  } else {
+    fetchBuilders().then(data => {
+      builders = data;
+      localStorage.setItem("buildersCache", JSON.stringify(builders));
+      localStorage.setItem("buildersCacheTime", now.toString());
+      const saved = localStorage.getItem("builder");
+      if (saved && builders.includes(saved)) input.value = saved;
+    });
+  }
 
+  // === Typing event ===
+  input.addEventListener('input', () => {
+    const value = input.value.toLowerCase();
+    dropdown.innerHTML = '';
+    currentIndex = -1;
+
+    if (!value) {
+      dropdown.style.display = 'none';
+      return;
+    }
+
+    const matches = builders.filter(name =>
+      name.toLowerCase().includes(value)
+    );
+
+    if (matches.length === 0) {
+      dropdown.innerHTML = `<div class="autocomplete-item no-results">No matches found</div>`;
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    dropdown.innerHTML = '';
+    dropdown.style.display = 'block';
+    matches.forEach((match) => {
+      const item = document.createElement('div');
+      item.textContent = match;
+      item.className = 'autocomplete-item';
+
+      // Mouse select
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        selectItem(match);
+      });
+
+      dropdown.appendChild(item);
+    });
+  });
+
+  // === Keyboard navigation ===
+  input.addEventListener('keydown', (e) => {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (items.length === 0 || dropdown.style.display === 'none') return;
+
+    if (e.key === 'ArrowDown') {
+      currentIndex = (currentIndex + 1) % items.length;
+      highlight(items, currentIndex);
+      e.preventDefault(); // prevent page scroll
+    } else if (e.key === 'ArrowUp') {
+      currentIndex = (currentIndex - 1 + items.length) % items.length;
+      highlight(items, currentIndex);
+      e.preventDefault(); // prevent page scroll
+    } else if (e.key === 'Enter' && currentIndex >= 0) {
+      items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
+      e.preventDefault();
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  // === Hide on blur ===
+  input.addEventListener('blur', () => {
+    setTimeout(() => (dropdown.style.display = 'none'), 200);
+  });
+
+  // === Highlight helper ===
   function highlight(items, index) {
     items.forEach((item, i) => {
-      const isActive = i === index;
-      item.classList.toggle('active', isActive);
-      if (isActive) {
-        console.log(`🔦 Highlighting "${item.textContent}" @ ${i}`);
-        item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
+      item.classList.toggle('active', i === index);
     });
+    if (items[index]) {
+      items[index].scrollIntoView({ block: 'nearest' });
+    }
   }
 
-} 
+  // === Select helper ===
+  function selectItem(value) {
+    input.value = value;
+    dropdown.innerHTML = '';
+    dropdown.style.display = 'none';
+    localStorage.setItem("builder", value);
+  }
+}
 
+
+// Init
 document.addEventListener('DOMContentLoaded', setupBuilderDropdown);

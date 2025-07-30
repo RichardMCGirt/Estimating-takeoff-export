@@ -616,6 +616,10 @@ body.dark .folder-box.selected {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease;
 }
+.autocomplete-item.active {
+  background-color: #007BFF; /* blue highlight */
+  color: white;
+}
 
 #darkModeToggle:hover {
   background-color: #444;
@@ -647,4 +651,44 @@ body.dark .copy-button:hover {
 }
 body.dark #estimateForm {
   background-color: transparent !important;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.autocomplete-item {
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.autocomplete-item.active {
+  background-color: #3391ff; /* lighter blue for dark mode */
+  color: white;
+}
+
+.autocomplete-item.no-results {
+  color: #888;
+  cursor: default;
+}
+body.dark .autocomplete-item {
+  background-color: #1e1e1e;
+  color: #ddd;
+}
+
+body.dark .autocomplete-item:hover,
+body.dark .autocomplete-item.active {
+  background-color: #3391ff; /* lighter blue for dark mode */
+  color: white;
+}
+.autocomplete-item {
+  transition: background-color 0.2s ease, color 0.2s ease;
 }

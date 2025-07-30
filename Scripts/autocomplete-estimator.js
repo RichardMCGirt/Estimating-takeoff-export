@@ -4,37 +4,40 @@ const tableName1 = 'tblwtpHlA3CYpa02W';
 const estimatorFieldName1 = 'Full Name';
 const viewId1 = 'viwqRjBatOafF2syw';
 
+// === Fetch Estimators from Airtable ===
 async function fetchEstimators(offset = '') {
   let allEstimators = [];
   let nextOffset = offset;
 
-  do {
-    const filterFormula = `FIND("estimator", LOWER({Title}))`;
-    const url = `https://api.airtable.com/v0/${baseId1}/${tableName1}?fields[]=${encodeURIComponent(estimatorFieldName1)}&view=${viewId1}&filterByFormula=${encodeURIComponent(filterFormula)}${nextOffset ? `&offset=${nextOffset}` : ''}`;
+  try {
+    do {
+      const filterFormula = `FIND("estimator", LOWER({Title}))`;
+      const url = `https://api.airtable.com/v0/${baseId1}/${tableName1}?fields[]=${encodeURIComponent(estimatorFieldName1)}&view=${viewId1}&filterByFormula=${encodeURIComponent(filterFormula)}&pageSize=100${nextOffset ? `&offset=${nextOffset}` : ''}`;
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${airtableApiKey1}`,
-      },
-    });
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${airtableApiKey1}` },
+      });
 
-    if (!response.ok) {
-      console.error(`❌ Failed to fetch estimators: ${response.status} ${response.statusText}`);
-      return [];
-    }
+      if (!response.ok) {
+        console.error(`❌ Failed to fetch estimators: ${response.status} ${response.statusText}`);
+        return [];
+      }
 
-    const data = await response.json();
-    const names = data.records
-      .map(record => record.fields[estimatorFieldName1])
-      .filter(Boolean);
+      const data = await response.json();
+      allEstimators.push(
+        ...data.records.map(r => r.fields[estimatorFieldName1]).filter(Boolean)
+      );
+      nextOffset = data.offset;
+    } while (nextOffset);
 
-    allEstimators.push(...names);
-    nextOffset = data.offset;
-  } while (nextOffset);
-
-  return allEstimators;
+    return [...new Set(allEstimators)]; // Deduplicate
+  } catch (err) {
+    console.error("❌ Error fetching estimators:", err);
+    return [];
+  }
 }
 
+// === Setup Autocomplete ===
 function setupEstimatorAutocomplete() {
   const input = document.getElementById('estimatorInput');
   const dropdown = document.getElementById('estimatorDropdown');
@@ -44,14 +47,28 @@ function setupEstimatorAutocomplete() {
   let estimators = [];
   let currentIndex = -1;
 
-  fetchEstimators().then(data => {
-    estimators = data;
-    const saved = localStorage.getItem("estimator");
-    if (saved && estimators.includes(saved)) {
-      input.value = saved;
-    }
-  });
+  const nameOverrides = { "Heath Kornegay": "Nice Guy" };
 
+  // === Cache or fetch ===
+  const cached = localStorage.getItem("estimatorsCache");
+  const cacheTime = localStorage.getItem("estimatorsCacheTime");
+  const now = Date.now();
+
+  if (cached && cacheTime && now - parseInt(cacheTime, 10) < 86400000) {
+    estimators = JSON.parse(cached);
+    const saved = localStorage.getItem("estimator");
+    if (saved && estimators.includes(saved)) input.value = saved;
+  } else {
+    fetchEstimators().then(data => {
+      estimators = data;
+      localStorage.setItem("estimatorsCache", JSON.stringify(estimators));
+      localStorage.setItem("estimatorsCacheTime", now.toString());
+      const saved = localStorage.getItem("estimator");
+      if (saved && estimators.includes(saved)) input.value = saved;
+    });
+  }
+
+  // === Typing event ===
   input.addEventListener('input', () => {
     const value = input.value.toLowerCase();
     dropdown.innerHTML = '';
@@ -67,82 +84,74 @@ function setupEstimatorAutocomplete() {
     );
 
     if (matches.length === 0) {
-      dropdown.style.display = 'none';
+      dropdown.innerHTML = `<div class="autocomplete-item no-results">No matches found</div>`;
+      dropdown.style.display = 'block';
       return;
     }
 
+    dropdown.className = "autocomplete-dropdown";
+    dropdown.innerHTML = '';
     dropdown.style.display = 'block';
-    dropdown.style.position = 'absolute';
-    dropdown.style.top = `${input.offsetTop + input.offsetHeight}px`;
-    dropdown.style.left = `${input.offsetLeft}px`;
-    dropdown.style.width = `${input.offsetWidth}px`;
-    dropdown.style.zIndex = '10';
-    dropdown.style.backgroundColor = 'white';
-    dropdown.style.border = '1px solid #ccc';
-    dropdown.style.maxHeight = '150px';
-    dropdown.style.overflowY = 'auto';
 
     matches.forEach((match) => {
       const item = document.createElement('div');
-item.textContent = match === "Heath Kornegay" ? "Nice Guy" : match;
+      const regex = new RegExp(`(${value})`, 'i');
+      const displayName = nameOverrides[match] || match;
+
+      item.innerHTML = displayName.replace(regex, `<strong>$1</strong>`);
       item.className = 'autocomplete-item';
-      item.style.padding = '4px 8px';
-      item.style.cursor = 'pointer';
 
-      item.addEventListener('mouseover', () => {
-        item.style.backgroundColor = '#f0f0f0';
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const finalValue = match; // Save real name, not alias
+        input.value = finalValue;
+        dropdown.innerHTML = '';
+        dropdown.style.display = 'none';
+        localStorage.setItem("estimator", finalValue);
       });
-      item.addEventListener('mouseout', () => {
-        item.style.backgroundColor = '';
-      });
-
-  item.addEventListener('click', (e) => {
-  e.preventDefault();
-  const finalValue = match === "Heath Kornegay" ? "Heath Kornegay" : match;
-  input.value = finalValue;
-  dropdown.innerHTML = '';
-  dropdown.style.display = 'none';
-  localStorage.setItem("estimator", finalValue);
-});
 
       dropdown.appendChild(item);
     });
   });
 
-input.addEventListener('keydown', (e) => {
-  const items = dropdown.querySelectorAll('.autocomplete-item');
-  if (items.length === 0 || dropdown.style.display === 'none') return;
+  // === Keyboard navigation ===
+  input.addEventListener('keydown', (e) => {
+    const items = dropdown.querySelectorAll('.autocomplete-item');
+    if (items.length === 0 || dropdown.style.display === 'none') return;
 
-  if (e.key === 'ArrowDown') {
-    currentIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-    highlight(items, currentIndex);
-    e.preventDefault();
-  } else if (e.key === 'ArrowUp') {
-    currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-    highlight(items, currentIndex);
-    e.preventDefault();
-  } else if (e.key === 'Enter' && currentIndex >= 0) {
-    items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
-    e.preventDefault();
-  }
-});
+    if (e.key === 'ArrowDown') {
+      currentIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+      highlight(items, currentIndex);
+      e.preventDefault();
+    } else if (e.key === 'ArrowUp') {
+      currentIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      highlight(items, currentIndex);
+      e.preventDefault();
+    } else if (e.key === 'Enter' && currentIndex >= 0) {
+      items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
+      e.preventDefault();
+    } else if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+    }
+  });
 
-
+  // === Hide on blur ===
   input.addEventListener('blur', () => {
     setTimeout(() => (dropdown.style.display = 'none'), 200);
   });
 
- function highlight(items, index) {
-  items.forEach((item, i) => {
-    const isActive = i === index;
-    item.classList.toggle('active', isActive);
-    item.style.backgroundColor = isActive ? '#e0e0e0' : ''; // Add visual cue
-  });
-
-  if (items[index]) {
-    items[index].scrollIntoView({ block: 'nearest' });
-  }
+  // === Highlight helper ===
+  function highlight(items, index) {
+    items.forEach((item, i) => {
+      const isActive = i === index;
+      item.classList.toggle('active', isActive);
+      item.setAttribute('aria-selected', isActive);
+    });
+    if (items[index]) {
+      items[index].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
   }
 }
 
+// Init
 document.addEventListener('DOMContentLoaded', setupEstimatorAutocomplete);
