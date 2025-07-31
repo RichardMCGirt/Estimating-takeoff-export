@@ -47,20 +47,13 @@ function setupBuilderDropdown() {
   let builders = [];
   let currentIndex = -1;
 
+  // Always fetch fresh builders (no cache)
+  fetchBuilders().then(data => {
+    builders = data;
 
-
-  if (cached && cacheTime && now - parseInt(cacheTime, 10) < 86400000) {
-    builders = JSON.parse(cached);
+    const saved = localStorage.getItem("builder");
     if (saved && builders.includes(saved)) input.value = saved;
-  } else {
-    fetchBuilders().then(data => {
-      builders = data;
-      localStorage.setItem("buildersCache", JSON.stringify(builders));
-      localStorage.setItem("buildersCacheTime", now.toString());
-      const saved = localStorage.getItem("builder");
-      if (saved && builders.includes(saved)) input.value = saved;
-    });
-  }
+  });
 
   // === Typing event ===
   input.addEventListener('input', () => {
@@ -108,11 +101,11 @@ function setupBuilderDropdown() {
     if (e.key === 'ArrowDown') {
       currentIndex = (currentIndex + 1) % items.length;
       highlight(items, currentIndex);
-      e.preventDefault(); // prevent page scroll
+      e.preventDefault();
     } else if (e.key === 'ArrowUp') {
       currentIndex = (currentIndex - 1 + items.length) % items.length;
       highlight(items, currentIndex);
-      e.preventDefault(); // prevent page scroll
+      e.preventDefault();
     } else if (e.key === 'Enter' && currentIndex >= 0) {
       items[currentIndex].dispatchEvent(new MouseEvent('mousedown'));
       e.preventDefault();
