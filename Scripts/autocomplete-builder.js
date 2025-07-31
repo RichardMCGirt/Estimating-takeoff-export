@@ -1,5 +1,4 @@
 (function () {
-
 const airtableApiKe = 'patXTUS9m8os14OO1.6a81b7bc4dd88871072fe71f28b568070cc79035bc988de3d4228d52239c8238';
 const baseId2 = 'appX1Saz7wMYh4hhm';
 const tableName2 = 'tblo2Z23S7fYrHhlk';
@@ -48,14 +47,10 @@ function setupBuilderDropdown() {
   let builders = [];
   let currentIndex = -1;
 
-  // Load from cache or Airtable
-  const cached = localStorage.getItem("buildersCache");
-  const cacheTime = localStorage.getItem("buildersCacheTime");
-  const now = Date.now();
+
 
   if (cached && cacheTime && now - parseInt(cacheTime, 10) < 86400000) {
     builders = JSON.parse(cached);
-    const saved = localStorage.getItem("builder");
     if (saved && builders.includes(saved)) input.value = saved;
   } else {
     fetchBuilders().then(data => {
@@ -149,7 +144,6 @@ function setupBuilderDropdown() {
     localStorage.setItem("builder", value);
   }
 }
-
 
 // Init
 document.addEventListener('DOMContentLoaded', setupBuilderDropdown);

@@ -58,6 +58,7 @@ laborFields.forEach(({ name, label, hidden }) => {
   wrapper.innerHTML = `${label}<br><input type="text" name="${name}" />`;
   form.appendChild(wrapper);
 });
+
 // Material Types
 const materialTypes = [
   "-- Select Material Type --",
