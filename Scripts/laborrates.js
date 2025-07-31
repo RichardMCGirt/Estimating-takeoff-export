@@ -51,34 +51,36 @@ async function fetchLaborRatesFromAirtable() {
   const branch = document.getElementById('branchSelect')?.value?.trim();
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
 
-if (sidingStyle === "Universal") {
-  filterFormula = `AND(
-    {Siding Style}="Universal",
-    {Vanir Offices}="${branch}"
-  )`;
-} else {
-  filterFormula = `AND(
-    FIND(" ${projectType} ", " " & {Type} & " "),
-    {Siding Style}="${sidingStyle}",
-    {Vanir Offices}="${branch}"
-  )`;
-}
+  let filterFormula = "";
+
+  if (sidingStyle === "Universal") {
+    filterFormula = `AND(
+      {Siding Style}="Universal",
+      {Vanir Offices}="${branch}"
+    )`;
+  } else {
+    filterFormula = `AND(
+      FIND(" ${projectType} ", " " & {Type} & " "),
+      {Siding Style}="${sidingStyle}",
+      {Vanir Offices}="${branch}"
+    )`;
+  }
 
   const encodedFormula = encodeURIComponent(filterFormula);
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}?view=${viewId}&filterByFormula=${encodedFormula}`;
 
   try {
- const res = await fetch(url, {
-  headers: { Authorization: `Bearer ${apiKey}` }
-});
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${apiKey}` }
+    });
 
     const data = await res.json();
 
-   if (!data.records || data.records.length === 0) {
-  const msg = `❌ No matching record found for Siding Style: "${sidingStyle}", Branch: "${branch}", and Project Type: "${projectType}".`;
-  showToast(msg); // 👈 NEW
-  return {};
-}
+    if (!data.records || data.records.length === 0) {
+      const msg = `❌ No matching record found for Siding Style: "${sidingStyle}", Branch: "${branch}", and Project Type: "${projectType}".`;
+      showToast(msg);
+      return {};
+    }
 
     const laborRates = {};
 
@@ -87,16 +89,16 @@ if (sidingStyle === "Universal") {
       const rate = parseFloat(record.fields["Price/Rate"]);
       if (!desc || isNaN(rate)) return;
 
-predefinedLaborFields.forEach(({ name, airtableName }) => {
- if (desc.includes(airtableName) && !isNaN(rate)) {
-  if (!laborRates[name]) laborRates[name] = [];
-  laborRates[name].push({ label: desc, rate });
-}
-});
+      // ✅ exact case-insensitive match
+      predefinedLaborFields.forEach(({ name, airtableName }) => {
+        if (desc.trim().toLowerCase() === airtableName.toLowerCase() && !isNaN(rate)) {
+          if (!laborRates[name]) laborRates[name] = [];
+          laborRates[name].push({ label: desc, rate });
+        }
+      });
     });
 
-    renderLaborInputs(laborRates); // ✅ Use after laborRates is defined
-
+    renderLaborInputs(laborRates); // ✅ apply to form
     return laborRates;
 
   } catch (err) {
@@ -104,6 +106,7 @@ predefinedLaborFields.forEach(({ name, airtableName }) => {
     return {};
   }
 }
+
 
 function renderLaborInputs(laborRates) {
   const container = document.getElementById("laborRatesForm");

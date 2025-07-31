@@ -55,9 +55,13 @@ const form = document.getElementById("laborRatesForm");
 laborFields.forEach(({ name, label, hidden }) => {
   const wrapper = document.createElement("label");
   wrapper.style.display = hidden ? "none" : "block";
-  wrapper.innerHTML = `${label}<br><input type="text" name="${name}" />`;
+
+  // add data-labor="true" so script.js can pick it up
+  wrapper.innerHTML = `${label}<br><input type="text" name="${name}" data-labor="true" />`;
+
   form.appendChild(wrapper);
 });
+
 
 // Material Types
 const materialTypes = [
