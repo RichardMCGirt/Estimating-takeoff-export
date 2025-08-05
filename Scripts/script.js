@@ -145,7 +145,7 @@ function handleSourceUpload(event) {
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
     rawSheetData = json;
-    mergedData = mergeBySKU(json);
+mergedData = mergeBySKU(json, true); // rounding ON
 
     localStorage.setItem('mergedData', JSON.stringify(mergedData));
     localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
@@ -235,97 +235,95 @@ function showToast(message = "Success!", duration = 3000) {
   }, duration);
 }
 
-  function mergeBySKU(data) {
-    if (!data.length) return [];
-  
-    const sampleRow = data[0];
-    const normalizedHeaders = {};
-    Object.keys(sampleRow).forEach(key => {
-      const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
-      normalizedHeaders[keyLower] = key;
-    });
+ function mergeBySKU(data, allowRounding = true) {
+  if (!data.length) return [];
 
- function getHeaderMatch(possibleNames, normalizedHeaders) {
-  const normalizedKeys = Object.keys(normalizedHeaders);
+  const sampleRow = data[0];
+  const normalizedHeaders = {};
+  Object.keys(sampleRow).forEach(key => {
+    const keyLower = key.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+    normalizedHeaders[keyLower] = key;
+  });
 
-  for (const name of possibleNames) {
-    const normalizedName = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
-    const exactMatch = normalizedKeys.find(k => k === normalizedName);
-    if (exactMatch) return normalizedHeaders[exactMatch];
-
-    const partialMatch = normalizedKeys.find(k => k.includes(normalizedName));
-    if (partialMatch) return normalizedHeaders[partialMatch];
+  function getHeaderMatch(possibleNames, normalizedHeaders) {
+    const normalizedKeys = Object.keys(normalizedHeaders);
+    for (const name of possibleNames) {
+      const normalizedName = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+      const exactMatch = normalizedKeys.find(k => k === normalizedName);
+      if (exactMatch) return normalizedHeaders[exactMatch];
+      const partialMatch = normalizedKeys.find(k => k.includes(normalizedName));
+      if (partialMatch) return normalizedHeaders[partialMatch];
+    }
+    return "";
   }
 
-  return "";
+  const colMap = {
+    sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
+    description: getHeaderMatch(["description"], normalizedHeaders),
+    description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
+    uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
+    folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
+    colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
+    vendor: getHeaderMatch(["vendor"], normalizedHeaders),
+    unitcost: getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
+    qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
+  };
+
+  const result = {};
+
+  data.forEach((row) => {
+    const sku = row[colMap.sku]?.trim();
+    const folder = row[colMap.folder]?.trim();
+    if (!sku || !folder) return;
+
+    const normalizedFolder = folder.trim().toLowerCase();
+    const normalizedSKU = sku.trim().toUpperCase();
+    const key = `${normalizedSKU}___${normalizedFolder}`;
+
+    const qtyRaw = row[colMap.qty];
+    const qty = parseFloat(qtyRaw) || 0;
+
+    if (!result[key]) {
+      result[key] = {
+        SKU: sku,
+        Description: row[colMap.description] ?? null,
+        Description2: row[colMap.description2] || "",
+        UOM: row[colMap.uom] ?? null,
+        Folder: folder,
+        ColorGroup: row[colMap.colorgroup] || "",
+        Vendor: row[colMap.vendor] || "",
+        UnitCost: parseFloat(row[colMap.unitcost]) || 0,
+        TotalQty: 0
+      };
+    }
+    result[key].TotalQty += qty;
+  });
+
+  const merged = Object.values(result).map(item => {
+    const isLabor = item.SKU?.toLowerCase().includes("labor");
+    const uom = item.UOM?.trim().toUpperCase();
+
+    // ✅ Skip rounding if:
+    //   - allowRounding is false
+    //   - SKU contains labor
+    //   - UOM = SQ
+    const skipRounding = !allowRounding || isLabor || uom === "SQ";
+
+    if (!skipRounding && !Number.isInteger(item.TotalQty)) {
+      const qty = item.TotalQty;
+      item.TotalQty = Math.ceil(Math.abs(qty));
+    }
+    return item;
+  });
+
+  const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
+  if (containsZLaborWR) {
+    console.log("🧩 zLABORWR detected in merged data.");
+  }
+
+  return merged;
 }
 
-    const colMap = {
-      
-      sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
-      description: getHeaderMatch(["description"], normalizedHeaders),
-      description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
-      uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
-      folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
-      colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
-      vendor: getHeaderMatch(["vendor"], normalizedHeaders),
-      unitcost: getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
-      qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
-      
-    };
-
-    const result = {};
-  
-  data.forEach((row, i) => {
-  const sku = row[colMap.sku]?.trim();
-  const folder = row[colMap.folder]?.trim();
-
-  if (!sku || !folder) {
-    return;
-  }
-
-const normalizedFolder = folder.trim().toLowerCase();  
-const normalizedSKU = sku.trim().toUpperCase();        
-const key = `${normalizedSKU}___${normalizedFolder}`;
-
-  const qtyRaw = row[colMap.qty];
-  const qty = parseFloat(qtyRaw) || 0;
-
-  if (!result[key]) {
-   result[key] = {
-  SKU: sku,
-  Description: row[colMap.description] ?? null,
-  Description2: row[colMap.description2] || "",
-  UOM: row[colMap.uom] ?? null,
-  Folder: folder,  
-  ColorGroup: row[colMap.colorgroup] || "",
-  Vendor: row[colMap.vendor] || "",
-  UnitCost: parseFloat(row[colMap.unitcost]) || 0,
-  TotalQty: 0
-};
-  }
-  result[key].TotalQty += qty;
-});
-
-const merged = Object.values(result).map(item => {
-  const isLabor = item.SKU?.toLowerCase().includes("labor");
-  const uom = item.UOM?.trim().toUpperCase();
-
-  // ✅ Skip rounding if it's labor OR UOM is SQ
-  const skipRounding = isLabor || uom === "SQ";
-
-if (!skipRounding && !Number.isInteger(item.TotalQty)) {
-  const qty = item.TotalQty;
-  item.TotalQty = Math.ceil(Math.abs(qty)); // ✅ Always round *up* from the absolute value
-}
-  return item;
-});
-const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
-if (containsZLaborWR) {
-  console.log("🧩 zLABORWR detected in merged data.");
-}
-return merged;
-  }
 
 function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
@@ -554,7 +552,7 @@ function injectMultipleFolders(folders) {
     const rawRows = rawSheetData.filter(d => d.Folder === folder);
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-    const breakoutMerged = mergeForMaterialBreakout(nonLaborRows);
+const breakoutMerged = mergeBySKU(nonLaborRows, false); // rounding OFF
 console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
 console.log("📋 rawRows:", rawRows);
 console.log("📋 normalizedRows:", normalizedRows);
