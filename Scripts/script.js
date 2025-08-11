@@ -18,23 +18,25 @@ document.addEventListener("DOMContentLoaded", () => {
   attachLaborRateInputListeners();
 
   const estimateForm = document.getElementById("estimateForm");
-  if (estimateForm) {
-    estimateForm.querySelectorAll("input[name]").forEach(input => {
-      input.addEventListener("input", () => {
-        // Optional: live formatting or validation
-      });
-
-      input.addEventListener("focus", () => {
-        input.value = input.value.replace(/^\$/, '');
-      });
-
-      input.addEventListener("blur", () => {
-        const raw = input.value.replace(/[^\d.\-]/g, '');
-        const val = parseFloat(raw);
-        input.value = !isNaN(val) ? `$${val.toFixed(2)}` : '';
-      });
+ // replace your estimateForm block with this:
+if (estimateForm) {
+  estimateForm.querySelectorAll('input[name][data-currency="true"]').forEach(input => {
+    input.addEventListener("input", () => {
+      // Optional: live formatting or validation
     });
-  }
+
+    input.addEventListener("focus", () => {
+      input.value = input.value.replace(/^\$/, '');
+    });
+
+    input.addEventListener("blur", () => {
+      const raw = input.value.replace(/[^\d.\-]/g, '');
+      const val = parseFloat(raw);
+      input.value = !isNaN(val) ? `$${val.toFixed(2)}` : input.value; // <-- keep original if not a number
+    });
+  });
+}
+
 
   // === 2. Restore Saved Fields or Set Today's Date ===
   if (typeof fields !== "undefined" && Array.isArray(fields)) {

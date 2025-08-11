@@ -51,8 +51,6 @@ function setupBuilderDropdown() {
   fetchBuilders().then(data => {
     builders = data;
 
-    const saved = localStorage.getItem("builder");
-    if (saved && builders.includes(saved)) input.value = saved;
   });
 
   // === Typing event ===
@@ -134,7 +132,6 @@ function setupBuilderDropdown() {
     input.value = value;
     dropdown.innerHTML = '';
     dropdown.style.display = 'none';
-    localStorage.setItem("builder", value);
   }
 }
 
