@@ -6,17 +6,23 @@ const viewId1 = 'viwqRjBatOafF2syw';
 
 // === Fetch Estimators from Airtable ===
 async function fetchEstimators(offset = '') {
+  console.log("🚀 Starting fetchEstimators... Initial offset:", offset);
+
   let allEstimators = [];
   let nextOffset = offset;
 
   try {
     do {
       const filterFormula = `FIND("estimator", LOWER({Title}))`;
-      const url = `https://api.airtable.com/v0/${baseId1}/${tableName1}?fields[]=${encodeURIComponent(estimatorFieldName1)}&view=${viewId1}&filterByFormula=${encodeURIComponent(filterFormula)}&pageSize=100${nextOffset ? `&offset=${nextOffset}` : ''}`;
+      const url = `https://api.airtable.com/v0/${baseId1}/${tableName1}?fields[]=${encodeURIComponent(estimatorFieldName1)}&filterByFormula=${encodeURIComponent(filterFormula)}&pageSize=100${nextOffset ? `&offset=${nextOffset}` : ''}`;
+
+      console.log("🌐 Fetching URL:", url);
 
       const response = await fetch(url, {
         headers: { Authorization: `Bearer ${airtableApiKey1}` },
       });
+
+      console.log(`📡 Response status: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
         console.error(`❌ Failed to fetch estimators: ${response.status} ${response.statusText}`);
@@ -24,13 +30,27 @@ async function fetchEstimators(offset = '') {
       }
 
       const data = await response.json();
-      allEstimators.push(
-        ...data.records.map(r => r.fields[estimatorFieldName1]).filter(Boolean)
-      );
+      console.log(`📦 Records fetched this page: ${data.records.length}`);
+      console.log("📜 Raw records:", data.records);
+
+      const pageEstimators = data.records
+        .map(r => r.fields[estimatorFieldName1])
+        .filter(Boolean);
+
+      console.log(`✅ Estimators this page (${pageEstimators.length}):`, pageEstimators);
+
+      allEstimators.push(...pageEstimators);
+
       nextOffset = data.offset;
+      console.log("🔄 Next offset:", nextOffset || "No more pages");
+
     } while (nextOffset);
 
-    return [...new Set(allEstimators)]; // Deduplicate
+    const uniqueEstimators = [...new Set(allEstimators)];
+    console.log(`🎯 Total unique estimators found: ${uniqueEstimators.length}`, uniqueEstimators);
+
+    return uniqueEstimators;
+
   } catch (err) {
     console.error("❌ Error fetching estimators:", err);
     return [];
@@ -49,24 +69,25 @@ function setupEstimatorAutocomplete() {
 
   const nameOverrides = { "Heath Kornegay": "Nice Guy" };
 
-  // === Cache or fetch ===
-  const cached = localStorage.getItem("estimatorsCache");
-  const cacheTime = localStorage.getItem("estimatorsCacheTime");
-  const now = Date.now();
-
-  if (cached && cacheTime && now - parseInt(cacheTime, 10) < 86400000) {
-    estimators = JSON.parse(cached);
-    const saved = localStorage.getItem("estimator");
-    if (saved && estimators.includes(saved)) input.value = saved;
-  } else {
-    fetchEstimators().then(data => {
-      estimators = data;
-      localStorage.setItem("estimatorsCache", JSON.stringify(estimators));
-      localStorage.setItem("estimatorsCacheTime", now.toString());
-      const saved = localStorage.getItem("estimator");
-      if (saved && estimators.includes(saved)) input.value = saved;
-    });
+  // 📝 Always restore saved estimator into input if found
+  const savedEstimator = localStorage.getItem("estimator");
+  if (savedEstimator) {
+    input.value = savedEstimator;
   }
+
+  // 🔄 Always fetch fresh from Airtable
+  fetchEstimators().then(data => {
+    estimators = data;
+
+    // Cache the latest list
+    localStorage.setItem("estimatorsCache", JSON.stringify(estimators));
+    localStorage.setItem("estimatorsCacheTime", Date.now().toString());
+
+    // 📝 If saved value is still valid in new list, keep it in the field
+    if (savedEstimator && estimators.includes(savedEstimator)) {
+      input.value = savedEstimator;
+    }
+  });
 
   // === Typing event ===
   input.addEventListener('input', () => {
@@ -152,6 +173,7 @@ function setupEstimatorAutocomplete() {
     }
   }
 }
+
 
 // Init
 document.addEventListener('DOMContentLoaded', setupEstimatorAutocomplete);
