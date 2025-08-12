@@ -131,6 +131,81 @@ function getFormMetadata() {
   return metadata;
 }
 
+function detectCollapsedColors(normalizedRows, merged) {
+  // Map raw SKU+Folder → set of colors
+  const rawMap = new Map();
+  for (const r of normalizedRows) {
+    const sku = (r.SKU || "").toString().trim().toUpperCase();
+    const folder = (r.Folder || "").toString().trim().toLowerCase();
+    const color = (r.ColorGroup || "").toString().replace(/\s+/g, ' ').trim().toUpperCase();
+    if (!sku || !folder) continue;
+    const k = `${sku}___${folder}`;
+    if (!rawMap.has(k)) rawMap.set(k, new Set());
+    if (color) rawMap.get(k).add(color);
+  }
+
+  // Map merged SKU+Folder → set of colors present after merge
+  const mergedMap = new Map();
+  for (const m of merged) {
+    const sku = (m.SKU || "").toString().trim().toUpperCase();
+    const folder = (m.Folder || "").toString().trim().toLowerCase();
+    const color = (m.ColorGroup || "").toString().replace(/\s+/g, ' ').trim().toUpperCase();
+    if (!sku || !folder) continue;
+    const k = `${sku}___${folder}`;
+    if (!mergedMap.has(k)) mergedMap.set(k, new Set());
+    if (color) mergedMap.get(k).add(color);
+  }
+
+  // If raw had >1 color for any SKU+Folder but merged has <=1, we collapsed
+  for (const [k, rawSet] of rawMap.entries()) {
+    const mergedSet = mergedMap.get(k) || new Set();
+    if (rawSet.size > 1 && mergedSet.size <= 1) {
+      console.warn(`⚠️ Color collapse detected for ${k}: raw=${[...rawSet]} merged=${[...mergedSet]}`);
+      return true;
+    }
+  }
+  return false;
+}
+
+function enforceColorSplit(normalizedRows, allowRounding = true) {
+  // Re-merge strictly by SKU+Folder+ColorGroup
+  const result = {};
+  for (const r of normalizedRows) {
+    const sku = (r.SKU || "").toString().trim().toUpperCase();
+    const folder = (r.Folder || "").toString().trim();
+    const color = (r.ColorGroup || "").toString().replace(/\s+/g, ' ').trim().toUpperCase();
+    if (!sku || !folder) continue;
+
+    const key = `${sku}___${folder.toLowerCase()}___${color}`;
+    const qty = parseFloat(r.TotalQty) || 0;
+
+    if (!result[key]) {
+      result[key] = {
+        SKU: r.SKU || "",
+        Description: r.Description ?? null,
+        Description2: r.Description2 || "",
+        UOM: r.UOM ?? null,
+        Folder: folder,
+        ColorGroup: color || "",
+        Vendor: r.Vendor || "",
+        UnitCost: parseFloat(r.UnitCost) || 0,
+        TotalQty: 0
+      };
+    }
+    result[key].TotalQty += qty;
+  }
+
+  // Always round up when rounding is enabled (and not labor / SQ)
+  return Object.values(result).map(item => {
+    const isLabor = item.SKU.toLowerCase().includes("labor");
+    const uom = (item.UOM || "").toString().trim().toUpperCase();
+    const skip = !allowRounding || isLabor || uom === "SQ";
+    if (!skip) item.TotalQty = Math.ceil(Math.abs(item.TotalQty));
+    return item;
+  });
+}
+
+
 function handleSourceUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
@@ -144,15 +219,24 @@ function handleSourceUpload(event) {
     const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Remember whether we’re on the TakeOff Template sheet
+    // Flag the template (helps other logic too)
     window.isTakeoffTemplate = (sheetName || "").trim().toLowerCase() === "takeoff template";
+    console.log("📄 Loaded sheet:", sheetName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
 
-    rawSheetData = json;
+    // ✅ Always normalize first so headers are consistent
+    const normalizedRows = json.map(normalizeRawRow);
+    rawSheetData = normalizedRows;
 
-    // ✅ Pass option to respect Color Group on TakeOff Template
-    mergedData = mergeBySKU(json, true, {
-      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
+    // ✅ Merge from normalized rows (not raw json)
+    mergedData = mergeBySKU(normalizedRows, true, {
+      respectColorGroupOnTakeoff: true // force-respect color groups for takeoff data
     });
+
+    // 🔒 Safety net: if any SKU+Folder has multiple colors in raw but only 1 in merged, rebuild with hard color key
+    if (detectCollapsedColors(normalizedRows, mergedData)) {
+      console.warn("🧯 Detected collapsed colors after merge — rebuilding with color-enforced merge.");
+      mergedData = enforceColorSplit(normalizedRows, true); // round up enabled
+    }
 
     localStorage.setItem('mergedData', JSON.stringify(mergedData));
     localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
@@ -185,6 +269,8 @@ function handleSourceUpload(event) {
 
   reader.readAsArrayBuffer(file);
 }
+
+
 
 
 function injectDynamicElevation(folderName) {
@@ -241,11 +327,12 @@ function showToast(message = "Success!", duration = 3000) {
   }, duration);
 }
 
- function mergeBySKU(data, allowRounding = true, options = {}) {
-  if (!data.length) return [];
+function mergeBySKU(data, allowRounding = true, options = {}) {
+  if (!Array.isArray(data) || !data.length) return [];
 
   const { respectColorGroupOnTakeoff = false } = options;
 
+  // --- Header mapping helpers ---
   const sampleRow = data[0];
   const normalizedHeaders = {};
   Object.keys(sampleRow).forEach(key => {
@@ -253,49 +340,101 @@ function showToast(message = "Success!", duration = 3000) {
     normalizedHeaders[keyLower] = key;
   });
 
-  function getHeaderMatch(possibleNames, normalizedHeaders) {
-    const normalizedKeys = Object.keys(normalizedHeaders);
+  function getHeaderMatch(possibleNames, headers) {
+    const keys = Object.keys(headers);
+    // exact first
     for (const name of possibleNames) {
-      const normalizedName = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
-      const exactMatch = normalizedKeys.find(k => k === normalizedName);
-      if (exactMatch) return normalizedHeaders[exactMatch];
-      const partialMatch = normalizedKeys.find(k => k.includes(normalizedName));
-      if (partialMatch) return normalizedHeaders[partialMatch];
+      const n = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+      const exact = keys.find(k => k === n);
+      if (exact) return headers[exact];
+    }
+    // partial fallback
+    for (const name of possibleNames) {
+      const n = name.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
+      const partial = keys.find(k => k.includes(n));
+      if (partial) return headers[partial];
     }
     return "";
   }
 
   const colMap = {
-    sku: getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
+    sku:         getHeaderMatch(["sku", "sku#", "skunumber"], normalizedHeaders),
     description: getHeaderMatch(["description"], normalizedHeaders),
-    description2: getHeaderMatch(["description2", "desc2"], normalizedHeaders),
-    uom: getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
-    folder: getHeaderMatch(["folder", "elevation"], normalizedHeaders),
-    colorgroup: getHeaderMatch(["colorgroup", "color"], normalizedHeaders),
-    vendor: getHeaderMatch(["vendor"], normalizedHeaders),
-    unitcost: getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
-    qty: getHeaderMatch(["qty", "quantity"], normalizedHeaders),
+    description2:getHeaderMatch(["description2", "desc2"], normalizedHeaders),
+    uom:         getHeaderMatch(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"], normalizedHeaders),
+    folder:      getHeaderMatch(["folder", "elevation"], normalizedHeaders),
+    colorgroup:  getHeaderMatch(["color group", "colorgroup", "colorgrp", "color"], normalizedHeaders),
+    vendor:      getHeaderMatch(["vendor"], normalizedHeaders),
+    unitcost:    getHeaderMatch(["unitcost", "cost"], normalizedHeaders),
+    qty:         getHeaderMatch(["qty", "quantity"], normalizedHeaders),
   };
+
+  // --- Pre-scan: detect if any SKU+Folder has multiple Color Groups ---
+  const colorSets = new Map(); // keyNoColor -> Set of colors
+  if (colMap.colorgroup) {
+    for (const row of data) {
+      const sku = (row[colMap.sku] ?? "").toString().trim().toUpperCase();
+      const folder = (row[colMap.folder] ?? "").toString().trim().toLowerCase();
+      if (!sku || !folder) continue;
+
+      const colorNorm = (row[colMap.colorgroup] ?? "")
+        .toString()
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+
+      const keyNoColor = `${sku}___${folder}`;
+      if (!colorSets.has(keyNoColor)) colorSets.set(keyNoColor, new Set());
+      if (colorNorm) colorSets.get(keyNoColor).add(colorNorm);
+    }
+  }
+
+  // Helper: should we include color in the key for a given SKU+Folder?
+  function mustRespectColor(keyNoColor) {
+    // force include color if:
+    //  - caller requested (TakeOff Template), OR
+    //  - we detected multiple colors for this SKU+Folder combo
+    if (respectColorGroupOnTakeoff) return true;
+    const set = colorSets.get(keyNoColor);
+    return set && set.size > 1;
+  }
+
+  // Debug: DUOSIL pre-merge sample
+  const hasCG = !!colMap.colorgroup;
+  const debugDuosil = data.filter(r => (r[colMap.sku] || "").toString().trim().toUpperCase() === "DUOSIL")
+    .map(r => ({
+      SKU: (r[colMap.sku] || "").toString().trim().toUpperCase(),
+      Folder: (r[colMap.folder] || "").toString().trim(),
+      ColorRaw: hasCG ? (r[colMap.colorgroup] ?? "") : "",
+      ColorNorm: hasCG ? (r[colMap.colorgroup] ?? "").toString().replace(/\s+/g, ' ').trim().toUpperCase() : ""
+    }));
+  if (debugDuosil.length) console.table(debugDuosil);
 
   const result = {};
 
-  data.forEach((row) => {
-    const sku = row[colMap.sku]?.trim();
-    const folder = row[colMap.folder]?.trim();
-    if (!sku || !folder) return;
+  for (const row of data) {
+    const sku = (row[colMap.sku] ?? "").toString().trim();
+    const folder = (row[colMap.folder] ?? "").toString().trim();
+    if (!sku || !folder) continue;
 
-    const colorGroupVal = (row[colMap.colorgroup] || "").trim();
+    const skuNorm = sku.toUpperCase();
+    const folderNorm = folder.toLowerCase();
+    const keyNoColor = `${skuNorm}___${folderNorm}`;
 
-    const normalizedFolder = folder.trim().toLowerCase();
-    const normalizedSKU = sku.trim().toUpperCase();
+    let colorNorm = "";
+    if (colMap.colorgroup) {
+      colorNorm = (row[colMap.colorgroup] ?? "")
+        .toString()
+        .replace(/\s+/g, ' ')
+        .trim()
+        .toUpperCase();
+    }
 
-    // ✅ If we must respect color group (TakeOff Template), include it in the merge key
-    const key = respectColorGroupOnTakeoff
-      ? `${normalizedSKU}___${normalizedFolder}___${colorGroupVal.toUpperCase()}`
-      : `${normalizedSKU}___${normalizedFolder}`;
+    // --- Build merge key (auto-split by Color Group if needed) ---
+    const includeColor = mustRespectColor(keyNoColor);
+    const key = includeColor ? `${keyNoColor}___${colorNorm}` : keyNoColor;
 
-    const qtyRaw = row[colMap.qty];
-    const qty = parseFloat(qtyRaw) || 0;
+    const qty = parseFloat(row[colMap.qty]) || 0;
 
     if (!result[key]) {
       result[key] = {
@@ -304,38 +443,36 @@ function showToast(message = "Success!", duration = 3000) {
         Description2: row[colMap.description2] || "",
         UOM: row[colMap.uom] ?? null,
         Folder: folder,
-        ColorGroup: colorGroupVal || "",
+        ColorGroup: includeColor ? (colorNorm || "") : (row[colMap.colorgroup] ?? ""), // keep original when not splitting
         Vendor: row[colMap.vendor] || "",
         UnitCost: parseFloat(row[colMap.unitcost]) || 0,
         TotalQty: 0
       };
     }
     result[key].TotalQty += qty;
-  });
+  }
 
   const merged = Object.values(result).map(item => {
     const isLabor = item.SKU?.toLowerCase().includes("labor");
-    const uom = item.UOM?.trim().toUpperCase();
+    const uom = (item.UOM ?? "").toString().trim().toUpperCase();
 
-    // Skip rounding if allowRounding is false, or if labor, or UOM=SQ
     const skipRounding = !allowRounding || isLabor || uom === "SQ";
-
-    // ✅ ALWAYS round up (ceil of abs) when rounding is enabled
     if (!skipRounding) {
-      item.TotalQty = Math.ceil(Math.abs(item.TotalQty));
+      item.TotalQty = Math.ceil(Math.abs(item.TotalQty)); // always round up
     }
-
     return item;
   });
 
-  const containsZLaborWR = merged.some(item => item.SKU === 'zLABORWR');
-  if (containsZLaborWR) {
-    console.log("🧩 zLABORWR detected in merged data.");
+  // Post-merge DUOSIL check
+  const duosilGroups = merged
+    .filter(i => (i.SKU || "").toUpperCase() === "DUOSIL")
+    .map(i => `${i.Folder} :: ${((i.ColorGroup ?? "").toString() || "").toString()} :: ${i.TotalQty}`);
+  if (duosilGroups.length) {
+    console.log("🔍 Post-merge DUOSIL groups (Folder :: Color :: Qty):", duosilGroups);
   }
 
   return merged;
 }
-
 
 function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
@@ -360,8 +497,17 @@ function displayMergedTable(data) {
 
     if (!nonLabor.length && !labor.length) return;
 
-    const sortedNonLabor = [...nonLabor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
-    const sortedLabor = [...labor].sort((a, b) => (a.Description || "").localeCompare(b.Description || ""));
+ const sortedNonLabor = [...nonLabor].sort((a, b) => {
+  const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
+  if (ca !== 0) return ca;
+  return (a.Description || "").localeCompare(b.Description || "");
+});
+const sortedLabor = [...labor].sort((a, b) => {
+  const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
+  if (ca !== 0) return ca;
+  return (a.Description || "").localeCompare(b.Description || "");
+});
+
 
 const tableId = `copyTable_${folder.replace(/\W+/g, '_')}_${index}_${Date.now()}`;
     let tsvContent = "";
@@ -563,7 +709,7 @@ function injectMultipleFolders(folders) {
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
 
-    // ✅ Respect Color Group on TakeOff Template for breakout as well
+    // Respect Color Group for breakout too
     const breakoutMerged = mergeBySKU(nonLaborRows, false, {
       respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
     });
@@ -591,6 +737,7 @@ function injectMultipleFolders(folders) {
 
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
+
 
 
 function showLoadingOverlay(show = true, message = "Processing...") {
