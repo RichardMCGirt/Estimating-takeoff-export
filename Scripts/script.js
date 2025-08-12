@@ -168,15 +168,19 @@ function detectCollapsedColors(normalizedRows, merged) {
 }
 
 function enforceColorSplit(normalizedRows, allowRounding = true) {
-  // Re-merge strictly by SKU+Folder+ColorGroup
+  // Re-merge strictly by SKU+Folder+ColorGroup (case preserved for display)
   const result = {};
   for (const r of normalizedRows) {
     const sku = (r.SKU || "").toString().trim().toUpperCase();
     const folder = (r.Folder || "").toString().trim();
-    const color = (r.ColorGroup || "").toString().replace(/\s+/g, ' ').trim().toUpperCase();
+
+    // display string keeps original case; key uses uppercased normalized form
+    const colorDisplay = (r.ColorGroup || "").toString().replace(/\s+/g, ' ').trim();
+    const colorKey = colorDisplay.toUpperCase();
+
     if (!sku || !folder) continue;
 
-    const key = `${sku}___${folder.toLowerCase()}___${color}`;
+    const key = `${sku}___${folder.toLowerCase()}___${colorKey}`;
     const qty = parseFloat(r.TotalQty) || 0;
 
     if (!result[key]) {
@@ -186,7 +190,7 @@ function enforceColorSplit(normalizedRows, allowRounding = true) {
         Description2: r.Description2 || "",
         UOM: r.UOM ?? null,
         Folder: folder,
-        ColorGroup: color || "",
+        ColorGroup: colorDisplay || "", // ← preserve case
         Vendor: r.Vendor || "",
         UnitCost: parseFloat(r.UnitCost) || 0,
         TotalQty: 0
@@ -205,7 +209,6 @@ function enforceColorSplit(normalizedRows, allowRounding = true) {
   });
 }
 
-
 function handleSourceUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
@@ -219,27 +222,29 @@ function handleSourceUpload(event) {
     const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
-    // Flag the template (helps other logic too)
+    // Flag the template
     window.isTakeoffTemplate = (sheetName || "").trim().toLowerCase() === "takeoff template";
     console.log("📄 Loaded sheet:", sheetName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
 
-    // ✅ Always normalize first so headers are consistent
+    // ✅ Normalize ONCE for mergedData display
     const normalizedRows = json.map(normalizeRawRow);
-    rawSheetData = normalizedRows;
 
-    // ✅ Merge from normalized rows (not raw json)
+    // ✅ Keep original raw rows here so we can (re)normalize later as needed
+    rawSheetData = json; // <-- key change (was: normalizedRows)
+
+    // Build merged data for UI
     mergedData = mergeBySKU(normalizedRows, true, {
-      respectColorGroupOnTakeoff: true // force-respect color groups for takeoff data
+      respectColorGroupOnTakeoff: true
     });
 
-    // 🔒 Safety net: if any SKU+Folder has multiple colors in raw but only 1 in merged, rebuild with hard color key
+    // Safety net for color collapse
     if (detectCollapsedColors(normalizedRows, mergedData)) {
       console.warn("🧯 Detected collapsed colors after merge — rebuilding with color-enforced merge.");
-      mergedData = enforceColorSplit(normalizedRows, true); // round up enabled
+      mergedData = enforceColorSplit(normalizedRows, true);
     }
 
     localStorage.setItem('mergedData', JSON.stringify(mergedData));
-    localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
+    localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData)); // stores ORIGINAL json
 
     displayMergedTable(mergedData);
     renderFolderButtons();
@@ -247,11 +252,7 @@ function handleSourceUpload(event) {
     showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-    const elevationInput = document.querySelector('input[name="elevation"]');
-
-    if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
-      injectDynamicElevation(uniqueFolders[0]);
-    }
+ 
 
     if (uniqueFolders.length === 1) {
       const singleFolder = uniqueFolders[0];
@@ -270,38 +271,70 @@ function handleSourceUpload(event) {
   reader.readAsArrayBuffer(file);
 }
 
+function injectMultipleFolders(folders) {
+  if (!folders.length) return;
 
+  showLoadingOverlay(true, `Exporting ${folders.length} folder(s)...`);
+  disableAllFolderButtons(true, "Injecting...");
 
+  let completed = 0;
+  let failed = 0;
 
-function injectDynamicElevation(folderName) {
-  const formTable = document.querySelector("table"); // or specific ID if known
-  if (!formTable) return;
+  const exportPromises = folders.map(folder => {
+    // Normalize ONCE from whatever is in rawSheetData
+    const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
+    const isAlreadyNormalized =
+      allRaw.length > 0 && "SKU" in allRaw[0] && "TotalQty" in allRaw[0] && "Folder" in allRaw[0];
 
-  // Check if row already exists
-  if (document.getElementById("dynamicElevationRow")) return;
+    const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
 
-  const tr = document.createElement("tr");
-  tr.id = "dynamicElevationRow";
+    // Filter AFTER normalization
+    const normalizedRows = normalizedAll.filter(d => d.Folder === folder);
+    const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
 
-  const tdLabel = document.createElement("td");
-  tdLabel.style.whiteSpace = "nowrap";
-  tdLabel.style.width = "1%";
-  tdLabel.textContent = "Elevation:";
+    // Build breakout, keep ColorGroup splits, no rounding
+    const breakoutMerged = mergeBySKU(nonLaborRows, false, {
+      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
+    });
 
-  const tdInput = document.createElement("td");
-  const input = document.createElement("input");
-  input.type = "text";
-  input.name = "elevation";
-  input.value = folderName;
-  tdInput.appendChild(input);
+    // TotalQty → QTY (number) for the server/template
+    const breakoutForServer = breakoutMerged.map(r => ({
+      ...r,
+      QTY: Number(r.TotalQty) || 0
+    }));
 
-  tr.appendChild(tdLabel);
-  tr.appendChild(tdInput);
+    // Elevation/main data for this folder from mergedData (already built for UI)
+    const elevationData = mergedData.filter(d => d.Folder === folder);
 
-  // Insert before the last row, or append to end
-  formTable.appendChild(tr);
-  showToast(allSelected ? "✅ All folders selected" : "🔄 All folders deselected");
+    console.log(`📦 Breakout payload for "${folder}" (first 5):`,
+      breakoutForServer.slice(0, 5).map(x => ({
+        SKU: x.SKU, Desc2: x.Description2, Color: x.ColorGroup, QTY: x.QTY
+      }))
+    );
+
+    if (!elevationData.length) {
+      showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
+      return Promise.resolve();
+    }
+
+    return sendToInjectionServerDualSheet(elevationData, breakoutForServer, folder)
+      .then(() => { completed++; })
+      .catch(() => { failed++; });
+  });
+
+  Promise.allSettled(exportPromises).then(() => {
+    showLoadingOverlay(false);
+    disableAllFolderButtons(false);
+
+    if (completed && !failed) showToast(`✅ All ${completed} folders exported!`);
+    else if (completed && failed) showToast(`⚠️ ${completed} exported, ${failed} failed`);
+    else showToast(`❌ All exports failed`);
+  });
+
+  showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
+
+
 
 function injectMaterialBreakout() {
   if (!mergedData.length) {
@@ -370,14 +403,14 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
   };
 
   // --- Pre-scan: detect if any SKU+Folder has multiple Color Groups ---
-  const colorSets = new Map(); // keyNoColor -> Set of colors
+  const colorSets = new Map(); // keyNoColor -> Set of COLOR KEYS
   if (colMap.colorgroup) {
     for (const row of data) {
       const sku = (row[colMap.sku] ?? "").toString().trim().toUpperCase();
       const folder = (row[colMap.folder] ?? "").toString().trim().toLowerCase();
       if (!sku || !folder) continue;
 
-      const colorNorm = (row[colMap.colorgroup] ?? "")
+      const colorKey = (row[colMap.colorgroup] ?? "")
         .toString()
         .replace(/\s+/g, ' ')
         .trim()
@@ -385,15 +418,11 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
 
       const keyNoColor = `${sku}___${folder}`;
       if (!colorSets.has(keyNoColor)) colorSets.set(keyNoColor, new Set());
-      if (colorNorm) colorSets.get(keyNoColor).add(colorNorm);
+      if (colorKey) colorSets.get(keyNoColor).add(colorKey);
     }
   }
 
-  // Helper: should we include color in the key for a given SKU+Folder?
   function mustRespectColor(keyNoColor) {
-    // force include color if:
-    //  - caller requested (TakeOff Template), OR
-    //  - we detected multiple colors for this SKU+Folder combo
     if (respectColorGroupOnTakeoff) return true;
     const set = colorSets.get(keyNoColor);
     return set && set.size > 1;
@@ -401,7 +430,8 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
 
   // Debug: DUOSIL pre-merge sample
   const hasCG = !!colMap.colorgroup;
-  const debugDuosil = data.filter(r => (r[colMap.sku] || "").toString().trim().toUpperCase() === "DUOSIL")
+  const debugDuosil = data
+    .filter(r => (r[colMap.sku] || "").toString().trim().toUpperCase() === "DUOSIL")
     .map(r => ({
       SKU: (r[colMap.sku] || "").toString().trim().toUpperCase(),
       Folder: (r[colMap.folder] || "").toString().trim(),
@@ -421,18 +451,17 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
     const folderNorm = folder.toLowerCase();
     const keyNoColor = `${skuNorm}___${folderNorm}`;
 
-    let colorNorm = "";
+    // Display vs key: keep original case for display, use uppercase for grouping
+    let colorDisplay = "";
+    let colorKey = "";
     if (colMap.colorgroup) {
-      colorNorm = (row[colMap.colorgroup] ?? "")
-        .toString()
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toUpperCase();
+      const raw = (row[colMap.colorgroup] ?? "").toString();
+      colorDisplay = raw.replace(/\s+/g, ' ').trim(); // preserve case for output
+      colorKey = colorDisplay.toUpperCase();          // normalized for grouping/keys
     }
 
-    // --- Build merge key (auto-split by Color Group if needed) ---
     const includeColor = mustRespectColor(keyNoColor);
-    const key = includeColor ? `${keyNoColor}___${colorNorm}` : keyNoColor;
+    const key = includeColor ? `${keyNoColor}___${colorKey}` : keyNoColor;
 
     const qty = parseFloat(row[colMap.qty]) || 0;
 
@@ -443,7 +472,7 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
         Description2: row[colMap.description2] || "",
         UOM: row[colMap.uom] ?? null,
         Folder: folder,
-        ColorGroup: includeColor ? (colorNorm || "") : (row[colMap.colorgroup] ?? ""), // keep original when not splitting
+        ColorGroup: includeColor ? (colorDisplay || "") : (row[colMap.colorgroup] ?? ""), // ← preserve case
         Vendor: row[colMap.vendor] || "",
         UnitCost: parseFloat(row[colMap.unitcost]) || 0,
         TotalQty: 0
@@ -455,7 +484,6 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
   const merged = Object.values(result).map(item => {
     const isLabor = item.SKU?.toLowerCase().includes("labor");
     const uom = (item.UOM ?? "").toString().trim().toUpperCase();
-
     const skipRounding = !allowRounding || isLabor || uom === "SQ";
     if (!skipRounding) {
       item.TotalQty = Math.ceil(Math.abs(item.TotalQty)); // always round up
@@ -473,6 +501,36 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
 
   return merged;
 }
+
+function injectDynamicElevation(folderName) {
+  const formTable = document.querySelector("table");
+  if (!formTable) return;
+
+  // avoid duplicates
+  if (document.getElementById("dynamicElevationRow")) return;
+
+  const tr = document.createElement("tr");
+  tr.id = "dynamicElevationRow";
+
+  const tdLabel = document.createElement("td");
+  tdLabel.style.whiteSpace = "nowrap";
+  tdLabel.style.width = "1%";
+  tdLabel.textContent = "Elevation:";
+
+  const tdInput = document.createElement("td");
+  const input = document.createElement("input");
+  input.type = "text";
+  input.name = "elevation";
+  input.value = folderName;
+  tdInput.appendChild(input);
+
+  tr.appendChild(tdLabel);
+  tr.appendChild(tdInput);
+
+  formTable.appendChild(tr);
+  showToast(allSelected ? "✅ All folders selected" : "🔄 All folders deselected");
+}
+
 
 function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
@@ -694,49 +752,7 @@ checkboxRow.classList.add('folder-checkbox-row');
   container.appendChild(injectBtn);
 }
 
-function injectMultipleFolders(folders) {
-  if (!folders.length) return;
 
-  showLoadingOverlay(true, `Exporting ${folders.length} folder(s)...`);
-  disableAllFolderButtons(true, "Injecting...");
-
-  let completed = 0;
-  let failed = 0;
-
-  const exportPromises = folders.map(folder => {
-    const elevationData = mergedData.filter(d => d.Folder === folder);
-    const rawRows = rawSheetData.filter(d => d.Folder === folder);
-    const normalizedRows = rawRows.map(normalizeRawRow);
-    const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-
-    // Respect Color Group for breakout too
-    const breakoutMerged = mergeBySKU(nonLaborRows, false, {
-      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
-    });
-
-    console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
-
-    if (!elevationData.length) {
-      showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
-      return Promise.resolve();
-    }
-
-    return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder)
-      .then(() => { completed++; })
-      .catch(() => { failed++; });
-  });
-
-  Promise.allSettled(exportPromises).then(() => {
-    showLoadingOverlay(false);
-    disableAllFolderButtons(false);
-
-    if (completed && !failed) showToast(`✅ All ${completed} folders exported!`);
-    else if (completed && failed) showToast(`⚠️ ${completed} exported, ${failed} failed`);
-    else showToast(`❌ All exports failed`);
-  });
-
-  showToast(`📦 Creating ${folders.length} folder(s)...`);
-}
 
 
 
@@ -813,16 +829,16 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
   return new Promise((resolve, reject) => {
     const metadata = getFormMetadata();
 
-    // ✅ Parse paint labor from field if available
+    // Parse paint labor (optional)
     const paintInput =
       document.querySelector('input[name="paintLabor"]') ||
       document.querySelector('input[name="paintlabor"]');
     metadata.paintlabor = parseLaborRate(paintInput?.value || "");
 
-    // ✅ Collect all labor rates
+    // Collect all labor rates
     const laborRates = getLaborRates();
 
-    // ✅ Construct full payload
+    // Construct payload
     const payload = {
       data: elevationData,
       breakout: breakoutData,
@@ -861,13 +877,14 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       .then(blob => {
         if (!blob) return;
 
-        // ✅ Build filename: Takeoff - builder - planName - elevation - materialType
+        // 🔹 File name = ONLY the elevation/folder
         const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
-        const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(metadata.elevation)} - ${safe(metadata.materialType)}.xlsb`;
+        const elevationForFile = folderName || metadata.elevation || "Takeoff";
+        const fileName = `${safe(elevationForFile)}.xlsb`;
 
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = fileName;
+        a.download = fileName; // ← exactly the elevation only
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -881,6 +898,8 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       });
   });
 }
+
+
 
 
 function injectSelectedFolder(folder) {
@@ -914,29 +933,40 @@ function renderMaterialBreakoutButtons() {
   const container = document.getElementById("materialBreakoutButtons");
   if (!section || !container) return;
 
-container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;"></div>';
+  container.innerHTML = '<div id="folderCheckboxRow" style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;"></div>';
 
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
   if (!uniqueFolders.length) {
     section.style.display = "none";
     return;
   }
-
   section.style.display = "block";
 
   uniqueFolders.forEach(folder => {
     const button = document.createElement('button');
     button.textContent = `Download "${folder}"`;
     button.style.margin = '6px';
-button.addEventListener('click', () => {
+    button.addEventListener('click', () => {
+      // Build breakout on demand
+      const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
+      const isAlreadyNormalized =
+        allRaw.length > 0 && "SKU" in allRaw[0] && "TotalQty" in allRaw[0] && "Folder" in allRaw[0];
+      const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
+      const normalizedRows = normalizedAll.filter(d => d.Folder === folder);
+      const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
+      const breakoutMerged = mergeBySKU(nonLaborRows, false, {
+        respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
+      });
+      const breakoutForServer = breakoutMerged.map(r => ({ ...r, QTY: Number(r.TotalQty) || 0 }));
 
-  // ✅ Continue with injection
-  sendToInjectionServer(breakoutMerged, folder, "material_breakout");
-  showToast(`✅ Material Breakout injected for "${folder}" (${breakoutMerged.length} items)`);
-});
-   container.appendChild(button);
+      console.log(`⬇️ On-demand breakout for "${folder}"`, breakoutForServer.slice(0, 5));
+      sendToInjectionServer(breakoutForServer, folder, "material_breakout");
+      showToast(`✅ Material Breakout injected for "${folder}" (${breakoutForServer.length} items)`);
+    });
+    container.appendChild(button);
   });
 }
+
 
 function mergeForMaterialBreakout(data, skipLabor = true) {
 
