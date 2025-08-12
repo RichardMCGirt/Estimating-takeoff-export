@@ -252,7 +252,8 @@ function handleSourceUpload(event) {
     showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
- 
+
+  
 
     if (uniqueFolders.length === 1) {
       const singleFolder = uniqueFolders[0];
