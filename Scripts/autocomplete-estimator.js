@@ -174,6 +174,5 @@ function setupEstimatorAutocomplete() {
   }
 }
 
-
 // Init
 document.addEventListener('DOMContentLoaded', setupEstimatorAutocomplete);
