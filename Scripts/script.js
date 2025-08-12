@@ -18,11 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
   attachLaborRateInputListeners();
 
   const estimateForm = document.getElementById("estimateForm");
- // replace your estimateForm block with this:
 if (estimateForm) {
   estimateForm.querySelectorAll('input[name][data-currency="true"]').forEach(input => {
     input.addEventListener("input", () => {
-      // Optional: live formatting or validation
     });
 
     input.addEventListener("focus", () => {
@@ -32,7 +30,7 @@ if (estimateForm) {
     input.addEventListener("blur", () => {
       const raw = input.value.replace(/[^\d.\-]/g, '');
       const val = parseFloat(raw);
-      input.value = !isNaN(val) ? `$${val.toFixed(2)}` : input.value; // <-- keep original if not a number
+      input.value = !isNaN(val) ? `$${val.toFixed(2)}` : input.value; 
     });
   });
 }
@@ -137,17 +135,24 @@ function handleSourceUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
 
-  // Process file
   const reader = new FileReader();
   reader.onload = function (e) {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: 'array' });
 
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
 
+    // Remember whether we’re on the TakeOff Template sheet
+    window.isTakeoffTemplate = (sheetName || "").trim().toLowerCase() === "takeoff template";
+
     rawSheetData = json;
-mergedData = mergeBySKU(json, true); // rounding ON
+
+    // ✅ Pass option to respect Color Group on TakeOff Template
+    mergedData = mergeBySKU(json, true, {
+      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
+    });
 
     localStorage.setItem('mergedData', JSON.stringify(mergedData));
     localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
@@ -162,7 +167,6 @@ mergedData = mergeBySKU(json, true); // rounding ON
 
     if (uniqueFolders.length === 1 && (!elevationInput || !elevationInput.value)) {
       injectDynamicElevation(uniqueFolders[0]);
-      
     }
 
     if (uniqueFolders.length === 1) {
@@ -174,7 +178,6 @@ mergedData = mergeBySKU(json, true); // rounding ON
       });
     }
 
-    // ✅ Only reset if it's a real input element (has a .value)
     if (event.target?.type === "file") {
       event.target.value = "";
     }
@@ -182,6 +185,7 @@ mergedData = mergeBySKU(json, true); // rounding ON
 
   reader.readAsArrayBuffer(file);
 }
+
 
 function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table"); // or specific ID if known
@@ -237,8 +241,10 @@ function showToast(message = "Success!", duration = 3000) {
   }, duration);
 }
 
- function mergeBySKU(data, allowRounding = true) {
+ function mergeBySKU(data, allowRounding = true, options = {}) {
   if (!data.length) return [];
+
+  const { respectColorGroupOnTakeoff = false } = options;
 
   const sampleRow = data[0];
   const normalizedHeaders = {};
@@ -278,9 +284,15 @@ function showToast(message = "Success!", duration = 3000) {
     const folder = row[colMap.folder]?.trim();
     if (!sku || !folder) return;
 
+    const colorGroupVal = (row[colMap.colorgroup] || "").trim();
+
     const normalizedFolder = folder.trim().toLowerCase();
     const normalizedSKU = sku.trim().toUpperCase();
-    const key = `${normalizedSKU}___${normalizedFolder}`;
+
+    // ✅ If we must respect color group (TakeOff Template), include it in the merge key
+    const key = respectColorGroupOnTakeoff
+      ? `${normalizedSKU}___${normalizedFolder}___${colorGroupVal.toUpperCase()}`
+      : `${normalizedSKU}___${normalizedFolder}`;
 
     const qtyRaw = row[colMap.qty];
     const qty = parseFloat(qtyRaw) || 0;
@@ -292,7 +304,7 @@ function showToast(message = "Success!", duration = 3000) {
         Description2: row[colMap.description2] || "",
         UOM: row[colMap.uom] ?? null,
         Folder: folder,
-        ColorGroup: row[colMap.colorgroup] || "",
+        ColorGroup: colorGroupVal || "",
         Vendor: row[colMap.vendor] || "",
         UnitCost: parseFloat(row[colMap.unitcost]) || 0,
         TotalQty: 0
@@ -305,16 +317,14 @@ function showToast(message = "Success!", duration = 3000) {
     const isLabor = item.SKU?.toLowerCase().includes("labor");
     const uom = item.UOM?.trim().toUpperCase();
 
-    // ✅ Skip rounding if:
-    //   - allowRounding is false
-    //   - SKU contains labor
-    //   - UOM = SQ
+    // Skip rounding if allowRounding is false, or if labor, or UOM=SQ
     const skipRounding = !allowRounding || isLabor || uom === "SQ";
 
-    if (!skipRounding && !Number.isInteger(item.TotalQty)) {
-      const qty = item.TotalQty;
-      item.TotalQty = Math.ceil(Math.abs(qty));
+    // ✅ ALWAYS round up (ceil of abs) when rounding is enabled
+    if (!skipRounding) {
+      item.TotalQty = Math.ceil(Math.abs(item.TotalQty));
     }
+
     return item;
   });
 
@@ -541,34 +551,28 @@ checkboxRow.classList.add('folder-checkbox-row');
 function injectMultipleFolders(folders) {
   if (!folders.length) return;
 
-  showLoadingOverlay(true, `Exporting ${folders.length} folder(s)...`); // SHOW OVERLAY
-
+  showLoadingOverlay(true, `Exporting ${folders.length} folder(s)...`);
   disableAllFolderButtons(true, "Injecting...");
 
   let completed = 0;
   let failed = 0;
 
-  // Track all promises for all exports
   const exportPromises = folders.map(folder => {
     const elevationData = mergedData.filter(d => d.Folder === folder);
     const rawRows = rawSheetData.filter(d => d.Folder === folder);
     const normalizedRows = rawRows.map(normalizeRawRow);
     const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-const breakoutMerged = mergeBySKU(nonLaborRows, false); // rounding OFF
-console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
-console.log("📋 rawRows:", rawRows);
-console.log("📋 normalizedRows:", normalizedRows);
-console.log("📋 nonLaborRows:", nonLaborRows);
-console.log("📦 breakoutMerged:", breakoutMerged);
+
+    // ✅ Respect Color Group on TakeOff Template for breakout as well
+    const breakoutMerged = mergeBySKU(nonLaborRows, false, {
+      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
+    });
+
+    console.log(`📦 Breakout payload for folder "${folder}":`, breakoutMerged);
 
     if (!elevationData.length) {
       showToast(`⚠️ Skipped "${folder}" due to missing elevation data`);
       return Promise.resolve();
-    }
-
-    // Info log, not blocking
-    if (!breakoutMerged.length) {
-     // console.warn(`⚠️ No non-labor breakout data for "${folder}", continuing with elevation data only`);
     }
 
     return sendToInjectionServerDualSheet(elevationData, breakoutMerged || [], folder)
@@ -576,9 +580,8 @@ console.log("📦 breakoutMerged:", breakoutMerged);
       .catch(() => { failed++; });
   });
 
-  // When all done: hide the overlay and re-enable buttons
   Promise.allSettled(exportPromises).then(() => {
-    showLoadingOverlay(false); // HIDE OVERLAY
+    showLoadingOverlay(false);
     disableAllFolderButtons(false);
 
     if (completed && !failed) showToast(`✅ All ${completed} folders exported!`);
@@ -588,6 +591,7 @@ console.log("📦 breakoutMerged:", breakoutMerged);
 
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
+
 
 function showLoadingOverlay(show = true, message = "Processing...") {
   const overlay = document.getElementById("loadingOverlay");
