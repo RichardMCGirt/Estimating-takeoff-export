@@ -7,6 +7,11 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 
+// ✅ Choose how to group Material Break Out
+//    "desc2" → group by Description 2 + Color Group (matches your expected look)
+//    "sku"   → group by SKU + Color Group
+const BREAKOUT_GROUP_BY = "desc2";
+
 const baseServer = "https://0e96e65f7e1c.ngrok-free.app";
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
@@ -18,29 +23,26 @@ document.addEventListener("DOMContentLoaded", () => {
   attachLaborRateInputListeners();
 
   const estimateForm = document.getElementById("estimateForm");
-if (estimateForm) {
-  estimateForm.querySelectorAll('input[name][data-currency="true"]').forEach(input => {
-    input.addEventListener("input", () => {
-    });
+  if (estimateForm) {
+    estimateForm.querySelectorAll('input[name][data-currency="true"]').forEach(input => {
+      input.addEventListener("input", () => {});
 
-    input.addEventListener("focus", () => {
-      input.value = input.value.replace(/^\$/, '');
-    });
+      input.addEventListener("focus", () => {
+        input.value = input.value.replace(/^\$/, '');
+      });
 
-    input.addEventListener("blur", () => {
-      const raw = input.value.replace(/[^\d.\-]/g, '');
-      const val = parseFloat(raw);
-      input.value = !isNaN(val) ? `$${val.toFixed(2)}` : input.value; 
+      input.addEventListener("blur", () => {
+        const raw = input.value.replace(/[^\d.\-]/g, '');
+        const val = parseFloat(raw);
+        input.value = !isNaN(val) ? `$${val.toFixed(2)}` : input.value; 
+      });
     });
-  });
-}
-
+  }
 
   // === 2. Restore Saved Fields or Set Today's Date ===
   if (typeof fields !== "undefined" && Array.isArray(fields)) {
     fields.forEach(field => {
       const input = document.querySelector(`[name="${field}"]`);
-      
       if (field === "date" && input && !input.value) {
         const today = new Date().toISOString().split("T")[0];
         input.value = today;
@@ -82,7 +84,7 @@ if (estimateForm) {
   }
 
   // === 6. Dark Mode Toggle Setup ===
- const toggleButton = document.getElementById("darkModeToggle");
+  const toggleButton = document.getElementById("darkModeToggle");
   const body = document.body;
 
   // Set initial theme based on localStorage
@@ -108,6 +110,38 @@ if (estimateForm) {
   }
 });
 
+// ✅ Build Material Break Out strictly from RAW file
+function buildBreakoutFromRaw(folder) {
+  const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
+
+  const isAlreadyNormalized =
+    allRaw.length > 0 &&
+    "SKU" in allRaw[0] &&
+    "TotalQty" in allRaw[0] &&
+    "Folder" in allRaw[0];
+
+  const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
+  const scoped = folder ? normalizedAll.filter(d => d.Folder === folder) : normalizedAll;
+
+  // non-labor only
+  const nonLaborRows = scoped.filter(d => !/labor/i.test(String(d.SKU || "")));
+
+  // group by Desc2+Color with fallback to SKU+Color
+  const merged = mergeForMaterialBreakout(nonLaborRows);
+
+  // finalize + add all qty variants
+  const breakoutForServer = finalizeBreakoutForServer(merged);
+
+  // debug preview
+  console.table(breakoutForServer.map(r => ({
+    SKU: r.SKU, Desc2: r.Description2, Color: r.ColorGroup, QTY: r.QTY, Qty: r.Qty, qty: r.qty, Quantity: r.Quantity, TotalQty: r.TotalQty, type: typeof r.QTY
+  })));
+
+  return breakoutForServer;
+}
+
+
+
 function getFormMetadata() {
   const fields = [
     "builder",
@@ -125,9 +159,7 @@ function getFormMetadata() {
     metadata[field] = input?.value.trim() || "";
   });
 
-  // 🧪 Debug logs
   console.table(metadata);
-
   return metadata;
 }
 
@@ -156,7 +188,6 @@ function detectCollapsedColors(normalizedRows, merged) {
     if (color) mergedMap.get(k).add(color);
   }
 
-  // If raw had >1 color for any SKU+Folder but merged has <=1, we collapsed
   for (const [k, rawSet] of rawMap.entries()) {
     const mergedSet = mergedMap.get(k) || new Set();
     if (rawSet.size > 1 && mergedSet.size <= 1) {
@@ -168,16 +199,12 @@ function detectCollapsedColors(normalizedRows, merged) {
 }
 
 function enforceColorSplit(normalizedRows, allowRounding = true) {
-  // Re-merge strictly by SKU+Folder+ColorGroup (case preserved for display)
   const result = {};
   for (const r of normalizedRows) {
     const sku = (r.SKU || "").toString().trim().toUpperCase();
     const folder = (r.Folder || "").toString().trim();
-
-    // display string keeps original case; key uses uppercased normalized form
     const colorDisplay = (r.ColorGroup || "").toString().replace(/\s+/g, ' ').trim();
     const colorKey = colorDisplay.toUpperCase();
-
     if (!sku || !folder) continue;
 
     const key = `${sku}___${folder.toLowerCase()}___${colorKey}`;
@@ -190,7 +217,7 @@ function enforceColorSplit(normalizedRows, allowRounding = true) {
         Description2: r.Description2 || "",
         UOM: r.UOM ?? null,
         Folder: folder,
-        ColorGroup: colorDisplay || "", // ← preserve case
+        ColorGroup: colorDisplay || "",
         Vendor: r.Vendor || "",
         UnitCost: parseFloat(r.UnitCost) || 0,
         TotalQty: 0
@@ -199,7 +226,6 @@ function enforceColorSplit(normalizedRows, allowRounding = true) {
     result[key].TotalQty += qty;
   }
 
-  // Always round up when rounding is enabled (and not labor / SQ)
   return Object.values(result).map(item => {
     const isLabor = item.SKU.toLowerCase().includes("labor");
     const uom = (item.UOM || "").toString().trim().toUpperCase();
@@ -230,7 +256,7 @@ function handleSourceUpload(event) {
     const normalizedRows = json.map(normalizeRawRow);
 
     // ✅ Keep original raw rows here so we can (re)normalize later as needed
-    rawSheetData = json; // <-- key change (was: normalizedRows)
+    rawSheetData = json; // ORIGINAL json
 
     // Build merged data for UI
     mergedData = mergeBySKU(normalizedRows, true, {
@@ -252,8 +278,6 @@ function handleSourceUpload(event) {
     showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-
-  
 
     if (uniqueFolders.length === 1) {
       const singleFolder = uniqueFolders[0];
@@ -282,27 +306,8 @@ function injectMultipleFolders(folders) {
   let failed = 0;
 
   const exportPromises = folders.map(folder => {
-    // Normalize ONCE from whatever is in rawSheetData
-    const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
-    const isAlreadyNormalized =
-      allRaw.length > 0 && "SKU" in allRaw[0] && "TotalQty" in allRaw[0] && "Folder" in allRaw[0];
-
-    const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
-
-    // Filter AFTER normalization
-    const normalizedRows = normalizedAll.filter(d => d.Folder === folder);
-    const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-
-    // Build breakout, keep ColorGroup splits, no rounding
-    const breakoutMerged = mergeBySKU(nonLaborRows, false, {
-      respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
-    });
-
-    // TotalQty → QTY (number) for the server/template
-    const breakoutForServer = breakoutMerged.map(r => ({
-      ...r,
-      QTY: Number(r.TotalQty) || 0
-    }));
+    // ✅ Build Material Break Out from RAW using the new helper
+    const breakoutForServer = buildBreakoutFromRaw(folder);
 
     // Elevation/main data for this folder from mergedData (already built for UI)
     const elevationData = mergedData.filter(d => d.Folder === folder);
@@ -335,30 +340,37 @@ function injectMultipleFolders(folders) {
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
 
-
-
+// 🔁 Always source Material Break Out from RAW file
 function injectMaterialBreakout() {
-  if (!mergedData.length) {
-    alert("No merged data found.");
+  if (!Array.isArray(rawSheetData) || !rawSheetData.length) {
+    alert("No RAW data found. Please upload a source file first.");
     return;
   }
-  sendToInjectionServer(mergedData, "Material_Break_Out", "material_breakout");
-}
 
-function showToast(message = "Success!", duration = 3000) {
-  const toast = document.getElementById("toast");
-  if (!toast) return;
+  // Try to detect a single selected folder first
+  const selected = [...document.querySelectorAll('.folder-checkbox:checked')].map(cb => cb.value);
+  const allFolders = [...new Set(
+    (Array.isArray(mergedData) ? mergedData : []).map(d => d.Folder)
+  )];
 
-  toast.textContent = message;
-  toast.style.visibility = "visible";
-  toast.style.opacity = "1";
+  let folderForPayload = null;
 
-  setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => {
-      toast.style.visibility = "hidden";
-    }, 300);
-  }, duration);
+  if (selected.length === 1) {
+    folderForPayload = selected[0];
+  } else if (allFolders.length === 1) {
+    folderForPayload = allFolders[0];
+  }
+
+  const breakoutForServer = buildBreakoutFromRaw(folderForPayload || undefined);
+
+  if (!breakoutForServer.length) {
+    alert("Material Break Out payload is empty after filtering non-labor rows from RAW file.");
+    return;
+  }
+
+  const label = folderForPayload || "Material_Break_Out";
+  sendToInjectionServer(breakoutForServer, label, "material_breakout");
+  showToast(`✅ Material Break Out (RAW) injected for "${label}" (${breakoutForServer.length} items)`);
 }
 
 function mergeBySKU(data, allowRounding = true, options = {}) {
@@ -473,7 +485,7 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
         Description2: row[colMap.description2] || "",
         UOM: row[colMap.uom] ?? null,
         Folder: folder,
-        ColorGroup: includeColor ? (colorDisplay || "") : (row[colMap.colorgroup] ?? ""), // ← preserve case
+        ColorGroup: includeColor ? (colorDisplay || "") : (row[colMap.colorgroup] ?? ""),
         Vendor: row[colMap.vendor] || "",
         UnitCost: parseFloat(row[colMap.unitcost]) || 0,
         TotalQty: 0
@@ -492,7 +504,6 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
     return item;
   });
 
-  // Post-merge DUOSIL check
   const duosilGroups = merged
     .filter(i => (i.SKU || "").toUpperCase() === "DUOSIL")
     .map(i => `${i.Folder} :: ${((i.ColorGroup ?? "").toString() || "").toString()} :: ${i.TotalQty}`);
@@ -507,7 +518,6 @@ function injectDynamicElevation(folderName) {
   const formTable = document.querySelector("table");
   if (!formTable) return;
 
-  // avoid duplicates
   if (document.getElementById("dynamicElevationRow")) return;
 
   const tr = document.createElement("tr");
@@ -532,7 +542,6 @@ function injectDynamicElevation(folderName) {
   showToast(allSelected ? "✅ All folders selected" : "🔄 All folders deselected");
 }
 
-
 function displayMergedTable(data) {
   const container = document.getElementById("mergedTableContainer");
   const wrapper = document.getElementById("mergedTableWrapper");
@@ -545,7 +554,7 @@ function displayMergedTable(data) {
 
   wrapper.style.display = "block";
   wrapper.classList.add("has-data");
-  container.innerHTML = ""; // clear old content
+  container.innerHTML = "";
 
   const folders = [...new Set(data.map(d => d.Folder))];
 
@@ -556,19 +565,18 @@ function displayMergedTable(data) {
 
     if (!nonLabor.length && !labor.length) return;
 
- const sortedNonLabor = [...nonLabor].sort((a, b) => {
-  const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
-  if (ca !== 0) return ca;
-  return (a.Description || "").localeCompare(b.Description || "");
-});
-const sortedLabor = [...labor].sort((a, b) => {
-  const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
-  if (ca !== 0) return ca;
-  return (a.Description || "").localeCompare(b.Description || "");
-});
+    const sortedNonLabor = [...nonLabor].sort((a, b) => {
+      const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
+      if (ca !== 0) return ca;
+      return (a.Description || "").localeCompare(b.Description || "");
+    });
+    const sortedLabor = [...labor].sort((a, b) => {
+      const ca = (a.ColorGroup || "").localeCompare(b.ColorGroup || "");
+      if (ca !== 0) return ca;
+      return (a.Description || "").localeCompare(b.Description || "");
+    });
 
-
-const tableId = `copyTable_${folder.replace(/\W+/g, '_')}_${index}_${Date.now()}`;
+    const tableId = `copyTable_${folder.replace(/\W+/g, '_')}_${index}_${Date.now()}`;
     let tsvContent = "";
 
     const buildRow = row => `
@@ -606,32 +614,27 @@ const tableId = `copyTable_${folder.replace(/\W+/g, '_')}_${index}_${Date.now()}
         <th>Color Group</th>
       </tr>`;
 
-    // Create section container
     const section = document.createElement("section");
 
-    // Create and insert heading
     const heading = document.createElement("h3");
     heading.textContent = folder;
     section.appendChild(heading);
 
-    // Create and insert button
     const button = document.createElement("button");
     button.classList.add("copy-button");
     button.textContent = `Copy ${folder} to Clipboard`;
-button.addEventListener('click', () => {
-  console.log("🔘 Copy button clicked:", tableId);
-  copyToClipboard(tableId);
-});
+    button.addEventListener('click', () => {
+      console.log("🔘 Copy button clicked:", tableId);
+      copyToClipboard(tableId);
+    });
     section.appendChild(button);
 
-    // Create and insert textarea with TSV
     const textarea = document.createElement("textarea");
-textarea.id = tableId;
-textarea.style.display = "none";
-textarea.value = tsvContent.trim(); 
-section.appendChild(textarea);
+    textarea.id = tableId;
+    textarea.style.display = "none";
+    textarea.value = tsvContent.trim(); 
+    section.appendChild(textarea);
 
-    // Create and insert table
     const tableHTML = `
       <table style="width:100%; text-align:center; border-collapse: collapse;">
         <thead>${headerRow}</thead>
@@ -641,14 +644,140 @@ section.appendChild(textarea);
           ${sortedLabor.map(buildRow).join("")}
         </tbody>
       </table><br/>`;
-const tableContainer = document.createElement("div");
-tableContainer.innerHTML = tableHTML;
-section.appendChild(tableContainer);
+    const tableContainer = document.createElement("div");
+    tableContainer.innerHTML = tableHTML;
+    section.appendChild(tableContainer);
 
-    // Append the section to container
     container.appendChild(section);
   });
 }
+/* ===== Loading Overlay (drop-in, no deps) ===== */
+(function () {
+  if (typeof window === "undefined") return;
+  if (window.showLoadingOverlay) return; // already present
+
+  // Inject CSS once
+  (function injectLoadingOverlayCSSOnce() {
+    if (document.getElementById("loading-overlay-styles")) return;
+    const style = document.createElement("style");
+    style.id = "loading-overlay-styles";
+    style.textContent = `
+      #loadingOverlay {
+        position: fixed; inset: 0; display: none;
+        align-items: center; justify-content: center;
+        background: rgba(0,0,0,.55); backdrop-filter: blur(2px);
+        z-index: 2147483646;
+      }
+      .loading-card {
+        min-width: 280px; max-width: 90vw;
+        padding: 16px 18px; border-radius: 14px;
+        background: var(--card, #151923);
+        color: var(--text, #e9edf1);
+        border: 1px solid var(--border, #232a3a);
+        box-shadow: 0 12px 32px rgba(0,0,0,.35);
+        display: grid; grid-template-columns: auto 1fr;
+        gap: 12px; align-items: center;
+      }
+      .loading-left { display: grid; gap: 8px; align-items: center; }
+      .loading-spinner {
+        width: 24px; height: 24px; border-radius: 50%;
+        border: 3px solid rgba(255,255,255,.2);
+        border-top-color: currentColor;
+        animation: loading-spin .9s linear infinite;
+      }
+      .loading-body { display: grid; gap: 8px; min-width: 220px; }
+      #loadingMessage { font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; }
+      .loading-progress {
+        display: none; height: 8px; width: 100%;
+        background: #232a3a; border-radius: 999px; overflow: hidden;
+        border: 1px solid rgba(255,255,255,.08);
+      }
+      .loading-progress__bar {
+        height: 100%; width: 0%;
+        background: #34c759; transition: width .2s ease;
+      }
+      @keyframes loading-spin { to { transform: rotate(360deg); } }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  // Ensure DOM scaffold exists
+  function ensureLoadingOverlayDOM() {
+    let overlay = document.getElementById("loadingOverlay");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "loadingOverlay";
+      overlay.setAttribute("aria-hidden", "true");
+      overlay.innerHTML = `
+        <div class="loading-card" role="alertdialog" aria-live="polite" aria-busy="true">
+          <div class="loading-left">
+            <div class="loading-spinner" aria-hidden="true"></div>
+          </div>
+          <div class="loading-body">
+            <div id="loadingMessage">Processing...</div>
+            <div class="loading-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+              <div class="loading-progress__bar" aria-hidden="true"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+    return overlay;
+  }
+
+  // Public API
+  window.showLoadingOverlay = function (show = true, message = "Processing...") {
+    const overlay = ensureLoadingOverlayDOM();
+    const msgEl = overlay.querySelector("#loadingMessage");
+    if (msgEl) msgEl.textContent = message ?? "";
+    overlay.style.display = show ? "flex" : "none";
+    overlay.setAttribute("aria-hidden", show ? "false" : "true");
+  };
+
+  window.updateLoadingOverlayMessage = function (message = "") {
+    const overlay = ensureLoadingOverlayDOM();
+    const msgEl = overlay.querySelector("#loadingMessage");
+    if (msgEl) msgEl.textContent = message ?? "";
+  };
+
+  window.setLoadingOverlayProgress = function (percent) {
+    const overlay = ensureLoadingOverlayDOM();
+    const wrap = overlay.querySelector(".loading-progress");
+    const bar = overlay.querySelector(".loading-progress__bar");
+    if (typeof percent === "number" && isFinite(percent)) {
+      const p = Math.max(0, Math.min(100, percent));
+      wrap.style.display = "block";
+      bar.style.width = p + "%";
+      wrap.setAttribute("aria-valuenow", String(p));
+    } else {
+      // hide if invalid/undefined
+      wrap.style.display = "none";
+      bar.style.width = "0%";
+      wrap.removeAttribute("aria-valuenow");
+    }
+  };
+})();
+
+// ✅ Disable/enable all folder-related UI controls during export
+function disableAllFolderButtons(disabled, message = "") {
+  // Buttons you want to lock (must have class="folder-button")
+  const buttons = document.querySelectorAll('button.folder-button');
+
+  buttons.forEach(btn => {
+    if (!btn.dataset.originalLabel) {
+      btn.dataset.originalLabel = btn.textContent;
+    }
+    btn.disabled = disabled;
+    btn.textContent = disabled && message ? message : btn.dataset.originalLabel;
+    btn.classList.toggle('is-disabled', disabled);
+  });
+
+  // Also lock the checkboxes so the selection can't change mid-export
+  const checkboxes = document.querySelectorAll('.folder-checkbox');
+  checkboxes.forEach(cb => { cb.disabled = disabled; });
+}
+
 
 function normalizeRawRow(row) {
   const normalizedKeys = {};
@@ -679,19 +808,16 @@ function normalizeRawRow(row) {
 }
 
 function autoResizeInput(input) {
-  input.style.width = '1px'; // reset
+  input.style.width = '1px';
   input.style.width = input.scrollWidth + 'px';
 }
 
-// For all matching inputs
 document.querySelectorAll('input[type="text"], input[type="date"], input[type="number"]').forEach(input => {
-  // Resize on input change (user typing)
   input.addEventListener('input', () => autoResizeInput(input));
-
-  // Resize if JS sets a value
   autoResizeInput(input);
 });
 
+// 🔁 FULL REPLACEMENT: renderFolderButtons (adds .folder-button to the Export button)
 function renderFolderButtons() {
   const container = document.getElementById('folderButtons');
   const section = document.getElementById('elevationSection');
@@ -699,7 +825,7 @@ function renderFolderButtons() {
 
   container.innerHTML = '';
 
-  // ✅ Select All button
+  // Select All toggle (not disabled by default)
   const selectAllBtn = document.createElement('button');
   selectAllBtn.textContent = "Select All";
   selectAllBtn.style.marginBottom = '12px';
@@ -710,40 +836,40 @@ function renderFolderButtons() {
     checkboxes.forEach(cb => cb.checked = allSelected);
     selectAllBtn.textContent = allSelected ? "Deselect All" : "Select All";
   });
-
   container.appendChild(selectAllBtn);
+
   const checkboxRow = document.createElement('div');
   checkboxRow.id = 'folderCheckboxRow';
-checkboxRow.classList.add('folder-checkbox-row');
-
+  checkboxRow.classList.add('folder-checkbox-row');
   checkboxRow.style.marginBottom = '12px';
   container.appendChild(checkboxRow);
+
   const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
   if (!uniqueFolders.length) {
     section.style.display = "none";
     return;
   }
-
   section.style.display = "block";
 
   uniqueFolders.forEach(folder => {
-  const label = document.createElement('label');
-  label.classList.add('folder-label'); // ✅ use class, not inline styles
+    const label = document.createElement('label');
+    label.classList.add('folder-label');
 
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.value = folder;
-  checkbox.classList.add('folder-checkbox'); // ✅ styling handled by CSS
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = folder;
+    checkbox.classList.add('folder-checkbox');
 
-  label.appendChild(checkbox);
-  label.append(folder);
-  checkboxRow.appendChild(label);
-});
+    label.appendChild(checkbox);
+    label.append(folder);
+    checkboxRow.appendChild(label);
+  });
 
-  // ✅ Inject button
+  // Export button → mark as folder-button so it will be disabled during export
   const injectBtn = document.createElement('button');
   injectBtn.textContent = "Export Selected Folders";
   injectBtn.style.marginTop = "10px";
+  injectBtn.classList.add('folder-button'); // ← important
   injectBtn.addEventListener('click', () => {
     const selected = [...document.querySelectorAll('.folder-checkbox:checked')].map(cb => cb.value);
     if (!selected.length) return alert("Please select at least one folder.");
@@ -754,181 +880,154 @@ checkboxRow.classList.add('folder-checkbox-row');
 }
 
 
+/* ===== Toast system (drop-in, no deps) ===== */
+(function injectToastCSSOnce() {
+  if (document.getElementById("toast-styles")) return;
+  const style = document.createElement("style");
+  style.id = "toast-styles";
+  style.textContent = `
+    .toast-container {
+      position: fixed; inset-inline: 0; bottom: 16px;
+      display: grid; place-items: center; gap: 8px;
+      pointer-events: none; z-index: 2147483647;
+    }
+    .toast {
+      pointer-events: auto;
+      width: min(92vw, 520px);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: start; gap: 10px;
+      padding: 12px 14px; border-radius: 12px;
+      background: #151923; color: #e9edf1;
+      border: 1px solid #232a3a;
+      box-shadow: 0 10px 30px rgba(0,0,0,.28);
+      opacity: 0; transform: translateY(8px) scale(.98);
+      animation: toast-in .18s ease forwards;
+      font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    }
+    .toast__icon { font-size: 18px; line-height: 1; margin-top: 1px; }
+    .toast__msg { white-space: pre-line; word-wrap: break-word; }
+    .toast__actions { display: flex; gap: 8px; margin-left: 8px; }
+    .toast__btn, .toast__close {
+      border: 1px solid transparent; background: transparent; color: inherit;
+      padding: 6px 10px; border-radius: 10px; cursor: pointer; font: inherit;
+    }
+    .toast__btn:hover { background: rgba(255,255,255,.06); }
+    .toast__close { padding: 4px 8px; font-weight: 700; opacity: .8 }
+    .toast__close:hover { opacity: 1; background: rgba(255,255,255,.06); }
+    .toast--success { border-color: #34c759; }
+    .toast--error   { border-color: #ff3b30; }
+    .toast--warn    { border-color: #f7b500; }
+    .toast--info    { border-color: #3b82f6; }
+    @keyframes toast-in { to { opacity: 1; transform: translateY(0) scale(1);} }
+    @keyframes toast-out { to { opacity: 0; transform: translateY(8px) scale(.98);} }
+  `;
+  document.head.appendChild(style);
+})();
 
-
-
-function showLoadingOverlay(show = true, message = "Processing...") {
-  const overlay = document.getElementById("loadingOverlay");
-  const messageElement = document.getElementById("loadingMessage");
-
-  if (!overlay) {
-    console.warn("⚠️ loadingOverlay element not found.");
-    return;
+function showToast(message, {
+  type = "info",
+  duration = 2600,
+  actionText,
+  onAction,
+  dismissible = true
+} = {}) {
+  let container = document.querySelector(".toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.className = "toast-container";
+    document.body.appendChild(container);
   }
 
-  if (show) {
-    overlay.style.display = "flex";
-    if (messageElement) {
-      messageElement.textContent = message;
-      console.log(`🔔 Overlay shown with message: "${message}"`);
-    } else {
-      console.warn("⚠️ loadingMessage element not found.");
-    }
-  } else {
-    overlay.style.display = "none";
-    console.log("✅ Overlay hidden.");
+  const iconByType = {
+    success: "✅",
+    error:   "❌",
+    warn:    "⚠️",
+    info:    "ℹ️"
+  };
+  const icon = (message && /^[✅❌⚠️ℹ️]/.test(message.trim()))
+    ? "" : iconByType[type] || iconByType.info;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast--${type}`;
+  toast.setAttribute("role", type === "error" ? "alert" : "status");
+  toast.setAttribute("aria-live", type === "error" ? "assertive" : "polite");
+
+  const left = document.createElement("div");
+  left.className = "toast__icon";
+  left.textContent = icon;
+
+  const msg = document.createElement("div");
+  msg.className = "toast__msg";
+  msg.textContent = message ?? "";
+
+  const actions = document.createElement("div");
+  actions.className = "toast__actions";
+
+  if (actionText && typeof onAction === "function") {
+    const btn = document.createElement("button");
+    btn.className = "toast__btn";
+    btn.type = "button";
+    btn.textContent = actionText;
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      try { onAction(); } finally { dismiss(); }
+    });
+    actions.appendChild(btn);
   }
+
+  if (dismissible) {
+    const close = document.createElement("button");
+    close.className = "toast__close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Dismiss notification");
+    close.textContent = "×";
+    close.addEventListener("click", (e) => { e.stopPropagation(); dismiss(); });
+    actions.appendChild(close);
+  }
+
+  toast.appendChild(left);
+  toast.appendChild(msg);
+  toast.appendChild(actions);
+  container.appendChild(toast);
+
+  let timerId = null;
+  let remaining = duration;
+  let startAt = Date.now();
+
+  function startTimer() {
+    if (!duration) return;
+    timerId = setTimeout(dismiss, remaining);
+  }
+  function pauseTimer() {
+    if (!timerId) return;
+    clearTimeout(timerId);
+    timerId = null;
+    remaining -= (Date.now() - startAt);
+  }
+  function resumeTimer() {
+    if (!duration) return;
+    startAt = Date.now();
+    startTimer();
+  }
+  function dismiss() {
+    if (timerId) clearTimeout(timerId);
+    toast.style.animation = "toast-out .16s ease forwards";
+    toast.addEventListener("animationend", () => {
+      toast.remove();
+      if (!container.children.length) container.remove();
+    }, { once: true });
+  }
+
+  toast.addEventListener("mouseenter", pauseTimer);
+  toast.addEventListener("mouseleave", resumeTimer);
+  startTimer();
+
+  return { element: toast, dismiss };
 }
 
-// Utility function to disable/enable all folder buttons
-function disableAllFolderButtons(disabled, message = "") {
-  const buttons = document.querySelectorAll('.folder-button');
-  buttons.forEach(btn => {
-    btn.disabled = disabled;
-    btn.textContent = disabled ? message : btn.getAttribute("data-original-label") || btn.textContent;
-    if (!btn.getAttribute("data-original-label")) {
-      btn.setAttribute("data-original-label", btn.textContent);
-    }
-  });
-}
-
-function parseLaborRate(value) {
-  if (!value) return null;
-  const cleaned = value.toString().replace(/[^\d.\-]/g, '');
-  const num = parseFloat(cleaned);
-  return isNaN(num) ? null : num;
-}
-
- function getLaborRates() {
-  const laborRates = {};
-
-  // Built-in fields like paintLabor, etc.
-  document.querySelectorAll('input[name][data-labor]').forEach(input => {
-    const name = input.name;
-    const parsed = parseLaborRate(input.value || "");
-    if (parsed !== null && name) {
-      laborRates[name] = parsed;
-    }
-  });
-
-  // Custom labor fields like zLABORBB
-  document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
-    const name = input.name;
-    const parsed = parseLaborRate(input.value || "");
-    if (parsed !== null && name) {
-      laborRates[name] = parsed;
-    }
-  });
-
-  return laborRates;
-}
-
-function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
-  const MAX_RETRIES = 5;
-  const RETRY_DELAY = 3000 * attempt;
-
-  return new Promise((resolve, reject) => {
-    const metadata = getFormMetadata();
-
-    // Parse paint labor (optional)
-    const paintInput =
-      document.querySelector('input[name="paintLabor"]') ||
-      document.querySelector('input[name="paintlabor"]');
-    metadata.paintlabor = parseLaborRate(paintInput?.value || "");
-
-    // Collect all labor rates
-    const laborRates = getLaborRates();
-
-    // Construct payload
-    const payload = {
-      data: elevationData,
-      breakout: breakoutData,
-      type: "combined",
-      metadata,
-      laborRates
-    };
-
-    console.log("🚀 Sending payload", payload);
-
-    fetch(serverURL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    })
-      .then(response => {
-        if (response.status === 429) {
-          if (attempt < MAX_RETRIES) {
-            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
-            setTimeout(() => {
-              enqueueRequest(() =>
-                sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt + 1)
-              );
-              resolve();
-            }, RETRY_DELAY);
-          } else {
-            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
-            reject(new Error("Max retries reached"));
-          }
-          return;
-        }
-
-        if (!response.ok) throw new Error(`Server returned ${response.status}`);
-        return response.blob();
-      })
-      .then(blob => {
-        if (!blob) return;
-
-        // 🔹 Do NOT change UI. Use folder name ONLY in the file name.
-        const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
-        const elevationForFile = folderName || metadata.elevation || "";
-
-        const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(elevationForFile)} - ${safe(metadata.materialType)}.xlsb`;
-
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        showToast(`✅ "${fileName}" workbook downloaded.`);
-        resolve();
-      })
-      .catch(error => {
-        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
-        reject(error);
-      });
-  });
-}
-
-
-
-function injectSelectedFolder(folder) {
-  const filteredData = mergedData.filter(d => d.Folder === folder);
-  if (!filteredData.length) return alert(`No data for ${folder}`);
-
-  const safeFolder = folder.replace(/[^a-zA-Z0-9-_]/g, '_');
-  const filename = `merged-data-${safeFolder}.json`;
-  const blob = new Blob([JSON.stringify(filteredData, null, 2)], { type: 'application/json' });
-
-  window.currentJSONBlob = blob;
-  window.currentJSONFilename = filename;
-
-  // Auto-decide type: "material_breakout" if folder name includes breakout, else "elevation"
-  const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
-  const injectionType = isBreakout ? "material_breakout" : "elevation";
-  const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
-  if (!nonLabor.length && !isBreakout) return alert(`No non-labor data to inject for ${folder}`);
-  const dataToSend = isBreakout ? filteredData : nonLabor.length ? nonLabor : filteredData;
-
-sendToInjectionServer(
-  dataToSend,
-  folder,
-  injectionType
-);
-  showToast(`✅ Sent "${folder}" to server (${injectionType})`);
-}
-
+// 🔁 Buttons also pull strictly from RAW
+// 🔁 FULL REPLACEMENT: renderMaterialBreakoutButtons (adds .folder-button)
 function renderMaterialBreakoutButtons() {
   const section = document.getElementById("materialBreakoutSection");
   const container = document.getElementById("materialBreakoutButtons");
@@ -947,59 +1046,121 @@ function renderMaterialBreakoutButtons() {
     const button = document.createElement('button');
     button.textContent = `Download "${folder}"`;
     button.style.margin = '6px';
+    button.classList.add('folder-button'); // ← so disableAllFolderButtons can find it
     button.addEventListener('click', () => {
-      // Build breakout on demand
-      const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
-      const isAlreadyNormalized =
-        allRaw.length > 0 && "SKU" in allRaw[0] && "TotalQty" in allRaw[0] && "Folder" in allRaw[0];
-      const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
-      const normalizedRows = normalizedAll.filter(d => d.Folder === folder);
-      const nonLaborRows = normalizedRows.filter(d => !/labor/i.test(d.SKU));
-      const breakoutMerged = mergeBySKU(nonLaborRows, false, {
-        respectColorGroupOnTakeoff: !!window.isTakeoffTemplate
-      });
-      const breakoutForServer = breakoutMerged.map(r => ({ ...r, QTY: Number(r.TotalQty) || 0 }));
-
-      console.log(`⬇️ On-demand breakout for "${folder}"`, breakoutForServer.slice(0, 5));
+      const breakoutForServer = buildBreakoutFromRaw(folder);
+      if (!breakoutForServer.length) {
+        showToast(`⚠️ No non-labor RAW rows for "${folder}"`);
+        return;
+      }
+      console.log(`⬇️ On-demand breakout (RAW) for "${folder}"`, breakoutForServer.slice(0, 5));
       sendToInjectionServer(breakoutForServer, folder, "material_breakout");
-      showToast(`✅ Material Breakout injected for "${folder}" (${breakoutForServer.length} items)`);
+      showToast(`✅ Material Break Out (RAW) injected for "${folder}" (${breakoutForServer.length} items)`);
     });
     container.appendChild(button);
   });
 }
 
 
+// ✅ UPDATED: Merge for Material Break Out (by Description2 + ColorGroup, INCLUDING empty desc2)
+// ✅ Replacement: merge for Material Break Out with fallback when Description2 is empty
 function mergeForMaterialBreakout(data, skipLabor = true) {
-
   const result = {};
 
-  data.forEach((row, index) => {
-    const sku = row.SKU?.trim() || "";
-    const desc2Raw = row.Description2;
-    const desc2 = desc2Raw ?? `__EMPTY_${Math.random()}`; 
-    const colorGroup = row.ColorGroup?.trim() || "";
-    const qty = parseFloat(row.TotalQty) || 0;
-     const key = `${sku}___${desc2}___${colorGroup}`;
+  for (const row of data) {
+    const skuRaw = (row.SKU ?? "").toString().trim();
+    if (skipLabor && /labor/i.test(skuRaw)) continue;
+
+    const desc2Trim = (row.Description2 ?? "").toString().trim(); // may be empty
+    const colorTrim = (row.ColorGroup ?? "").toString().trim();
+
+    // Fallback: if Description2 is empty, group per SKU+Color instead of one giant bucket
+    const key = desc2Trim
+      ? `DESC2:${desc2Trim}___COLOR:${colorTrim}`
+      : `SKU:${skuRaw.toUpperCase()}___COLOR:${colorTrim}`;
+
+    // Parse qty robustly (handles "1,234.5", "123 LF", etc.)
+    const qtyNum = (() => {
+      const src = row.TotalQty;
+      if (typeof src === "number" && isFinite(src)) return src;
+      const parsed = parseFloat(String(src ?? "0").replace(/[^\d.\-]/g, ""));
+      return isNaN(parsed) ? 0 : parsed;
+    })();
+
     if (!result[key]) {
       result[key] = {
-        ...row,
+        SKU: skuRaw,
+        Description2: desc2Trim,   // keep as-is (may be empty)
+        ColorGroup: colorTrim,
         TotalQty: 0
       };
     }
-    result[key].TotalQty += qty;
-  });
+    // If we’re in SKU fallback mode, ensure SKU is set (in case first row had blank)
+    if (!desc2Trim && !result[key].SKU) result[key].SKU = skuRaw;
 
-const merged = Object.values(result).map(item => {
-  return item;
-});
-  console.table(merged.map(i => ({
-    SKU: i.SKU,
-    Description2: i.Description2,
-    TotalQty: i.TotalQty,
-    ColorGroup: i.ColorGroup
-  })));
+    result[key].TotalQty += qtyNum;
+  }
+
+  // Return as an array
+  const merged = Object.values(result);
+
+  console.table(
+    merged.map(i => ({
+      SKU: i.SKU,
+      Description2: i.Description2,
+      ColorGroup: i.ColorGroup,
+      TotalQty: i.TotalQty
+    }))
+  );
+
   return merged;
 }
+// ✅ NEW: finalize payload for server (QTY hardening, both QTY and Qty, rounding)
+// Harden qty: numeric, rounded, and include every common key the server might read
+function finalizeBreakoutForServer(items) {
+  return items
+    // drop truly empty rows
+    .filter(r =>
+      (r.SKU && String(r.SKU).trim()) ||
+      (r.Description2 && String(r.Description2).trim()) ||
+      (r.ColorGroup && String(r.ColorGroup).trim())
+    )
+    .map(r => {
+      // robust parse
+      const src = r.TotalQty;
+      let n = (typeof src === "number" && isFinite(src))
+        ? src
+        : parseFloat(String(src ?? "0").replace(/[^\d.\-]/g, ""));
+      if (!isFinite(n) || isNaN(n)) n = 0;
+
+      // tame floating noise
+      n = Math.round((n + Number.EPSILON) * 1000) / 1000;
+
+      // ship a superset of keys so the server can grab whatever it expects
+      const out = {
+        SKU: String(r.SKU ?? ""),
+        Description: "",                      // intentionally blank
+        Description2: String(r.Description2 ?? ""),
+        UOM: "",                              // intentionally blank
+        ColorGroup: String(r.ColorGroup ?? ""),
+
+        // numeric variants
+        QTY: n,
+        Qty: n,
+        qty: n,
+        Quantity: n,
+        TotalQty: n,
+        TOTALQTY: n,
+
+        // string helper (some mappers like strings)
+        QTY_STR: n.toFixed(2)
+      };
+
+      return out;
+    });
+}
+
+
 
 function copyToClipboard(textareaId) {
   const sourceTextarea = document.getElementById(textareaId);
@@ -1013,13 +1174,11 @@ function copyToClipboard(textareaId) {
   console.log("📋 Original content:", originalContent);
 
   const lines = originalContent.split("\n");
-  const trimmedLines = lines; // Don't skip anything
+  const trimmedLines = lines;
   const modifiedLines = trimmedLines.map((line, index) => {
     const cols = line.split("\t");
     const sku = cols[0]?.toLowerCase();
-    if (sku.includes("labor")) {
-      return null;
-    }
+    if (sku.includes("labor")) return null;
 
     while (cols.length < 6) cols.push("");
     cols[1] = ""; // Blank description
@@ -1031,7 +1190,6 @@ function copyToClipboard(textareaId) {
 
   const finalText = modifiedLines.join("\n");
 
-  // ✅ Use a temporary <textarea> for reliable copying
   const temp = document.createElement("textarea");
   temp.value = finalText;
   temp.style.position = "absolute";
@@ -1061,10 +1219,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const dropZone = document.getElementById('drop-zone');
   const fileInput = document.getElementById('sourceFile');
   const clickableText = document.querySelector('.click-browse');
-const storedRaw = localStorage.getItem("rawSheetData");
-if (storedRaw) {
-  rawSheetData = JSON.parse(storedRaw);
-}
+  const storedRaw = localStorage.getItem("rawSheetData");
+  if (storedRaw) {
+    rawSheetData = JSON.parse(storedRaw);
+  }
 
   if (clickableText && fileInput) {
     clickableText.addEventListener('click', (e) => {
@@ -1072,7 +1230,7 @@ if (storedRaw) {
       fileInput.click();
     });
   }
-console.log("📁 rawSheetData folders:", [...new Set(rawSheetData.map(r => r.Folder))]);
+  console.log("📁 rawSheetData folders:", [...new Set(rawSheetData.map(r => r.Folder))]);
 
   if (dropZone && fileInput) {
     dropZone.addEventListener('click', () => {
@@ -1088,15 +1246,15 @@ console.log("📁 rawSheetData folders:", [...new Set(rawSheetData.map(r => r.Fo
       dropZone.classList.remove('dragover');
     });
 
-   dropZone.addEventListener('drop', (e) => {
-  e.preventDefault();
-  dropZone.classList.remove('dragover');
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
 
-  const files = e.dataTransfer.files;
-  if (files.length > 0) {
-handleSourceUpload({ target: { files } });
-  }
-});
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleSourceUpload({ target: { files } });
+      }
+    });
   }
 });
 
@@ -1141,3 +1299,158 @@ function areRequiredFieldsFilled() {
 
   return sidingStyle && branch && projectType;
 }
+
+// 🔁 UPDATED: per-folder injection, material_breakout now uses RAW payload
+function injectSelectedFolder(folder) {
+  const filteredData = mergedData.filter(d => d.Folder === folder);
+  if (!filteredData.length) return alert(`No data for ${folder}`);
+
+  // Decide type: material_breakout if folder name implies a breakout, else elevation
+  const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
+
+  if (isBreakout) {
+    // ✅ Build from RAW file
+    const breakoutForServer = buildBreakoutFromRaw(folder);
+    if (!breakoutForServer.length) {
+      return alert(`No non-labor items found for "${folder}" in the raw file.`);
+    }
+    sendToInjectionServer(breakoutForServer, folder, "material_breakout");
+    showToast(`✅ Material Break Out (RAW) injected for "${folder}" (${breakoutForServer.length} items)`);
+    return;
+  }
+
+  // Elevation path stays the same (non-labor from merged UI table)
+  const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
+  if (!nonLabor.length) {
+    return alert(`No non-labor data to inject for ${folder}`);
+  }
+  sendToInjectionServer(nonLabor, folder, "elevation");
+  showToast(`✅ Sent "${folder}" to server (elevation)`);
+}
+
+function parseLaborRate(value) {
+  if (!value) return null;
+  const cleaned = value.toString().replace(/[^\d.\-]/g, '');
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? null : num;
+}
+
+function getLaborRates() {
+  const laborRates = {};
+
+  document.querySelectorAll('input[name][data-labor]').forEach(input => {
+    const name = input.name;
+    const parsed = parseLaborRate(input.value || "");
+    if (parsed !== null && name) {
+      laborRates[name] = parsed;
+    }
+  });
+
+  document.querySelectorAll('input[data-custom-labor="true"]').forEach(input => {
+    const name = input.name;
+    const parsed = parseLaborRate(input.value || "");
+    if (parsed !== null && name) {
+      laborRates[name] = parsed;
+    }
+  });
+
+  return laborRates;
+}
+
+function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName, attempt = 1) {
+  const MAX_RETRIES = 5;
+  const RETRY_DELAY = 3000 * attempt;
+
+  return new Promise((resolve, reject) => {
+    const metadata = getFormMetadata();
+
+    const paintInput =
+      document.querySelector('input[name="paintLabor"]') ||
+      document.querySelector('input[name="paintlabor"]');
+    metadata.paintlabor = parseLaborRate(paintInput?.value || "");
+
+    const laborRates = getLaborRates();
+
+    // 🔐 Ensure breakout ships every qty variant as numbers
+    const hardenedBreakout = breakoutData.map(item => {
+      // prefer numeric QTY already present
+      let n = item.QTY;
+      if (!(typeof n === "number" && isFinite(n))) {
+        const cand = item.Qty ?? item.qty ?? item.Quantity ?? item.TotalQty ?? item.QTY_STR;
+        n = (typeof cand === "number" && isFinite(cand))
+          ? cand
+          : parseFloat(String(cand ?? "0").replace(/[^\d.\-]/g, "")) || 0;
+      }
+      n = Math.round((n + Number.EPSILON) * 1000) / 1000;
+
+      return {
+        ...item,
+        QTY: n,
+        Qty: n,
+        qty: n,
+        Quantity: n,
+        TotalQty: n,
+        TOTALQTY: n,
+        QTY_STR: n.toFixed(2)
+      };
+    });
+
+    const payload = {
+      data: elevationData,         // elevation sheet
+      breakout: hardenedBreakout,  // material breakout sheet
+      type: "combined",
+      metadata,
+      laborRates
+    };
+
+    console.log("🚀 Sending payload", payload);
+
+    fetch(serverURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+      .then(response => {
+        if (response.status === 429) {
+          if (attempt < MAX_RETRIES) {
+            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+            setTimeout(() => {
+              enqueueRequest(() =>
+                sendToInjectionServerDualSheet(elevationData, hardenedBreakout, folderName, attempt + 1)
+              );
+              resolve();
+            }, RETRY_DELAY);
+          } else {
+            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+            reject(new Error("Max retries reached"));
+          }
+          return;
+        }
+
+        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+        return response.blob();
+      })
+      .then(blob => {
+        if (!blob) return;
+
+        const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
+        const elevationForFile = folderName || metadata.elevation || "";
+        const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(elevationForFile)} - ${safe(metadata.materialType)}.xlsb`;
+
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        showToast(`✅ "${fileName}" workbook downloaded.`);
+        resolve();
+      })
+      .catch(error => {
+        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
+        reject(error);
+      });
+  });
+}
+
