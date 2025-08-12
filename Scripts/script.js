@@ -877,14 +877,15 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       .then(blob => {
         if (!blob) return;
 
-        // 🔹 File name = ONLY the elevation/folder
+        // 🔹 Do NOT change UI. Use folder name ONLY in the file name.
         const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
-        const elevationForFile = folderName || metadata.elevation || "Takeoff";
-        const fileName = `${safe(elevationForFile)}.xlsb`;
+        const elevationForFile = folderName || metadata.elevation || "";
+
+        const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(elevationForFile)} - ${safe(metadata.materialType)}.xlsb`;
 
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = fileName; // ← exactly the elevation only
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -898,7 +899,6 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       });
   });
 }
-
 
 
 
