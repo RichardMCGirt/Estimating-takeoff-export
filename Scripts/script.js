@@ -860,14 +860,19 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       })
       .then(blob => {
         if (!blob) return;
+
+        // ✅ Build filename: Takeoff - builder - planName - elevation - materialType
+        const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
+        const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(metadata.elevation)} - ${safe(metadata.materialType)}.xlsb`;
+
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `${folderName}.xlsb`;
+        a.download = fileName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
 
-        showToast(`✅ "${folderName}" workbook downloaded.`);
+        showToast(`✅ "${fileName}" workbook downloaded.`);
         resolve();
       })
       .catch(error => {
@@ -876,6 +881,7 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       });
   });
 }
+
 
 function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
