@@ -13,7 +13,8 @@ let skuLookup = new Map(); // SKU -> { Description, UOM }
 //    "sku"   → group by SKU + Color Group
 const BREAKOUT_GROUP_BY = "desc2";
 
-const baseServer = "https://0e96e65f7e1c.ngrok-free.app";
+const baseServer = "https://789cbdddf215.ngrok-free.app";
+
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
