@@ -6,6 +6,7 @@ let html = "";
 let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
+let skuLookup = new Map(); // SKU -> { Description, UOM }
 
 // ✅ Choose how to group Material Break Out
 //    "desc2" → group by Description 2 + Color Group (matches your expected look)
@@ -103,6 +104,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Build a SKU lookup from the "Data" sheet rows
+function buildSkuLookupFromData(dataRows) {
+  const map = new Map();
+  if (!Array.isArray(dataRows)) return map;
+
+  // Header normalizer
+  const norm = s => s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+  const pick = (row, names) => {
+    const idx = {};
+    for (const k of Object.keys(row)) idx[norm(k)] = k;
+    for (const name of names) {
+      const key = idx[norm(name)];
+      if (key) return row[key];
+    }
+    return '';
+  };
+
+  for (const r of dataRows) {
+    const sku = String(pick(r, ['SKU','SKU#','SkuNumber','Product Number','ProductNumber'])).trim();
+    if (!sku) continue;
+    const desc = String(pick(r, ['Description','Product Description','Desc'])).trim();
+    const uom  = String(pick(r, ['UOM','Unit of Measure','Units'])).trim();
+
+    // keep the first non-empty description/UOM we see
+    if (!map.has(sku)) map.set(sku, { Description: desc, UOM: uom });
+  }
+  return map;
+}
+
+
   function updateButtonText() {
     if (!toggleButton) return;
     const isDark = body.classList.contains("dark");
@@ -123,22 +154,28 @@ function buildBreakoutFromRaw(folder) {
   const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
   const scoped = folder ? normalizedAll.filter(d => d.Folder === folder) : normalizedAll;
 
-  // non-labor only
+  // Non-labor only
   const nonLaborRows = scoped.filter(d => !/labor/i.test(String(d.SKU || "")));
 
-  // group by Desc2+Color with fallback to SKU+Color
-  const merged = mergeForMaterialBreakout(nonLaborRows);
+  // Use the configured grouping
+  const mode =
+    BREAKOUT_GROUP_BY === "desc2"     ? "DESC2_COLOR" :
+    BREAKOUT_GROUP_BY === "sku"       ? "SKU_COLOR"   :
+                                        "DESC2_COLOR_SKU";
 
-  // finalize + add all qty variants
+  const merged = mergeForMaterialBreakout(nonLaborRows, { mode });
+
+  // Convert to server rows (assumes you already have finalizeBreakoutForServer from before)
   const breakoutForServer = finalizeBreakoutForServer(merged);
 
-  // debug preview
+  // Debug peek
   console.table(breakoutForServer.map(r => ({
-    SKU: r.SKU, Desc2: r.Description2, Color: r.ColorGroup, QTY: r.QTY, Qty: r.Qty, qty: r.qty, Quantity: r.Quantity, TotalQty: r.TotalQty, type: typeof r.QTY
+    SKU: r.SKU, Desc2: r.Description2, Color: r.ColorGroup, QTY: r.QTY
   })));
 
   return breakoutForServer;
 }
+
 
 
 
@@ -244,19 +281,43 @@ function handleSourceUpload(event) {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: 'array' });
 
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    // Pick sheets robustly
+    const names = workbook.SheetNames;
+    const templateName =
+      names.find(n => /template/i.test(n)) ||
+      names.find(n => /takeoff/i.test(n)) ||
+      names[0];
+    const dataName =
+      names.find(n => /^data$/i.test(n)) ||
+      names.find(n => /data/i.test(n));
 
-    // Flag the template
-    window.isTakeoffTemplate = (sheetName || "").trim().toLowerCase() === "takeoff template";
-    console.log("📄 Loaded sheet:", sheetName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
+    const templateSheet = workbook.Sheets[templateName];
+    if (!templateSheet) {
+      alert('Template/Takeoff sheet not found.');
+      return;
+    }
+    const json = XLSX.utils.sheet_to_json(templateSheet, { defval: "" });
+
+    // Flag template
+    window.isTakeoffTemplate = (templateName || "").trim().toLowerCase().includes("takeoff");
+    console.log("📄 Loaded sheet:", templateName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
+
+    // 🔹 Build SKU lookup from Data sheet (if present)
+    if (dataName && workbook.Sheets[dataName]) {
+      const dataRows = XLSX.utils.sheet_to_json(workbook.Sheets[dataName], { defval: "" });
+      skuLookup = buildSkuLookupFromData(dataRows);
+      try { localStorage.setItem('skuLookup', JSON.stringify([...skuLookup])); } catch {}
+      console.log(`🔗 Data sheet "${dataName}" loaded. SKU entries:`, skuLookup.size);
+    } else {
+      skuLookup = new Map();
+      console.warn("⚠️ No Data sheet found; Description/UOM will fallback to row/desc2.");
+    }
 
     // ✅ Normalize ONCE for mergedData display
     const normalizedRows = json.map(normalizeRawRow);
 
-    // ✅ Keep original raw rows here so we can (re)normalize later as needed
-    rawSheetData = json; // ORIGINAL json
+    // ✅ Keep original raw rows for raw-based builders
+    rawSheetData = json;
 
     // Build merged data for UI
     mergedData = mergeBySKU(normalizedRows, true, {
@@ -270,7 +331,7 @@ function handleSourceUpload(event) {
     }
 
     localStorage.setItem('mergedData', JSON.stringify(mergedData));
-    localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData)); // stores ORIGINAL json
+    localStorage.setItem('rawSheetData', JSON.stringify(rawSheetData));
 
     displayMergedTable(mergedData);
     renderFolderButtons();
@@ -278,7 +339,6 @@ function handleSourceUpload(event) {
     showToast(`✅ File "${file.name}" processed with ${mergedData.length} items`);
 
     const uniqueFolders = [...new Set(mergedData.map(d => d.Folder))];
-
     if (uniqueFolders.length === 1) {
       const singleFolder = uniqueFolders[0];
       requestAnimationFrame(() => {
@@ -295,6 +355,7 @@ function handleSourceUpload(event) {
 
   reader.readAsArrayBuffer(file);
 }
+
 
 function injectMultipleFolders(folders) {
   if (!folders.length) return;
@@ -1062,103 +1123,118 @@ function renderMaterialBreakoutButtons() {
 }
 
 
-// ✅ UPDATED: Merge for Material Break Out (by Description2 + ColorGroup, INCLUDING empty desc2)
 // ✅ Replacement: merge for Material Break Out with fallback when Description2 is empty
-function mergeForMaterialBreakout(data, skipLabor = true) {
+// Merge for Material Break Out with configurable grouping
+function mergeForMaterialBreakout(data, options = {}) {
+  const {
+    mode = (BREAKOUT_GROUP_BY === "desc2"      ? "DESC2_COLOR" :
+            BREAKOUT_GROUP_BY === "sku"        ? "SKU_COLOR"   :
+            /* default */                        "DESC2_COLOR_SKU"),
+    skipLabor = true
+  } = options;
+
   const result = {};
 
-  for (const row of data) {
+  for (const row of (Array.isArray(data) ? data : [])) {
     const skuRaw = (row.SKU ?? "").toString().trim();
     if (skipLabor && /labor/i.test(skuRaw)) continue;
 
-    const desc2Trim = (row.Description2 ?? "").toString().trim(); // may be empty
-    const colorTrim = (row.ColorGroup ?? "").toString().trim();
+    const skuKey   = skuRaw.toUpperCase();
+    const desc2    = (row.Description2 ?? "").toString().trim();
+    const color    = (row.ColorGroup   ?? "").toString().trim();
+    const hasDesc2 = desc2.length > 0;
 
-    // Fallback: if Description2 is empty, group per SKU+Color instead of one giant bucket
-    const key = desc2Trim
-      ? `DESC2:${desc2Trim}___COLOR:${colorTrim}`
-      : `SKU:${skuRaw.toUpperCase()}___COLOR:${colorTrim}`;
+    // Build the grouping key
+    let key;
+    switch (mode) {
+      case "DESC2_COLOR_SKU":
+        key = `${desc2}|||${color}|||${skuKey}`;            // Desc2 + Color + SKU
+        break;
+      case "DESC2_COLOR":
+        key = hasDesc2 ? `${desc2}|||${color}`              // Desc2 + Color
+                       : `${skuKey}|||${color}`;            // fallback when Desc2 empty
+        break;
+      case "SKU_COLOR":
+      default:
+        key = `${skuKey}|||${color}`;                       // SKU + Color
+        break;
+    }
 
-    // Parse qty robustly (handles "1,234.5", "123 LF", etc.)
-    const qtyNum = (() => {
-      const src = row.TotalQty;
-      if (typeof src === "number" && isFinite(src)) return src;
-      const parsed = parseFloat(String(src ?? "0").replace(/[^\d.\-]/g, ""));
-      return isNaN(parsed) ? 0 : parsed;
-    })();
+    // Robust qty parse
+    let qty = row.TotalQty;
+    if (!(typeof qty === "number" && isFinite(qty))) {
+      qty = parseFloat(String(qty ?? "0").replace(/[^\d.\-]/g, ""));
+      if (!isFinite(qty) || isNaN(qty)) qty = 0;
+    }
 
     if (!result[key]) {
       result[key] = {
         SKU: skuRaw,
-        Description2: desc2Trim,   // keep as-is (may be empty)
-        ColorGroup: colorTrim,
+        Description2: desc2,
+        ColorGroup: color,
         TotalQty: 0
       };
     }
-    // If we’re in SKU fallback mode, ensure SKU is set (in case first row had blank)
-    if (!desc2Trim && !result[key].SKU) result[key].SKU = skuRaw;
 
-    result[key].TotalQty += qtyNum;
+    // Preserve a non-empty SKU if the first was empty
+    if (!result[key].SKU && skuRaw) result[key].SKU = skuRaw;
+
+    result[key].TotalQty += qty;
   }
 
-  // Return as an array
-  const merged = Object.values(result);
-
-  console.table(
-    merged.map(i => ({
-      SKU: i.SKU,
-      Description2: i.Description2,
-      ColorGroup: i.ColorGroup,
-      TotalQty: i.TotalQty
-    }))
-  );
-
-  return merged;
+  return Object.values(result);
 }
+
 // ✅ NEW: finalize payload for server (QTY hardening, both QTY and Qty, rounding)
-// Harden qty: numeric, rounded, and include every common key the server might read
 function finalizeBreakoutForServer(items) {
   return items
-    // drop truly empty rows
     .filter(r =>
       (r.SKU && String(r.SKU).trim()) ||
       (r.Description2 && String(r.Description2).trim()) ||
       (r.ColorGroup && String(r.ColorGroup).trim())
     )
     .map(r => {
-      // robust parse
+      // qty (robust + rounded)
       const src = r.TotalQty;
       let n = (typeof src === "number" && isFinite(src))
         ? src
         : parseFloat(String(src ?? "0").replace(/[^\d.\-]/g, ""));
       if (!isFinite(n) || isNaN(n)) n = 0;
-
-      // tame floating noise
       n = Math.round((n + Number.EPSILON) * 1000) / 1000;
 
-      // ship a superset of keys so the server can grab whatever it expects
+      const sku = String(r.SKU ?? "");
+      const lk = skuLookup.get(sku) || {};
+
+      // Prefer Data sheet → row.Description → row.Description2
+      const desc =
+        (lk.Description && String(lk.Description).trim()) ||
+        (r.Description && String(r.Description).trim()) ||
+        (r.Description2 && String(r.Description2).trim()) ||
+        "";
+
+      // Prefer Data sheet UOM → row.UOM
+      const uom =
+        (lk.UOM && String(lk.UOM).trim()) ||
+        (r.UOM && String(r.UOM).trim()) ||
+        "";
+
       const out = {
-        SKU: String(r.SKU ?? ""),
-        Description: "",                      // intentionally blank
+        SKU: sku,
+        Description: desc,
         Description2: String(r.Description2 ?? ""),
-        UOM: "",                              // intentionally blank
+        UOM: uom,
         ColorGroup: String(r.ColorGroup ?? ""),
 
-        // numeric variants
-        QTY: n,
-        Qty: n,
-        qty: n,
-        Quantity: n,
-        TotalQty: n,
-        TOTALQTY: n,
+        // numeric variants (server-safe)
+        QTY: n, Qty: n, qty: n, Quantity: n, TotalQty: n, TOTALQTY: n,
 
-        // string helper (some mappers like strings)
+        // string helper for quirky mappers
         QTY_STR: n.toFixed(2)
       };
-
       return out;
     });
 }
+
 
 
 
