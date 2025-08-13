@@ -2,18 +2,34 @@ let filterFormula = "";
 
 const predefinedLaborFields = [
   { name: "beamWrapLabor", label: "Beam Wrap Labor rate", airtableName: "Beam Wrap" },
-  { name: "bbLabor", label: "B&B Labor rate", airtableName: "Board & Batten" },
-  { name: "bracketLabor", label: "Bracket Labor rate", airtableName: "Brackets" },
-  { name: "ceilingLabor", label: "Ceiling Labor rate", airtableName: "Ceilings" },
-  { name: "columnLabor", label: "Column Labor rate", airtableName: "Column" },
-  { name: "lapLabor", label: "Lap Labor rate", airtableName: "Lap Siding" },
-  { name: "louverLabor", label: "Louver Labor rate", airtableName: "Louver" },
-  { name: "otherLabor", label: "Other Labor rate", airtableName: "Other" },
-  { name: "paintLabor", label: "Paint Labor rate", airtableName: "Paint" },
-  { name: "shakeLabor", label: "Shake Labor", airtableName: "Shake" },
-  { name: "shutterLabor", label: "Shutter Labor rate", airtableName: "Shutter" },
-  { name: "tngCeilingLabor", label: "T&G Ceiling Labor rate", airtableName: "T&G Ceiling" },
+  { name: "bbLabor",       label: "B&B Labor rate",       airtableName: "Board & Batten" },
+  { name: "bracketLabor",  label: "Bracket Labor rate",   airtableName: "Brackets" },
+
+  // ⬇️ Ceiling variants covered
+  {
+    name: "ceilingLabor",
+    label: "Ceiling Labor rate",
+    airtableName: "Ceilings",
+    alts: ["Ceiling", "Ceiling Labor", "zLABORCEIL"]
+  },
+
+  { name: "columnLabor",   label: "Column Labor rate",    airtableName: "Column" },
+  { name: "lapLabor",      label: "Lap Labor rate",       airtableName: "Lap Siding" },
+  { name: "louverLabor",   label: "Louver Labor rate",    airtableName: "Louver" },
+  { name: "otherLabor",    label: "Other Labor rate",     airtableName: "Other" },
+  { name: "paintLabor",    label: "Paint Labor rate",     airtableName: "Paint" },
+  { name: "shakeLabor",    label: "Shake Labor",          airtableName: "Shake" },
+  { name: "shutterLabor",  label: "Shutter Labor rate",   airtableName: "Shutter" },
+
+  // ⬇️ T&G variants covered
+  {
+    name: "tngCeilingLabor",
+    label: "T&G Ceiling Labor rate",
+    airtableName: "T&G Ceiling",
+    alts: ["Tongue & Groove Ceiling", "Tongue and Groove Ceiling", "T and G Ceiling", "T & G Ceiling"]
+  },
 ];
+
 
 document.addEventListener("DOMContentLoaded", () => {
   const fieldsToWatch = [
@@ -51,7 +67,6 @@ async function fetchLaborRatesFromAirtable() {
   const branch = document.getElementById('branchSelect')?.value?.trim();
   const projectType = document.getElementById('ProjectSelect')?.value?.trim();
 
-  let filterFormula = "";
 
   if (sidingStyle === "Universal") {
     filterFormula = `AND(
@@ -82,24 +97,52 @@ async function fetchLaborRatesFromAirtable() {
       return {};
     }
 
-    const laborRates = {};
+ // ...after you parse `data` in fetchLaborRatesFromAirtable
+const laborRates = {};
+const seen = new Set(); // optional: track what we matched
 
-    data.records.forEach(record => {
-      const desc = record.fields["Description"]?.trim();
-      const rate = parseFloat(record.fields["Price/Rate"]);
-      if (!desc || isNaN(rate)) return;
+data.records.forEach(record => {
+  const descRaw = record.fields["Description"];
+  const rate = parseFloat(record.fields["Price/Rate"]);
+  if (!descRaw || isNaN(rate)) return;
 
-      // ✅ exact case-insensitive match
-      predefinedLaborFields.forEach(({ name, airtableName }) => {
-        if (desc.trim().toLowerCase() === airtableName.toLowerCase() && !isNaN(rate)) {
-          if (!laborRates[name]) laborRates[name] = [];
-          laborRates[name].push({ label: desc, rate });
-        }
-      });
-    });
+  const desc = descRaw.trim();
+  const norm = desc.toLowerCase();
 
-    renderLaborInputs(laborRates); // ✅ apply to form
-    return laborRates;
+  let matched = false;
+
+  // 1) Exact match on airtableName or any alt value
+  predefinedLaborFields.forEach(({ name, airtableName, alts = [] }) => {
+    const names = [airtableName, ...alts].filter(Boolean).map(s => s.toLowerCase());
+    if (names.includes(norm)) {
+      if (!laborRates[name]) laborRates[name] = [];
+      laborRates[name].push({ label: desc, rate });
+      matched = true;
+      seen.add(`${name}:${desc}`);
+    }
+  });
+
+  // 2) Fallback: contains-based routing for ceilings (keeps T&G distinct)
+  if (!matched) {
+    if (/ceiling/i.test(norm)) {
+      const isTnG = /(t\s*&\s*g|tongue\s*&?\s*groove|t\s*and\s*g)/i.test(norm);
+      const name = isTnG ? "tngCeilingLabor" : "ceilingLabor";
+      if (!laborRates[name]) laborRates[name] = [];
+      laborRates[name].push({ label: desc, rate });
+      matched = true;
+      seen.add(`${name}:${desc}`);
+    }
+  }
+
+  if (!matched) {
+    console.warn(`⚠️ Unmapped labor row from Airtable → Description="${desc}", Rate=${rate}`);
+  }
+});
+
+// Apply to form
+renderLaborInputs(laborRates);
+return laborRates;
+
 
   } catch (err) {
     console.error("❌ Failed to fetch labor rates:", err);
