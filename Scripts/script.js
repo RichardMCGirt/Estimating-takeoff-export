@@ -11,7 +11,7 @@ let skuLookup = new Map(); // SKU -> { Description, UOM }
 // ✅ Choose how to group Material Break Out
 //    "desc2" → group by Description 2 + Color Group (matches your expected look)
 //    "sku"   → group by SKU + Color Group
-const BREAKOUT_GROUP_BY = "desc2";
+const BREAKOUT_GROUP_BY = "desc2+sku"; 
 
 const baseServer = "https://789cbdddf215.ngrok-free.app";
 
@@ -159,10 +159,11 @@ function buildBreakoutFromRaw(folder) {
   const nonLaborRows = scoped.filter(d => !/labor/i.test(String(d.SKU || "")));
 
   // Use the configured grouping
-  const mode =
-    BREAKOUT_GROUP_BY === "desc2"     ? "DESC2_COLOR" :
-    BREAKOUT_GROUP_BY === "sku"       ? "SKU_COLOR"   :
-                                        "DESC2_COLOR_SKU";
+const mode =
+  BREAKOUT_GROUP_BY === "desc2"     ? "DESC2_COLOR" :
+  BREAKOUT_GROUP_BY === "sku"       ? "SKU_COLOR"   :
+  BREAKOUT_GROUP_BY === "desc2+sku" ? "DESC2_COLOR_SKU" :
+                                      "DESC2_COLOR_SKU";
 
   const merged = mergeForMaterialBreakout(nonLaborRows, { mode });
 
