@@ -30,7 +30,6 @@ const predefinedLaborFields = [
   },
 ];
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const fieldsToWatch = [
     "#branchSelect",

@@ -278,6 +278,12 @@ function handleSourceUpload(event) {
   const file = event.target?.files?.[0];
   if (!file) return;
 
+   const fileNameDisplay = document.getElementById("uploadedFileName");
+  if (fileNameDisplay) {
+    fileNameDisplay.textContent = `📄 ${file.name}`;
+    fileNameDisplay.style.display = "inline"; // ensure it's visible
+  }
+
   const reader = new FileReader();
   reader.onload = function (e) {
     const data = new Uint8Array(e.target.result);
@@ -1174,6 +1180,7 @@ function mergeForMaterialBreakout(data, options = {}) {
         SKU: skuRaw,
         Description2: desc2,
         ColorGroup: color,
+        UOM: row.UOM || "",        // ← add this
         TotalQty: 0
       };
     }
@@ -1472,10 +1479,22 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
         QTY_STR: n.toFixed(2)
       };
     });
+    // ✅ Ensure takeoff/elevation sheet EXCLUDES UOM and is sorted by SKU
+    const elevationSanitized = (elevationData || [])
+      .map(item => {
+        const { UOM, uom, Units, units, unit, Unit, ...rest } = item || {};
+        return rest;
+      })
+      .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
+
+    // ✅ Keep UOM in breakout, but sort by SKU
+    const hardenedBreakoutSorted = (hardenedBreakout || [])
+      .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
+
 
     const payload = {
-      data: elevationData,         // elevation sheet
-      breakout: hardenedBreakout,  // material breakout sheet
+      data: elevationSanitized,         // elevation sheet
+      breakout: hardenedBreakoutSorted,  // material breakout sheet
       type: "combined",
       metadata,
       laborRates
