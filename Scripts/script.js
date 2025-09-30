@@ -565,8 +565,9 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
 
   const merged = Object.values(result).map(item => {
     const isLabor = item.SKU?.toLowerCase().includes("labor");
-    const uom = (item.UOM ?? "").toString().trim().toUpperCase();
-    const skipRounding = !allowRounding || isLabor || uom === "SQ";
+   const uom = (item.UOM ?? "").toString().trim().toUpperCase();
+const skipRounding = !allowRounding || isLabor || ["SQ","SQ.","SQFT","SQUARE FT"].includes(uom);
+
     if (!skipRounding) {
       item.TotalQty = Math.ceil(Math.abs(item.TotalQty)); // always round up
     }
@@ -867,7 +868,17 @@ function normalizeRawRow(row) {
     SKU: getValue(["sku", "sku#", "skunumber"]),
     Description: getValue(["description"]),
     Description2: getValue(["description2", "desc2"]),
-    UOM: getValue(["uom", "unitofmeasure", "units", "uomlf", "uom(lf)", "uom_"]),
+
+    // 🔽 Put your SQ/SQFT normalization here (replaces the old UOM line)
+    UOM: (() => {
+      const raw = getValue(["uom","unitofmeasure","units","uomlf","uom(lf)","uom_"]);
+      // Normalize common square-foot variants to "SQ"
+      const norm = raw.toString().trim().toUpperCase();
+      // turn "SQ", "SQ.", "SQFT" into "SQ"
+      if (/^SQ(FT)?\.?$/.test(norm)) return "SQ";
+      return norm;
+    })(),
+
     TotalQty: parseFloat(getValue(["qty", "quantity"])) || 0,
     ColorGroup: getValue(["colorgroup", "color"]),
     Folder: getValue(["folder", "elevation"]),
@@ -875,6 +886,7 @@ function normalizeRawRow(row) {
     UnitCost: parseFloat(getValue(["unitcost", "cost"])) || 0,
   };
 }
+
 
 function autoResizeInput(input) {
   input.style.width = '1px';
@@ -1095,7 +1107,6 @@ function showToast(message, {
   return { element: toast, dismiss };
 }
 
-// 🔁 Buttons also pull strictly from RAW
 // 🔁 FULL REPLACEMENT: renderMaterialBreakoutButtons (adds .folder-button)
 function renderMaterialBreakoutButtons() {
   const section = document.getElementById("materialBreakoutSection");
@@ -1130,8 +1141,6 @@ function renderMaterialBreakoutButtons() {
   });
 }
 
-
-// ✅ Replacement: merge for Material Break Out with fallback when Description2 is empty
 // Merge for Material Break Out with configurable grouping
 function mergeForMaterialBreakout(data, options = {}) {
   const {
@@ -1180,7 +1189,7 @@ function mergeForMaterialBreakout(data, options = {}) {
         SKU: skuRaw,
         Description2: desc2,
         ColorGroup: color,
-        UOM: row.UOM || "",        // ← add this
+        UOM: row.UOM || "",       
         TotalQty: 0
       };
     }
@@ -1243,10 +1252,7 @@ function finalizeBreakoutForServer(items) {
       return out;
     });
 }
-
-
-
-
+55+
 function copyToClipboard(textareaId) {
   const sourceTextarea = document.getElementById(textareaId);
   if (!sourceTextarea) {
