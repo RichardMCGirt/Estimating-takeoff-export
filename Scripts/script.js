@@ -1486,12 +1486,25 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
       };
     });
     // ✅ Ensure takeoff/elevation sheet EXCLUDES UOM and is sorted by SKU
-    const elevationSanitized = (elevationData || [])
-      .map(item => {
-        const { UOM, uom, Units, units, unit, Unit, ...rest } = item || {};
-        return rest;
-      })
-      .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
+   // ✅ Keep UOM for elevation sheet so the server can skip rounding on SQ
+const elevationSanitized = (elevationData || [])
+  .map(item => {
+    // normalize UOM for safety (SQ, SQ., SQFT → SQ)
+    const normUOM = String(item.UOM || "")
+      .trim()
+      .toUpperCase()
+      .replace(/^SQ(FT)?\.?$/, "SQ");
+
+    return {
+      ...item,
+      UOM: normUOM,
+      // explicit signal for your .xlsb builder
+      NoRound: normUOM === "SQ"
+    };
+  })
+  // optional: keep sorted by SKU
+  .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
+ 
 
     // ✅ Keep UOM in breakout, but sort by SKU
     const hardenedBreakoutSorted = (hardenedBreakout || [])
