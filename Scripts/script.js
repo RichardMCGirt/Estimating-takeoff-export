@@ -7,10 +7,9 @@ let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
 let skuLookup = new Map(); // SKU -> { Description, UOM }
+// Define exact column order for "Material Break Out" sheet
 
-// ✅ Choose how to group Material Break Out
-//    "desc2" → group by Description 2 + Color Group (matches your expected look)
-//    "sku"   → group by SKU + Color Group
+
 const BREAKOUT_GROUP_BY = "desc2+sku"; 
 
 const baseServer = "https://3626f0267038.ngrok-free.app"
@@ -19,7 +18,12 @@ const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
 const fields = ["builder", "planName", "elevation", "materialType", "date", "estimator"];
-
+function sortBySkuAscending(arr) {
+  return [...(arr || [])].sort((a, b) =>
+    String(a?.SKU || '').toUpperCase()
+      .localeCompare(String(b?.SKU || '').toUpperCase())
+  );
+}
 document.addEventListener("DOMContentLoaded", () => {
   // === 1. Attach Input Listeners for Labor Rates Form ===
   attachLaborRateInputListeners();
@@ -104,13 +108,14 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(`🌓 Toggled dark mode: ${isNowDark}`);
     });
   }
+// --- Sorting helper: A → Z by SKU (case-insensitive) ---
+
 
   // Build a SKU lookup from the "Data" sheet rows
 function buildSkuLookupFromData(dataRows) {
   const map = new Map();
   if (!Array.isArray(dataRows)) return map;
 
-  // Header normalizer
   const norm = s => s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
   const pick = (row, names) => {
     const idx = {};
@@ -123,16 +128,25 @@ function buildSkuLookupFromData(dataRows) {
   };
 
   for (const r of dataRows) {
-    const sku = String(pick(r, ['SKU','SKU#','SkuNumber','Product Number','ProductNumber'])).trim();
-    if (!sku) continue;
-    const desc = String(pick(r, ['Description','Product Description','Desc'])).trim();
+    const rawSku = String(pick(r, ['SKU','SKU#','SkuNumber','Product Number','ProductNumber'])).trim();
+    if (!rawSku) continue;
+
+    const skuKey = rawSku.toUpperCase(); // normalize key
+    // Prefer a true Description; if missing, accept Usage-like columns
+    const desc =
+      String(pick(r, ['Description','Product Description','Desc'])).trim() ||
+      String(pick(r, ['Usage','Use','Application','Description2','Desc2'])).trim();
+
     const uom  = String(pick(r, ['UOM','Unit of Measure','Units'])).trim();
 
-    // keep the first non-empty description/UOM we see
-    if (!map.has(sku)) map.set(sku, { Description: desc, UOM: uom });
+    if (!map.has(skuKey)) {
+      map.set(skuKey, { Description: desc, UOM: uom });
+    }
   }
   return map;
 }
+
+
 
 
   function updateButtonText() {
@@ -165,15 +179,42 @@ const mode =
   BREAKOUT_GROUP_BY === "desc2+sku" ? "DESC2_COLOR_SKU" :
                                       "DESC2_COLOR_SKU";
 
-  const merged = mergeForMaterialBreakout(nonLaborRows, { mode });
+const merged = mergeForMaterialBreakout(nonLaborRows, { mode });
+// Build a fallback map from the "data" array (elevation/data sheet)
+// so breakouts can use a primary (long) description when Usage is blank.
+// Build a fallback map from the elevation rows for THIS folder (from mergedData)
+const elevationData = Array.isArray(mergedData)
+  ? mergedData.filter(d => !/labor/i.test(String(d.SKU || "")) && (!folder || d.Folder === folder))
+  : [];
 
-  // Convert to server rows (assumes you already have finalizeBreakoutForServer from before)
-  const breakoutForServer = finalizeBreakoutForServer(merged);
+const primaryDescBySku = new Map();
+(elevationData || []).forEach(r => {
+  const sku = String(r?.SKU || "").toUpperCase();
+  const d   = (r?.Description && String(r.Description).trim()) || "";
+  if (sku && d) primaryDescBySku.set(sku, d);
+});
 
-  // Debug peek
-  console.table(breakoutForServer.map(r => ({
-    SKU: r.SKU, Desc2: r.Description2, Color: r.ColorGroup, QTY: r.QTY
-  })));
+// expose for finalizeBreakoutForServer via window
+window.primaryDescBySku = primaryDescBySku;
+
+
+// ✅ Use the actual merged rows
+const breakoutForServer = finalizeBreakoutForServer(merged);
+
+// expose + debug (keep this)
+window.breakoutForServer = breakoutForServer;
+console.table(breakoutForServer.map(r => ({
+  SKU: r.SKU,
+  Description_for_B: r.Description,
+  Usage_for_B_backup: r.Usage,
+  Desc2_for_C: r.Description2,
+  UOM: r.UOM,
+  QTY: r.QTY,
+  Color: r.ColorGroup
+})));
+
+
+
 
   return breakoutForServer;
 }
@@ -288,16 +329,18 @@ function handleSourceUpload(event) {
   reader.onload = function (e) {
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, { type: 'array' });
-
+const names = workbook.SheetNames;
     // Pick sheets robustly
-    const names = workbook.SheetNames;
     const templateName =
       names.find(n => /template/i.test(n)) ||
       names.find(n => /takeoff/i.test(n)) ||
       names[0];
-    const dataName =
-      names.find(n => /^data$/i.test(n)) ||
-      names.find(n => /data/i.test(n));
+   const dataName =
+  names.find(n => /^data$/i.test(n)) ||
+  names.find(n => /data/i.test(n)) ||
+  names.find(n => /(sku|catalog|product|products|items?|lookup|reference)/i.test(n));
+console.log("📑 Detected Data sheet:", dataName || "(none)");
+
 
     const templateSheet = workbook.Sheets[templateName];
     if (!templateSheet) {
@@ -310,16 +353,23 @@ function handleSourceUpload(event) {
     window.isTakeoffTemplate = (templateName || "").trim().toLowerCase().includes("takeoff");
     console.log("📄 Loaded sheet:", templateName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
 
-    // 🔹 Build SKU lookup from Data sheet (if present)
-    if (dataName && workbook.Sheets[dataName]) {
-      const dataRows = XLSX.utils.sheet_to_json(workbook.Sheets[dataName], { defval: "" });
-      skuLookup = buildSkuLookupFromData(dataRows);
-      try { localStorage.setItem('skuLookup', JSON.stringify([...skuLookup])); } catch {}
-      console.log(`🔗 Data sheet "${dataName}" loaded. SKU entries:`, skuLookup.size);
-    } else {
-      skuLookup = new Map();
-      console.warn("⚠️ No Data sheet found; Description/UOM will fallback to row/desc2.");
-    }
+   // 🔹 Build SKU lookup from Data sheet (if present)
+if (dataName && workbook.Sheets[dataName]) {
+  const dataRows = XLSX.utils.sheet_to_json(workbook.Sheets[dataName], { defval: "" });
+  skuLookup = buildSkuLookupFromData(dataRows);
+
+  // ⬇️ ADD THESE
+  console.log("🔎 SKU lookup size:", skuLookup.size);
+  console.log('lookup hit?', skuLookup.has('JHLSP814CP')); // use uppercased SKU
+  console.log('lookup entry', skuLookup.get('JHLSP814CP'));
+
+  try { localStorage.setItem('skuLookup', JSON.stringify([...skuLookup])); } catch {}
+  console.log(`🔗 Data sheet "${dataName}" loaded. SKU entries:`, skuLookup.size);
+} else {
+  skuLookup = new Map();
+  console.warn("⚠️ No Data sheet found; Description/UOM will fallback to row/desc2.");
+}
+
 
     // ✅ Normalize ONCE for mergedData display
     const normalizedRows = json.map(normalizeRawRow);
@@ -375,7 +425,7 @@ function injectMultipleFolders(folders) {
   let failed = 0;
 
   const exportPromises = folders.map(folder => {
-    // ✅ Build Material Break Out from RAW using the new helper
+    // ✅ Build Material Break Out from RAW
     const breakoutForServer = buildBreakoutFromRaw(folder);
 
     // Elevation/main data for this folder from mergedData (already built for UI)
@@ -392,7 +442,11 @@ function injectMultipleFolders(folders) {
       return Promise.resolve();
     }
 
-    return sendToInjectionServerDualSheet(elevationData, breakoutForServer, folder)
+    // 🔹 NEW: enforce SKU A→Z sorting on both sheets before sending
+    const elevationSorted = sortBySkuAscending(elevationData);
+    const breakoutSorted  = sortBySkuAscending(breakoutForServer);
+
+    return sendToInjectionServerDualSheet(elevationSorted, breakoutSorted, folder)
       .then(() => { completed++; })
       .catch(() => { failed++; });
   });
@@ -409,6 +463,7 @@ function injectMultipleFolders(folders) {
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
 
+
 // 🔁 Always source Material Break Out from RAW file
 function injectMaterialBreakout() {
   if (!Array.isArray(rawSheetData) || !rawSheetData.length) {
@@ -416,31 +471,27 @@ function injectMaterialBreakout() {
     return;
   }
 
-  // Try to detect a single selected folder first
   const selected = [...document.querySelectorAll('.folder-checkbox:checked')].map(cb => cb.value);
-  const allFolders = [...new Set(
-    (Array.isArray(mergedData) ? mergedData : []).map(d => d.Folder)
-  )];
+  const allFolders = [...new Set((Array.isArray(mergedData) ? mergedData : []).map(d => d.Folder))];
 
   let folderForPayload = null;
-
-  if (selected.length === 1) {
-    folderForPayload = selected[0];
-  } else if (allFolders.length === 1) {
-    folderForPayload = allFolders[0];
-  }
+  if (selected.length === 1) folderForPayload = selected[0];
+  else if (allFolders.length === 1) folderForPayload = allFolders[0];
 
   const breakoutForServer = buildBreakoutFromRaw(folderForPayload || undefined);
-
   if (!breakoutForServer.length) {
     alert("Material Break Out payload is empty after filtering non-labor rows from RAW file.");
     return;
   }
 
+  // 🔹 NEW: A→Z by SKU
+  const breakoutSorted = sortBySkuAscending(breakoutForServer);
+
   const label = folderForPayload || "Material_Break_Out";
-  sendToInjectionServer(breakoutForServer, label, "material_breakout");
-  showToast(`✅ Material Break Out (RAW) injected for "${label}" (${breakoutForServer.length} items)`);
+  sendToInjectionServer(breakoutSorted, label, "material_breakout");
+  showToast(`✅ Material Break Out (RAW) injected for "${label}" (${breakoutSorted.length} items)`);
 }
+
 
 function mergeBySKU(data, allowRounding = true, options = {}) {
   if (!Array.isArray(data) || !data.length) return [];
@@ -856,36 +907,46 @@ function normalizeRawRow(row) {
     normalizedKeys[keyNorm] = key;
   });
 
-  const getValue = (aliases) => {
+  const getValue = (aliases, fallbackRegex) => {
+    // 1) exact/alias match
     for (let alias of aliases) {
       const norm = alias.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/gi, '');
       if (normalizedKeys[norm]) return row[normalizedKeys[norm]];
     }
+    // 2) regex fallback over original keys when no alias hits (e.g., "Usage (Breakout)")
+    if (fallbackRegex) {
+      const hit = Object.keys(row).find(k => fallbackRegex.test(k));
+      if (hit) return row[hit];
+    }
     return "";
   };
 
+  const sku = getValue(["sku", "sku#", "skunumber"]);
+  const desc = getValue(["description"], /(^|\b)desc(ription)?\b(?!\s*2)/i);
+
+  // Map Usage/Desc2 variants to Description2
+  const desc2 = getValue(
+    ["description2", "desc2", "usage", "use", "application"],
+    /(usage|use|application|desc.?2|secondary|alt(ernative)?\s*desc(ription)?)/i
+  );
+
+  // Normalize UOM (SQ variants → "SQ")
+  const rawUom = getValue(["uom","unitofmeasure","units","uomlf","uom(lf)","uom_"], /(u\.?o\.?m|unit.?of.?measure|units?)/i);
+  const normUom = (rawUom || "").toString().trim().toUpperCase().replace(/^SQ(FT)?\.?$/, "SQ");
+
   return {
-    SKU: getValue(["sku", "sku#", "skunumber"]),
-    Description: getValue(["description"]),
-    Description2: getValue(["description2", "desc2"]),
-
-    // 🔽 Put your SQ/SQFT normalization here (replaces the old UOM line)
-    UOM: (() => {
-      const raw = getValue(["uom","unitofmeasure","units","uomlf","uom(lf)","uom_"]);
-      // Normalize common square-foot variants to "SQ"
-      const norm = raw.toString().trim().toUpperCase();
-      // turn "SQ", "SQ.", "SQFT" into "SQ"
-      if (/^SQ(FT)?\.?$/.test(norm)) return "SQ";
-      return norm;
-    })(),
-
-    TotalQty: parseFloat(getValue(["qty", "quantity"])) || 0,
-    ColorGroup: getValue(["colorgroup", "color"]),
-    Folder: getValue(["folder", "elevation"]),
-    Vendor: getValue(["vendor"]),
-    UnitCost: parseFloat(getValue(["unitcost", "cost"])) || 0,
+    SKU: sku,
+    Description: desc,
+    Description2: desc2,
+    UOM: normUom,
+    TotalQty: parseFloat(getValue(["qty", "quantity"], /(qty|quantit(y|ies))/i)) || 0,
+    ColorGroup: getValue(["colorgroup", "color"], /(color\s*group|colour)/i),
+    Folder: getValue(["folder", "elevation"], /(folder|elevation)/i),
+    Vendor: getValue(["vendor"], /(vendor|supplier|manufacturer|mfg)/i),
+    UnitCost: parseFloat(getValue(["unitcost", "cost"], /(unit\s*cost|cost)/i)) || 0,
   };
 }
+
 
 
 function autoResizeInput(input) {
@@ -1204,15 +1265,16 @@ function mergeForMaterialBreakout(data, options = {}) {
 }
 
 // ✅ NEW: finalize payload for server (QTY hardening, both QTY and Qty, rounding)
+// ✅ finalize payload for server (QTY hardening, case-insensitive lookups)
 function finalizeBreakoutForServer(items) {
-  return items
+  return (items || [])
     .filter(r =>
       (r.SKU && String(r.SKU).trim()) ||
       (r.Description2 && String(r.Description2).trim()) ||
       (r.ColorGroup && String(r.ColorGroup).trim())
     )
     .map(r => {
-      // qty (robust + rounded)
+      // qty normalize
       const src = r.TotalQty;
       let n = (typeof src === "number" && isFinite(src))
         ? src
@@ -1220,39 +1282,45 @@ function finalizeBreakoutForServer(items) {
       if (!isFinite(n) || isNaN(n)) n = 0;
       n = Math.round((n + Number.EPSILON) * 1000) / 1000;
 
-      const sku = String(r.SKU ?? "");
-      const lk = skuLookup.get(sku) || {};
+      // lookups
+      const skuRaw = String(r.SKU || "");
+      const skuKey = skuRaw.toUpperCase();
+      const lk = skuLookup.get(skuKey) || {};
 
-      // Prefer Data sheet → row.Description → row.Description2
-      const desc =
+      // sources
+      const usageText = (r.Description2 && String(r.Description2).trim()) || ""; // "Usage"
+      const dataDesc  =
         (lk.Description && String(lk.Description).trim()) ||
-        (r.Description && String(r.Description).trim()) ||
-        (r.Description2 && String(r.Description2).trim()) ||
-        "";
+        (window.primaryDescBySku?.get(skuKey) || ""); // from elevation/data array
+      const rowDesc   = (r.Description && String(r.Description).trim()) || "";
 
-      // Prefer Data sheet UOM → row.UOM
-      const uom =
-        (lk.UOM && String(lk.UOM).trim()) ||
-        (r.UOM && String(r.UOM).trim()) ||
-        "";
+      // 🟩 Column B: prefer Data/row description, then fall back to Usage
+      const descriptionOut = dataDesc || rowDesc || usageText || "";
 
-      const out = {
-        SKU: sku,
-        Description: desc,
-        Description2: String(r.Description2 ?? ""),
+      // 🟦 Column C: keep Usage as-is (no blanking)
+      const description2Out = String(r.Description2 || "");
+
+      const uom = (lk.UOM && String(lk.UOM).trim()) ||
+                  (r.UOM && String(r.UOM).trim()) || "";
+
+      return {
+        SKU: skuRaw,
+        Description: descriptionOut,   // → Column B (long name first)
+        Usage: descriptionOut,         // keep if your backend maps "Usage"; harmless otherwise
+        Description2: description2Out, // → Column C (Usage)
         UOM: uom,
-        ColorGroup: String(r.ColorGroup ?? ""),
-
-        // numeric variants (server-safe)
+        ColorGroup: String(r.ColorGroup || ""),
         QTY: n, Qty: n, qty: n, Quantity: n, TotalQty: n, TOTALQTY: n,
-
-        // string helper for quirky mappers
         QTY_STR: n.toFixed(2)
       };
-      return out;
     });
 }
-55+
+
+
+
+
+
+
 function copyToClipboard(textareaId) {
   const sourceTextarea = document.getElementById(textareaId);
   if (!sourceTextarea) {
@@ -1396,7 +1464,6 @@ function injectSelectedFolder(folder) {
   const filteredData = mergedData.filter(d => d.Folder === folder);
   if (!filteredData.length) return alert(`No data for ${folder}`);
 
-  // Decide type: material_breakout if folder name implies a breakout, else elevation
   const isBreakout = /break\s*out/i.test(folder) || folder.toLowerCase() === "screen porch";
 
   if (isBreakout) {
@@ -1405,19 +1472,26 @@ function injectSelectedFolder(folder) {
     if (!breakoutForServer.length) {
       return alert(`No non-labor items found for "${folder}" in the raw file.`);
     }
-    sendToInjectionServer(breakoutForServer, folder, "material_breakout");
-    showToast(`✅ Material Break Out (RAW) injected for "${folder}" (${breakoutForServer.length} items)`);
+    // 🔹 NEW: A→Z by SKU
+    const breakoutSorted = sortBySkuAscending(breakoutForServer);
+    sendToInjectionServer(breakoutSorted, folder, "material_breakout");
+    showToast(`✅ Material Break Out (RAW) injected for "${folder}" (${breakoutSorted.length} items)`);
     return;
   }
 
-  // Elevation path stays the same (non-labor from merged UI table)
+  // Elevation path (non-labor only)
   const nonLabor = filteredData.filter(d => !/labor/i.test(d.SKU));
   if (!nonLabor.length) {
     return alert(`No non-labor data to inject for ${folder}`);
   }
-  sendToInjectionServer(nonLabor, folder, "elevation");
+
+  // 🔹 NEW: A→Z by SKU
+  const elevationSorted = sortBySkuAscending(nonLabor);
+
+  sendToInjectionServer(elevationSorted, folder, "elevation");
   showToast(`✅ Sent "${folder}" to server (elevation)`);
 }
+
 
 function parseLaborRate(value) {
   if (!value) return null;
@@ -1485,7 +1559,6 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
         QTY_STR: n.toFixed(2)
       };
     });
-    // ✅ Ensure takeoff/elevation sheet EXCLUDES UOM and is sorted by SKU
    // ✅ Keep UOM for elevation sheet so the server can skip rounding on SQ
 const elevationSanitized = (elevationData || [])
   .map(item => {
@@ -1498,22 +1571,19 @@ const elevationSanitized = (elevationData || [])
     return {
       ...item,
       UOM: normUOM,
-      // explicit signal for your .xlsb builder
       NoRound: normUOM === "SQ"
     };
   })
-  // optional: keep sorted by SKU
   .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
  
 
-    // ✅ Keep UOM in breakout, but sort by SKU
     const hardenedBreakoutSorted = (hardenedBreakout || [])
       .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
 
 
     const payload = {
-      data: elevationSanitized,         // elevation sheet
-      breakout: hardenedBreakoutSorted,  // material breakout sheet
+      data: elevationSanitized,         
+      breakout: hardenedBreakoutSorted,  
       type: "combined",
       metadata,
       laborRates
