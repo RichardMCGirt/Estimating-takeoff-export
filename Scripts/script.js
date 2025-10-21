@@ -9,7 +9,7 @@ let toggleButton;
 let skuLookup = new Map(); 
 
 const BREAKOUT_GROUP_BY = "desc2+sku"; 
-const baseServer = "https://0db55aee72cf.ngrok-free.app"
+const baseServer = "https://79aa70a807b5.ngrok-free.app"
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
