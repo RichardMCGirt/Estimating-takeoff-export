@@ -6,14 +6,10 @@ let html = "";
 let tsvContent = `SKU\tDescription\tDescription 2\tUOM\tQTY\tColor Group\n`;
 let allSelected = false;
 let toggleButton;
-let skuLookup = new Map(); // SKU -> { Description, UOM }
-// Define exact column order for "Material Break Out" sheet
-
+let skuLookup = new Map(); 
 
 const BREAKOUT_GROUP_BY = "desc2+sku"; 
-
-const baseServer = "https://3626f0267038.ngrok-free.app"
-
+const baseServer = "https://488ef21ec3ac.ngrok-free.app"
 const defaultServer = `${baseServer}/inject`;
 const savedServer = localStorage.getItem("injectionServerURL");
 const serverURL = savedServer || defaultServer;
@@ -25,7 +21,6 @@ function sortBySkuAscending(arr) {
   );
 }
 document.addEventListener("DOMContentLoaded", () => {
-  // === 1. Attach Input Listeners for Labor Rates Form ===
   attachLaborRateInputListeners();
 
   const estimateForm = document.getElementById("estimateForm");
@@ -45,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === 2. Restore Saved Fields or Set Today's Date ===
   if (typeof fields !== "undefined" && Array.isArray(fields)) {
     fields.forEach(field => {
       const input = document.querySelector(`[name="${field}"]`);
@@ -56,13 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // === 3. Handle Source File Upload ===
   const fileInput = document.getElementById('sourceFile');
   if (fileInput) {
     fileInput.addEventListener('change', handleSourceUpload);
   }
 
-  // === 4. Input Logging for Labor Rates ===
   const laborForm = document.getElementById("laborRatesForm");
   if (laborForm) {
     laborForm.querySelectorAll("input[name]").forEach(input => {
@@ -74,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.warn("⚠️ laborRatesForm not found.");
   }
 
-  // === 5. Restore Session from localStorage ===
   const storedData = localStorage.getItem("mergedData");
   if (storedData) {
     try {
@@ -89,11 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // === 6. Dark Mode Toggle Setup ===
   const toggleButton = document.getElementById("darkModeToggle");
   const body = document.body;
-
-  // Set initial theme based on localStorage
   const darkModeEnabled = localStorage.getItem("darkMode") === "true";
   if (darkModeEnabled) body.classList.add("dark");
   else body.classList.remove("dark");
@@ -108,46 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(`🌓 Toggled dark mode: ${isNowDark}`);
     });
   }
-// --- Sorting helper: A → Z by SKU (case-insensitive) ---
-
-
-  // Build a SKU lookup from the "Data" sheet rows
-function buildSkuLookupFromData(dataRows) {
-  const map = new Map();
-  if (!Array.isArray(dataRows)) return map;
-
-  const norm = s => s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-  const pick = (row, names) => {
-    const idx = {};
-    for (const k of Object.keys(row)) idx[norm(k)] = k;
-    for (const name of names) {
-      const key = idx[norm(name)];
-      if (key) return row[key];
-    }
-    return '';
-  };
-
-  for (const r of dataRows) {
-    const rawSku = String(pick(r, ['SKU','SKU#','SkuNumber','Product Number','ProductNumber'])).trim();
-    if (!rawSku) continue;
-
-    const skuKey = rawSku.toUpperCase(); // normalize key
-    // Prefer a true Description; if missing, accept Usage-like columns
-    const desc =
-      String(pick(r, ['Description','Product Description','Desc'])).trim() ||
-      String(pick(r, ['Usage','Use','Application','Description2','Desc2'])).trim();
-
-    const uom  = String(pick(r, ['UOM','Unit of Measure','Units'])).trim();
-
-    if (!map.has(skuKey)) {
-      map.set(skuKey, { Description: desc, UOM: uom });
-    }
-  }
-  return map;
-}
-
-
-
 
   function updateButtonText() {
     if (!toggleButton) return;
@@ -156,7 +104,6 @@ function buildSkuLookupFromData(dataRows) {
   }
 });
 
-// ✅ Build Material Break Out strictly from RAW file
 function buildBreakoutFromRaw(folder) {
   const allRaw = Array.isArray(rawSheetData) ? rawSheetData : [];
 
@@ -169,10 +116,8 @@ function buildBreakoutFromRaw(folder) {
   const normalizedAll = isAlreadyNormalized ? allRaw : allRaw.map(normalizeRawRow);
   const scoped = folder ? normalizedAll.filter(d => d.Folder === folder) : normalizedAll;
 
-  // Non-labor only
   const nonLaborRows = scoped.filter(d => !/labor/i.test(String(d.SKU || "")));
 
-  // Use the configured grouping
 const mode =
   BREAKOUT_GROUP_BY === "desc2"     ? "DESC2_COLOR" :
   BREAKOUT_GROUP_BY === "sku"       ? "SKU_COLOR"   :
@@ -180,9 +125,7 @@ const mode =
                                       "DESC2_COLOR_SKU";
 
 const merged = mergeForMaterialBreakout(nonLaborRows, { mode });
-// Build a fallback map from the "data" array (elevation/data sheet)
-// so breakouts can use a primary (long) description when Usage is blank.
-// Build a fallback map from the elevation rows for THIS folder (from mergedData)
+
 const elevationData = Array.isArray(mergedData)
   ? mergedData.filter(d => !/labor/i.test(String(d.SKU || "")) && (!folder || d.Folder === folder))
   : [];
@@ -194,14 +137,10 @@ const primaryDescBySku = new Map();
   if (sku && d) primaryDescBySku.set(sku, d);
 });
 
-// expose for finalizeBreakoutForServer via window
 window.primaryDescBySku = primaryDescBySku;
 
-
-// ✅ Use the actual merged rows
 const breakoutForServer = finalizeBreakoutForServer(merged);
 
-// expose + debug (keep this)
 window.breakoutForServer = breakoutForServer;
 console.table(breakoutForServer.map(r => ({
   SKU: r.SKU,
@@ -213,14 +152,8 @@ console.table(breakoutForServer.map(r => ({
   Color: r.ColorGroup
 })));
 
-
-
-
   return breakoutForServer;
 }
-
-
-
 
 function getFormMetadata() {
   const fields = [
@@ -244,7 +177,6 @@ function getFormMetadata() {
 }
 
 function detectCollapsedColors(normalizedRows, merged) {
-  // Map raw SKU+Folder → set of colors
   const rawMap = new Map();
   for (const r of normalizedRows) {
     const sku = (r.SKU || "").toString().trim().toUpperCase();
@@ -256,7 +188,6 @@ function detectCollapsedColors(normalizedRows, merged) {
     if (color) rawMap.get(k).add(color);
   }
 
-  // Map merged SKU+Folder → set of colors present after merge
   const mergedMap = new Map();
   for (const m of merged) {
     const sku = (m.SKU || "").toString().trim().toUpperCase();
@@ -349,18 +280,15 @@ console.log("📑 Detected Data sheet:", dataName || "(none)");
     }
     const json = XLSX.utils.sheet_to_json(templateSheet, { defval: "" });
 
-    // Flag template
     window.isTakeoffTemplate = (templateName || "").trim().toLowerCase().includes("takeoff");
     console.log("📄 Loaded sheet:", templateName, "→ isTakeoffTemplate =", window.isTakeoffTemplate);
 
-   // 🔹 Build SKU lookup from Data sheet (if present)
 if (dataName && workbook.Sheets[dataName]) {
   const dataRows = XLSX.utils.sheet_to_json(workbook.Sheets[dataName], { defval: "" });
   skuLookup = buildSkuLookupFromData(dataRows);
 
-  // ⬇️ ADD THESE
   console.log("🔎 SKU lookup size:", skuLookup.size);
-  console.log('lookup hit?', skuLookup.has('JHLSP814CP')); // use uppercased SKU
+  console.log('lookup hit?', skuLookup.has('JHLSP814CP')); 
   console.log('lookup entry', skuLookup.get('JHLSP814CP'));
 
   try { localStorage.setItem('skuLookup', JSON.stringify([...skuLookup])); } catch {}
@@ -370,19 +298,14 @@ if (dataName && workbook.Sheets[dataName]) {
   console.warn("⚠️ No Data sheet found; Description/UOM will fallback to row/desc2.");
 }
 
-
-    // ✅ Normalize ONCE for mergedData display
     const normalizedRows = json.map(normalizeRawRow);
 
-    // ✅ Keep original raw rows for raw-based builders
     rawSheetData = json;
 
-    // Build merged data for UI
     mergedData = mergeBySKU(normalizedRows, true, {
       respectColorGroupOnTakeoff: true
     });
 
-    // Safety net for color collapse
     if (detectCollapsedColors(normalizedRows, mergedData)) {
       console.warn("🧯 Detected collapsed colors after merge — rebuilding with color-enforced merge.");
       mergedData = enforceColorSplit(normalizedRows, true);
@@ -413,7 +336,6 @@ if (dataName && workbook.Sheets[dataName]) {
 
   reader.readAsArrayBuffer(file);
 }
-
 
 function injectMultipleFolders(folders) {
   if (!folders.length) return;
@@ -462,7 +384,6 @@ function injectMultipleFolders(folders) {
 
   showToast(`📦 Creating ${folders.length} folder(s)...`);
 }
-
 
 // 🔁 Always source Material Break Out from RAW file
 function injectMaterialBreakout() {
@@ -535,7 +456,6 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
     qty:         getHeaderMatch(["qty", "quantity"], normalizedHeaders),
   };
 
-  // --- Pre-scan: detect if any SKU+Folder has multiple Color Groups ---
   const colorSets = new Map(); // keyNoColor -> Set of COLOR KEYS
   if (colMap.colorgroup) {
     for (const row of data) {
@@ -584,7 +504,6 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
     const folderNorm = folder.toLowerCase();
     const keyNoColor = `${skuNorm}___${folderNorm}`;
 
-    // Display vs key: keep original case for display, use uppercase for grouping
     let colorDisplay = "";
     let colorKey = "";
     if (colMap.colorgroup) {
@@ -633,6 +552,14 @@ const skipRounding = !allowRounding || isLabor || ["SQ","SQ.","SQFT","SQUARE FT"
   }
 
   return merged;
+}
+// --- CORS-safe header builder for the injection server ---
+function buildInjectionHeaders(serverURL) {
+  const headers = { "Content-Type": "application/json" };
+  // Skip X-Debug when talking to ngrok to avoid preflight rejection
+  const isNgrok = /(?:^https?:\/\/)?[^/]*ngrok-free\.app/i.test(serverURL || "");
+  if (!isNgrok) headers["X-Debug"] = "1";
+  return headers;
 }
 
 function injectDynamicElevation(folderName) {
@@ -899,7 +826,6 @@ function disableAllFolderButtons(disabled, message = "") {
   checkboxes.forEach(cb => { cb.disabled = disabled; });
 }
 
-
 function normalizeRawRow(row) {
   const normalizedKeys = {};
   Object.keys(row).forEach(key => {
@@ -946,8 +872,6 @@ function normalizeRawRow(row) {
     UnitCost: parseFloat(getValue(["unitcost", "cost"], /(unit\s*cost|cost)/i)) || 0,
   };
 }
-
-
 
 function autoResizeInput(input) {
   input.style.width = '1px';
@@ -1020,7 +944,6 @@ function renderFolderButtons() {
 
   container.appendChild(injectBtn);
 }
-
 
 /* ===== Toast system (drop-in, no deps) ===== */
 (function injectToastCSSOnce() {
@@ -1264,7 +1187,6 @@ function mergeForMaterialBreakout(data, options = {}) {
   return Object.values(result);
 }
 
-// ✅ NEW: finalize payload for server (QTY hardening, both QTY and Qty, rounding)
 // ✅ finalize payload for server (QTY hardening, case-insensitive lookups)
 function finalizeBreakoutForServer(items) {
   return (items || [])
@@ -1316,11 +1238,6 @@ function finalizeBreakoutForServer(items) {
     });
 }
 
-
-
-
-
-
 function copyToClipboard(textareaId) {
   const sourceTextarea = document.getElementById(textareaId);
   if (!sourceTextarea) {
@@ -1340,8 +1257,8 @@ function copyToClipboard(textareaId) {
     if (sku.includes("labor")) return null;
 
     while (cols.length < 6) cols.push("");
-    cols[1] = ""; // Blank description
-    cols[3] = ""; // Blank UOM
+    cols[1] = ""; 
+    cols[3] = ""; 
     const modified = cols.join("\t");
     console.log(`✅ Modified line ${index + 2}:`, modified);
     return modified;
@@ -1492,13 +1409,32 @@ function injectSelectedFolder(folder) {
   showToast(`✅ Sent "${folder}" to server (elevation)`);
 }
 
-
 function parseLaborRate(value) {
   if (!value) return null;
   const cleaned = value.toString().replace(/[^\d.\-]/g, '');
   const num = parseFloat(cleaned);
   return isNaN(num) ? null : num;
 }
+// Persist a different injection server without editing code
+window.setInjectionServer = (u) => {
+  localStorage.setItem("injectionServerURL", u);
+  location.reload();
+};
+
+// Quick ping to see what the server returns
+window.debugPing = async () => {
+  try {
+    const r = await fetch(serverURL, {
+      method: "POST",
+      headers: buildInjectionHeaders(serverURL),
+      body: JSON.stringify({ ping: "test", type: "ping" })
+    });
+    const txt = await r.text();
+    console.log("🔎 PING status:", r.status, "body:", txt);
+  } catch (e) {
+    console.error("PING error", e);
+  }
+};
 
 function getLaborRates() {
   const laborRates = {};
@@ -1536,9 +1472,7 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
 
     const laborRates = getLaborRates();
 
-    // 🔐 Ensure breakout ships every qty variant as numbers
-    const hardenedBreakout = breakoutData.map(item => {
-      // prefer numeric QTY already present
+    const hardenedBreakout = (breakoutData || []).map(item => {
       let n = item.QTY;
       if (!(typeof n === "number" && isFinite(n))) {
         const cand = item.Qty ?? item.qty ?? item.Quantity ?? item.TotalQty ?? item.QTY_STR;
@@ -1559,31 +1493,27 @@ function sendToInjectionServerDualSheet(elevationData, breakoutData, folderName,
         QTY_STR: n.toFixed(2)
       };
     });
-   // ✅ Keep UOM for elevation sheet so the server can skip rounding on SQ
-const elevationSanitized = (elevationData || [])
-  .map(item => {
-    // normalize UOM for safety (SQ, SQ., SQFT → SQ)
-    const normUOM = String(item.UOM || "")
-      .trim()
-      .toUpperCase()
-      .replace(/^SQ(FT)?\.?$/, "SQ");
 
-    return {
-      ...item,
-      UOM: normUOM,
-      NoRound: normUOM === "SQ"
-    };
-  })
-  .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
- 
+    const elevationSanitized = (elevationData || [])
+      .map(item => {
+        const normUOM = String(item.UOM || "")
+          .trim()
+          .toUpperCase()
+          .replace(/^SQ(FT)?\.?$/, "SQ");
+        return {
+          ...item,
+          UOM: normUOM,
+          NoRound: normUOM === "SQ"
+        };
+      })
+      .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
 
     const hardenedBreakoutSorted = (hardenedBreakout || [])
       .sort((a,b) => (String(a?.SKU||'').toUpperCase()).localeCompare(String(b?.SKU||'').toUpperCase()));
 
-
     const payload = {
-      data: elevationSanitized,         
-      breakout: hardenedBreakoutSorted,  
+      data: elevationSanitized,
+      breakout: hardenedBreakoutSorted,
       type: "combined",
       metadata,
       laborRates
@@ -1591,15 +1521,17 @@ const elevationSanitized = (elevationData || [])
 
     console.log("🚀 Sending payload", payload);
 
+    // use the same serverURL already defined in your app
     fetch(serverURL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+headers: buildInjectionHeaders(serverURL),
       body: JSON.stringify(payload)
     })
-      .then(response => {
+      .then(async (response) => {
         if (response.status === 429) {
           if (attempt < MAX_RETRIES) {
-            showToast(`⏳ Server busy, retrying "${folderName}" in ${RETRY_DELAY / 1000}s...`);
+            const delaySec = RETRY_DELAY / 1000;
+            showToast(`⏳ Server busy, retrying "${folderName}" in ${delaySec}s...`);
             setTimeout(() => {
               enqueueRequest(() =>
                 sendToInjectionServerDualSheet(elevationData, hardenedBreakout, folderName, attempt + 1)
@@ -1607,18 +1539,26 @@ const elevationSanitized = (elevationData || [])
               resolve();
             }, RETRY_DELAY);
           } else {
-            showToast(`❌ "${folderName}" failed after ${MAX_RETRIES} retries`);
+            const msg = `"${folderName}" failed after ${MAX_RETRIES} retries`;
+            console.error(msg);
+            showToast(`❌ ${msg}`);
             reject(new Error("Max retries reached"));
           }
-          return;
+          return null;
         }
 
-        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+        if (!response.ok) {
+          const errText = await response.text().catch(() => "");
+          const errMsg = `Server returned ${response.status}${errText ? `: ${errText}` : ""}`;
+          console.error("❌ Injection error detail:", errMsg);
+          showToast(`❌ Injection failed for "${folderName}": ${errMsg}`);
+          throw new Error(errMsg);
+        }
+
         return response.blob();
       })
       .then(blob => {
         if (!blob) return;
-
         const safe = val => (val || "").toString().trim().replace(/[<>:"/\\|?*]+/g, "_");
         const elevationForFile = folderName || metadata.elevation || "";
         const fileName = `Takeoff - ${safe(metadata.builder)} - ${safe(metadata.planName)} - ${safe(elevationForFile)} - ${safe(metadata.materialType)}.xlsb`;
@@ -1634,9 +1574,15 @@ const elevationSanitized = (elevationData || [])
         resolve();
       })
       .catch(error => {
-        showToast(`❌ Injection failed for "${folderName}": ${error.message}`);
+        if (error && error.message) {
+          console.error("❌ Injection catch:", error.message);
+        } else {
+          console.error("❌ Injection catch:", error);
+        }
+        // toast already shown above; still reject so callers see failure
         reject(error);
       });
   });
 }
+
 
