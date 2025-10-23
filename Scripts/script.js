@@ -536,7 +536,7 @@ function mergeBySKU(data, allowRounding = true, options = {}) {
   const merged = Object.values(result).map(item => {
     const isLabor = item.SKU?.toLowerCase().includes("labor");
    const uom = (item.UOM ?? "").toString().trim().toUpperCase();
-const skipRounding = !allowRounding || isLabor || ["SQ","SQ.","SQFT","SQUARE FT"].includes(uom);
+const skipRounding = !allowRounding || isLabor || uom === "SQ";
 
     if (!skipRounding) {
       item.TotalQty = Math.ceil(Math.abs(item.TotalQty)); // always round up
@@ -858,7 +858,15 @@ function normalizeRawRow(row) {
 
   // Normalize UOM (SQ variants → "SQ")
   const rawUom = getValue(["uom","unitofmeasure","units","uomlf","uom(lf)","uom_"], /(u\.?o\.?m|unit.?of.?measure|units?)/i);
-  const normUom = (rawUom || "").toString().trim().toUpperCase().replace(/^SQ(FT)?\.?$/, "SQ");
+// NEW — normalize many square variants to exactly "SQ"
+const normUom = (rawUom || "")
+  .toString()
+  .trim()
+  .toUpperCase()
+  // collapse spaces/dots
+  .replace(/\s+/g, " ")
+  // map common variants to SQ
+  .replace(/^(SQ(\s*FT)?|SQ\.?\s*FT\.?|SQUARE(\s*FEET|\s*FT)?|SQFT|SQ-FT|SQ\/FT|SQ\s*FEET)$/, "SQ");
 
   return {
     SKU: sku,
@@ -1584,5 +1592,3 @@ headers: buildInjectionHeaders(serverURL),
       });
   });
 }
-
-
